@@ -2,6 +2,4 @@ streamlit==1.28.2
 langchain==0.0.338
 langchain-community==0.0.13
 sentence-transformers==2.2.2
-transformers==4.35.2
-huggingface-hub==0.19.4
 numpy>=1.22.0

@@ -4,12 +4,8 @@ import xml.etree.ElementTree as ET
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
 import numpy as np
 import pickle
-from typing import List, Dict, Any
-from langchain.llms.huggingface_hub import HuggingFaceHub
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -18,79 +14,24 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state variables
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
-if 'vectorstore' not in st.session_state:
-    st.session_state.vectorstore = None
-if 'qa_chain' not in st.session_state:
-    st.session_state.qa_chain = None
-
 # Define namespaces for XML-TEI documents
 NAMESPACES = {
     'tei': 'http://www.tei-c.org/ns/1.0'
 }
 
-# Simple vector store implementation
-class SimpleVectorStore:
-    def __init__(self, embedding_function):
-        self.embedding_function = embedding_function
-        self.documents = []
-        self.embeddings = []
-        
-    def add_documents(self, documents):
-        texts = [doc.page_content for doc in documents]
-        embeddings = self.embedding_function.embed_documents(texts)
-        
-        self.documents.extend(documents)
-        self.embeddings.extend(embeddings)
-        
-    def similarity_search_with_score(self, query, k=4):
-        query_embedding = self.embedding_function.embed_query(query)
-        
-        if not self.embeddings:
-            return []
-        
-        similarities = []
-        for i, doc_embedding in enumerate(self.embeddings):
-            similarity = self._cosine_similarity(query_embedding, doc_embedding)
-            similarities.append((i, similarity))
-        
-        # Sort by similarity score (higher is better)
-        sorted_similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
-        
-        # Return top k results
-        results = []
-        for i, score in sorted_similarities[:k]:
-            results.append((self.documents[i], score))
-        
-        return results
-    
-    def _cosine_similarity(self, a, b):
-        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-    
-    def save(self, path):
-        with open(path, 'wb') as f:
-            pickle.dump((self.documents, self.embeddings), f)
-    
-    def load(self, path):
-        with open(path, 'rb') as f:
-            self.documents, self.embeddings = pickle.load(f)
-            
-    def as_retriever(self, search_kwargs=None):
-        return SimpleRetriever(self, search_kwargs)
-
-class SimpleRetriever:
-    def __init__(self, vectorstore, search_kwargs=None):
-        self.vectorstore = vectorstore
-        self.search_kwargs = search_kwargs or {"k": 4}
-        
-    def get_relevant_documents(self, query):
-        results = self.vectorstore.similarity_search_with_score(
-            query, 
-            k=self.search_kwargs.get("k", 4)
-        )
-        return [doc for doc, _ in results]
+# Initialize session state variables
+if 'messages' not in st.session_state:
+    st.session_state.messages = []
+if 'documents' not in st.session_state:
+    st.session_state.documents = []
+if 'chunks' not in st.session_state:
+    st.session_state.chunks = []
+if 'embeddings' not in st.session_state:
+    st.session_state.embeddings = []
+if 'embedding_function' not in st.session_state:
+    st.session_state.embedding_function = None
+if 'is_ready' not in st.session_state:
+    st.session_state.is_ready = False
 
 # Function to parse XML-TEI documents
 def parse_xmltei_document(file_path):
@@ -173,12 +114,14 @@ def create_documents_from_xml_files():
     
     return documents
 
-# Function to create vectorstore from documents
-def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
-    """Create a vectorstore from the provided documents."""
+def initialize_system(api_key, chunk_size=1000, chunk_overlap=100):
+    """Initialize the RAG system by processing documents and creating embeddings."""
+    # Process XML files and create documents
+    documents = create_documents_from_xml_files()
+    
     if not documents:
-        st.error("No documents to process.")
-        return None
+        st.error("No documents found to process.")
+        return False
     
     # Split documents into chunks
     st.info(f"Splitting {len(documents)} documents into chunks...")
@@ -195,69 +138,65 @@ def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
-    # Create our simple vectorstore
-    st.info("Creating vector database...")
-    vectorstore = SimpleVectorStore(embedding_function)
-    vectorstore.add_documents(chunks)
+    # Create embeddings for all chunks
+    st.info("Creating vector embeddings...")
+    texts = [doc.page_content for doc in chunks]
+    embeddings = embedding_function.embed_documents(texts)
     
-    # Save the vectorstore to a file for persistence
-    os.makedirs("vectorstore", exist_ok=True)
-    vectorstore.save("vectorstore/index.pkl")
+    # Store in session state
+    st.session_state.documents = documents
+    st.session_state.chunks = chunks
+    st.session_state.embeddings = embeddings
+    st.session_state.embedding_function = embedding_function
+    st.session_state.is_ready = True
     
-    return vectorstore
+    return True
 
-# Function to setup LLM with Hugging Face API
-@st.cache_resource
-def get_llm(model_name, api_key):
-    """Setup LLM using Hugging Face API"""
-    if not api_key:
-        return None
+def search_similar_documents(query, k=3):
+    """Search for documents similar to the query."""
+    if not st.session_state.is_ready:
+        st.error("System not initialized.")
+        return []
     
-    # Using HuggingFaceHub instead of HuggingFaceEndpoint
-    return HuggingFaceHub(
-        huggingfacehub_api_token=api_key,
-        repo_id=model_name,
-        model_kwargs={"temperature": 0.7, "max_length": 512, "top_p": 0.95}
-    )
+    # Get query embedding
+    query_embedding = st.session_state.embedding_function.embed_query(query)
+    
+    # Calculate similarity with all chunks
+    similarities = []
+    for i, doc_embedding in enumerate(st.session_state.embeddings):
+        similarity = np.dot(query_embedding, doc_embedding) / (
+            np.linalg.norm(query_embedding) * np.linalg.norm(doc_embedding)
+        )
+        similarities.append((i, similarity))
+    
+    # Sort by similarity (higher is better)
+    sorted_results = sorted(similarities, key=lambda x: x[1], reverse=True)
+    
+    # Return top k results
+    top_results = []
+    for i, score in sorted_results[:k]:
+        top_results.append((st.session_state.chunks[i], score))
+    
+    return top_results
 
-# Function to setup QA chain
-def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
-    """Setup the QA chain with the vectorstore and LLM"""
-    # Get LLM
-    llm = get_llm(model_name, api_key)
-    if not llm:
-        return None
+def generate_answer(query, context):
+    """Generate an answer based on the retrieved context."""
+    # Simple template for the answer
+    answer = f"""
+Sur la base des informations trouvées dans les documents, voici une réponse à votre question :
+
+"{query}"
+
+Les documents pertinents indiquent que :
+"""
     
-    # Define custom prompt template
-    template = """Tu es un assistant spécialisé qui répond aux questions basées uniquement sur les informations fournies.
+    # Add context from each document
+    for i, (doc, _) in enumerate(context):
+        answer += f"\n- {doc.page_content[:500]}...\n"
+        
+    answer += "\n\nCeci est un résumé des informations disponibles dans les documents fournis."
     
-    Contexte:
-    {context}
-    
-    Question: {question}
-    
-    Réponds de manière précise et informative en utilisant uniquement les informations du contexte. 
-    Si l'information ne se trouve pas dans le contexte, dis simplement que tu ne disposes pas de cette information.
-    Réponse:"""
-    
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["context", "question"]
-    )
-    
-    # Create retriever
-    retriever = vectorstore.as_retriever(search_kwargs={"k": k_value})
-    
-    # Create QA chain
-    chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": prompt}
-    )
-    
-    return chain
+    return answer
 
 # Main UI
 st.title("🤖 Démonstrateur de RAG")
@@ -276,13 +215,6 @@ with st.sidebar:
         st.warning("Veuillez entrer votre clé API Hugging Face pour utiliser les modèles.")
         st.info("Vous pouvez obtenir une clé API gratuite sur [huggingface.co](https://huggingface.co/settings/tokens)")
     
-    # Model selection
-    llm_model = st.selectbox(
-        "Modèle LLM",
-        ["mistralai/Mistral-7B-Instruct-v0.1", "meta-llama/Llama-2-7b-chat-hf", "bigscience/bloom"],
-        index=0
-    )
-    
     # Chunking parameters
     st.subheader("Paramètres de découpage")
     chunk_size = st.slider("Taille des chunks", 500, 2000, 1000)
@@ -296,35 +228,16 @@ with st.sidebar:
         if not hf_api_key:
             st.error("Veuillez entrer votre clé API Hugging Face pour continuer.")
         else:
-            # Create vectorstore from XML files
-            with st.spinner("Création de la base de connaissances..."):
-                # Process XML files and create documents
-                documents = create_documents_from_xml_files()
-                
-                if documents:
-                    # Create vectorstore from documents
-                    vectorstore = create_vectorstore(documents, chunk_size, chunk_overlap)
-                    
-                    if vectorstore:
-                        st.session_state.vectorstore = vectorstore
-                        st.success(f"Base de connaissances créée avec {len(documents)} documents!")
-                        
-                        # Setup QA chain
-                        with st.spinner("Configuration du modèle de génération..."):
-                            qa_chain = setup_qa_chain(vectorstore, llm_model, hf_api_key, k_value)
-                            
-                            if qa_chain:
-                                st.session_state.qa_chain = qa_chain
-                                st.success("Système initialisé avec succès!")
-                            else:
-                                st.error("Erreur lors de la configuration du modèle de génération.")
-                    else:
-                        st.error("Erreur lors de la création de la base de connaissances.")
+            # Initialize system
+            with st.spinner("Initialisation du système..."):
+                success = initialize_system(hf_api_key, chunk_size, chunk_overlap)
+                if success:
+                    st.success("Système initialisé avec succès!")
                 else:
-                    st.error("Aucun document trouvé pour créer la base de connaissances.")
+                    st.error("Erreur lors de l'initialisation du système.")
 
 # Chat interface
-if st.session_state.vectorstore is not None and st.session_state.qa_chain is not None:
+if st.session_state.is_ready:
     # Display existing messages
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -343,22 +256,23 @@ if st.session_state.vectorstore is not None and st.session_state.qa_chain is not
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             
-            # Use the QA chain to get response
             try:
-                with st.spinner("Génération de la réponse..."):
-                    result = st.session_state.qa_chain({"query": prompt})
-                    answer = result["result"]
-                    source_docs = result.get("source_documents", [])
+                with st.spinner("Recherche de documents pertinents..."):
+                    # Search for similar documents
+                    results = search_similar_documents(prompt, k=k_value)
+                    
+                    # Generate answer
+                    answer = generate_answer(prompt, results)
                 
                 # Display the answer
                 message_placeholder.markdown(answer)
                 
                 # Display source documents
-                if source_docs:
+                if results:
                     st.markdown("---")
                     st.markdown("**Sources:**")
-                    for i, doc in enumerate(source_docs):
-                        with st.expander(f"Source {i+1}"):
+                    for i, (doc, score) in enumerate(results):
+                        with st.expander(f"Source {i+1} (Similarité: {score:.4f})"):
                             st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
                             st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
                             st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
@@ -377,4 +291,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Démonstration RAG - Développé avec Langchain et Streamlit")
+st.markdown("Démonstration RAG - Version simplifiée")
