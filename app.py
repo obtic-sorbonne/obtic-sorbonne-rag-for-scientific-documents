@@ -3,11 +3,13 @@ import os
 import xml.etree.ElementTree as ET
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
-from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+import numpy as np
+import pickle
+from typing import List, Dict, Any
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -28,6 +30,67 @@ if 'qa_chain' not in st.session_state:
 NAMESPACES = {
     'tei': 'http://www.tei-c.org/ns/1.0'
 }
+
+# Simple vector store implementation
+class SimpleVectorStore:
+    def __init__(self, embedding_function):
+        self.embedding_function = embedding_function
+        self.documents = []
+        self.embeddings = []
+        
+    def add_documents(self, documents):
+        texts = [doc.page_content for doc in documents]
+        embeddings = self.embedding_function.embed_documents(texts)
+        
+        self.documents.extend(documents)
+        self.embeddings.extend(embeddings)
+        
+    def similarity_search_with_score(self, query, k=4):
+        query_embedding = self.embedding_function.embed_query(query)
+        
+        if not self.embeddings:
+            return []
+        
+        similarities = []
+        for i, doc_embedding in enumerate(self.embeddings):
+            similarity = self._cosine_similarity(query_embedding, doc_embedding)
+            similarities.append((i, similarity))
+        
+        # Sort by similarity score (higher is better)
+        sorted_similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
+        
+        # Return top k results
+        results = []
+        for i, score in sorted_similarities[:k]:
+            results.append((self.documents[i], score))
+        
+        return results
+    
+    def _cosine_similarity(self, a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    
+    def save(self, path):
+        with open(path, 'wb') as f:
+            pickle.dump((self.documents, self.embeddings), f)
+    
+    def load(self, path):
+        with open(path, 'rb') as f:
+            self.documents, self.embeddings = pickle.load(f)
+            
+    def as_retriever(self, search_kwargs=None):
+        return SimpleRetriever(self, search_kwargs)
+
+class SimpleRetriever:
+    def __init__(self, vectorstore, search_kwargs=None):
+        self.vectorstore = vectorstore
+        self.search_kwargs = search_kwargs or {"k": 4}
+        
+    def get_relevant_documents(self, query):
+        results = self.vectorstore.similarity_search_with_score(
+            query, 
+            k=self.search_kwargs.get("k", 4)
+        )
+        return [doc for doc, _ in results]
 
 # Function to parse XML-TEI documents
 def parse_xmltei_document(file_path):
@@ -112,7 +175,7 @@ def create_documents_from_xml_files():
 
 # Function to create vectorstore from documents
 def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
-    """Create a vectorstore from the provided documents using FAISS instead of Chroma."""
+    """Create a vectorstore from the provided documents."""
     if not documents:
         st.error("No documents to process.")
         return None
@@ -132,20 +195,16 @@ def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
-    # Create vectorstore with FAISS instead of Chroma
-    st.info("Creating vector database with FAISS...")
-    from langchain_community.vectorstores import FAISS
+    # Create our simple vectorstore
+    st.info("Creating vector database...")
+    vectorstore = SimpleVectorStore(embedding_function)
+    vectorstore.add_documents(chunks)
     
-    vectorstore = FAISS.from_documents(
-        chunks, 
-        embedding_function
-    )
-    
-    # Save the index to disk
-    vectorstore.save_local("faiss_index")
+    # Save the vectorstore to a file for persistence
+    os.makedirs("vectorstore", exist_ok=True)
+    vectorstore.save("vectorstore/index.pkl")
     
     return vectorstore
-
 
 # Function to setup LLM with Hugging Face API
 @st.cache_resource
