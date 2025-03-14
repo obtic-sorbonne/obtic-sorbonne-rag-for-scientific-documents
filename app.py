@@ -5,6 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 import requests
 import json
+import time
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -161,10 +162,47 @@ def search_documents(query, k=3):
     # Return top k results or all if fewer
     return sorted_results[:k]
 
+def analyze_documents():
+    """Analyze all the documents to extract frequently mentioned topics."""
+    from collections import Counter
+    import re
+    
+    if not st.session_state.chunks:
+        return "Veuillez d'abord initialiser le système avec des documents."
+    
+    # Combine all text from all chunks
+    all_text = " ".join([chunk.page_content for chunk in st.session_state.chunks])
+    
+    # Extract words (excluding common stopwords)
+    stopwords = set(["le", "la", "les", "un", "une", "des", "et", "ou", "de", "du", "à", "au", "aux", 
+                     "ce", "cette", "ces", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses",
+                     "notre", "nos", "votre", "vos", "leur", "leurs", "en", "dans", "par", "pour", "avec",
+                     "sur", "sous", "est", "sont", "était", "qui", "que", "quoi", "dont", "où", "d'un", "d'une"])
+    
+    words = re.findall(r'\b[a-zA-ZÀ-ÿ]{4,}\b', all_text.lower())
+    words = [word for word in words if word not in stopwords]
+    
+    # Count word frequencies
+    word_counts = Counter(words)
+    
+    # Get the most common words
+    common_words = word_counts.most_common(20)
+    
+    # Format the response
+    response = "Après analyse des documents, voici les sujets les plus fréquemment mentionnés:\n\n"
+    for word, count in common_words:
+        response += f"- \"{word}\": mentionné {count} fois\n"
+    
+    return response
+
 def query_llm_api(api_key, query, context):
     """Query LLM API with the context and question."""
     # Prepare the context from retrieved documents
     context_text = "\n\n".join([doc.page_content for doc, _ in context])
+    
+    # Check if it's a document analysis query
+    if "sujet le plus présent" in query.lower() or "thème principal" in query.lower() or "sujets les plus fréquents" in query.lower():
+        return analyze_documents()
     
     # Construct the prompt
     prompt = f"""Tu es un assistant spécialisé qui répond aux questions basées uniquement sur les informations fournies.
@@ -192,16 +230,58 @@ Si l'information ne se trouve pas dans le contexte, dis simplement que tu ne dis
             }
         }
         
-        response = requests.post(API_URL, headers=headers, json=payload)
-        result = response.json()
+        # Send the request with retries
+        max_retries = 3
+        for attempt in range(max_retries):
+            response = requests.post(API_URL, headers=headers, json=payload)
+            
+            # Check if the response is valid
+            if response.status_code == 200:
+                try:
+                    result = response.json()
+                    
+                    # Extract the generated text from response
+                    if isinstance(result, list) and len(result) > 0:
+                        generated_text = result[0].get("generated_text", "")
+                        if prompt in generated_text:
+                            return generated_text.replace(prompt, "").strip()
+                        return generated_text
+                    elif isinstance(result, dict) and "generated_text" in result:
+                        generated_text = result["generated_text"]
+                        if prompt in generated_text:
+                            return generated_text.replace(prompt, "").strip()
+                        return generated_text
+                    else:
+                        # Handle unexpected response format
+                        return f"La réponse a été reçue mais le format est inattendu. Détails: {str(result)}"
+                
+                except json.JSONDecodeError:
+                    # If not retry-able or last attempt, return the raw response
+                    if attempt == max_retries - 1:
+                        # Fall back to document analysis for context-based answer
+                        return "Impossible de générer une réponse via l'API. Voici les informations des documents pertinents:\n\n" + \
+                               "\n\n".join([f"Document: {doc.metadata.get('title')}\n{doc.page_content[:500]}..." for doc, _ in context])
+                    
+                    # Wait before retrying
+                    time.sleep(2)
+            else:
+                # API error
+                error_msg = f"Erreur API (code {response.status_code}): "
+                try:
+                    error_details = response.json()
+                    error_msg += str(error_details)
+                except:
+                    error_msg += response.text
+                
+                # If not retry-able or last attempt, return the error
+                if attempt == max_retries - 1:
+                    return error_msg
+                
+                # Wait before retrying
+                time.sleep(2)
         
-        # Extract the generated text from response
-        if isinstance(result, list) and len(result) > 0:
-            return result[0].get("generated_text", "").replace(prompt, "").strip()
-        elif "generated_text" in result:
-            return result["generated_text"].replace(prompt, "").strip()
-        else:
-            return "Erreur: Format de réponse inattendu de l'API."
+        # If we've exhausted all retries
+        return "Impossible de générer une réponse après plusieurs tentatives. Veuillez réessayer plus tard."
     
     except Exception as e:
         return f"Erreur lors de la génération de la réponse: {str(e)}"
@@ -265,37 +345,43 @@ if st.session_state.is_ready:
             message_placeholder = st.empty()
             
             try:
-                with st.spinner("Recherche de documents pertinents..."):
-                    # Search for similar documents
-                    results = search_documents(prompt, k=k_value)
-                
-                if not results:
-                    message_placeholder.warning("Aucun document pertinent trouvé pour répondre à votre question.")
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": "Aucun document pertinent trouvé pour répondre à votre question."
-                    })
-                else:
-                    with st.spinner("Génération de la réponse..."):
-                        # Generate answer using Hugging Face API
-                        answer = query_llm_api(hf_api_key, prompt, results)
-                    
-                    # Display the answer
+                # Special case for document analysis
+                if "sujet" in prompt.lower() and ("principal" in prompt.lower() or "fréquent" in prompt.lower() or "présent" in prompt.lower()):
+                    answer = analyze_documents()
                     message_placeholder.markdown(answer)
-                    
-                    # Display source documents
-                    st.markdown("---")
-                    st.markdown("**Sources:**")
-                    for i, (doc, score) in enumerate(results):
-                        with st.expander(f"Source {i+1} (Pertinence: {score:.4f})"):
-                            st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
-                            st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
-                            st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
-                            st.markdown("**Extrait:**")
-                            st.markdown(doc.page_content)
-                    
-                    # Add assistant response to chat history
                     st.session_state.messages.append({"role": "assistant", "content": answer})
+                else:
+                    with st.spinner("Recherche de documents pertinents..."):
+                        # Search for similar documents
+                        results = search_documents(prompt, k=k_value)
+                    
+                    if not results:
+                        message_placeholder.warning("Aucun document pertinent trouvé pour répondre à votre question.")
+                        st.session_state.messages.append({
+                            "role": "assistant", 
+                            "content": "Aucun document pertinent trouvé pour répondre à votre question."
+                        })
+                    else:
+                        with st.spinner("Génération de la réponse..."):
+                            # Generate answer using Hugging Face API
+                            answer = query_llm_api(hf_api_key, prompt, results)
+                        
+                        # Display the answer
+                        message_placeholder.markdown(answer)
+                        
+                        # Display source documents
+                        st.markdown("---")
+                        st.markdown("**Sources:**")
+                        for i, (doc, score) in enumerate(results):
+                            with st.expander(f"Source {i+1} (Pertinence: {score:.4f})"):
+                                st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
+                                st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
+                                st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+                                st.markdown("**Extrait:**")
+                                st.markdown(doc.page_content)
+                        
+                        # Add assistant response to chat history
+                        st.session_state.messages.append({"role": "assistant", "content": answer})
                 
             except Exception as e:
                 error_msg = f"Erreur lors de la génération de la réponse: {str(e)}"
