@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import pickle
+import platform
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -28,6 +29,12 @@ if 'qa_chain' not in st.session_state:
 def load_vectorstore(path):
     """Load a pre-trained vectorstore from disk"""
     try:
+        # Check if the file exists
+        if not os.path.exists(path):
+            st.error(f"Vector store file not found: {path}")
+            st.info("Please make sure the file exists. If you're using Git LFS, verify it was pulled correctly.")
+            return None
+            
         with open(path, "rb") as f:
             vectorstore = pickle.load(f)
         return vectorstore
@@ -88,6 +95,15 @@ def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
     )
     
     return chain
+
+# Display system info for debugging
+if st.sidebar.checkbox("Show debug info", False):
+    st.sidebar.write(f"Platform: {platform.system()}")
+    st.sidebar.write(f"Python version: {platform.python_version()}")
+    if os.path.exists(VECTORSTORE_PATH):
+        st.sidebar.write(f"Vectorstore file exists, size: {os.path.getsize(VECTORSTORE_PATH)/1024/1024:.2f} MB")
+    else:
+        st.sidebar.write("Vectorstore file does not exist!")
 
 # Main UI
 st.title("🤖 Démonstrateur de RAG")
