@@ -1,6 +1,13 @@
 import streamlit as st
 import os
-import torch
+import xml.etree.ElementTree as ET
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.docstore.document import Document
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.llms import HuggingFaceEndpoint
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -8,10 +15,6 @@ st.set_page_config(
     page_icon="🤖",
     layout="wide"
 )
-
-# Path configurations
-VECTORSTORE_PATH = "vectorstore.pkl"
-METADATA_PATH = "vectorstore_metadata.txt"
 
 # Initialize session state variables
 if 'messages' not in st.session_state:
@@ -21,34 +24,120 @@ if 'vectorstore' not in st.session_state:
 if 'qa_chain' not in st.session_state:
     st.session_state.qa_chain = None
 
-# Function to create a new vectorstore from metadata content
-def create_chroma_vectorstore(text_content):
-    """Create a Chroma vectorstore from text content"""
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-    from langchain.docstore.document import Document
-    from langchain_community.vectorstores import Chroma
-    from langchain_community.embeddings import HuggingFaceEmbeddings
+# Define namespaces for XML-TEI documents
+NAMESPACES = {
+    'tei': 'http://www.tei-c.org/ns/1.0'
+}
+
+# Function to parse XML-TEI documents
+def parse_xmltei_document(file_path):
+    """Parse an XML-TEI document and extract text content with metadata."""
+    try:
+        # Parse the XML file
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        
+        # Extract document metadata for context
+        title = root.find('.//tei:titleStmt/tei:title', NAMESPACES)
+        title_text = title.text if title is not None else "Unknown Title"
+        
+        # Extract publication date
+        date = root.find('.//tei:sourceDesc/tei:p/tei:date', NAMESPACES)
+        if date is None:
+            date = root.find('.//tei:sourceDesc/tei:p', NAMESPACES)
+        date_text = date.text if date is not None else "Unknown Date"
+        
+        # Get all paragraphs
+        paragraphs = root.findall('.//tei:p', NAMESPACES)
+        
+        # Create document header with metadata
+        header = f"Document: {title_text} | Date: {date_text}\n\n"
+        
+        # Extract paragraph text
+        all_paragraphs = []
+        for para in paragraphs:
+            para_text = ''.join(para.itertext()).strip()
+            if para_text:
+                all_paragraphs.append(para_text)
+        
+        # Combine header with paragraphs
+        full_text = header + "\n".join(all_paragraphs)
+        
+        return {
+            "title": title_text,
+            "date": date_text,
+            "text": full_text,
+            "paragraphs": all_paragraphs
+        }
+        
+    except Exception as e:
+        st.error(f"Error parsing XML file {file_path}: {str(e)}")
+        return None
+
+# Function to create documents from XML files
+def create_documents_from_xml_files():
+    """Process XML files in the data directory and create documents."""
+    # Check for XML files in the current directory and data directory
+    xml_files = []
+    for path in [".", "data"]:
+        if os.path.exists(path):
+            for file in os.listdir(path):
+                if file.endswith(".xml") or file.endswith(".xmltei"):
+                    file_path = os.path.join(path, file)
+                    xml_files.append(file_path)
     
-    # Create a sample document
-    doc = Document(page_content=text_content, metadata={"source": "Metadata"})
+    if not xml_files:
+        st.error("No XML files found. Please upload XML files to the 'data' directory.")
+        return []
     
-    # Split into chunks
+    # Parse each XML file and create documents
+    documents = []
+    for file_path in xml_files:
+        st.info(f"Processing {file_path}...")
+        doc_data = parse_xmltei_document(file_path)
+        
+        if doc_data:
+            # Create a Document object with metadata
+            doc = Document(
+                page_content=doc_data["text"],
+                metadata={
+                    "source": file_path,
+                    "title": doc_data["title"],
+                    "date": doc_data["date"]
+                }
+            )
+            documents.append(doc)
+    
+    return documents
+
+# Function to create vectorstore from documents
+def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
+    """Create a vectorstore from the provided documents."""
+    if not documents:
+        st.error("No documents to process.")
+        return None
+    
+    # Split documents into chunks
+    st.info(f"Splitting {len(documents)} documents into chunks...")
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
     )
-    docs = text_splitter.split_documents([doc])
+    chunks = text_splitter.split_documents(documents)
+    st.success(f"Created {len(chunks)} chunks.")
     
     # Create embedding function
+    st.info("Initializing embedding model...")
     embedding_function = HuggingFaceEmbeddings(
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
     # Create vectorstore
+    st.info("Creating vector database...")
     vectorstore = Chroma.from_documents(
-        docs, 
+        chunks, 
         embedding_function,
-        collection_name="demo_collection"
+        collection_name="xmltei_documents"
     )
     
     return vectorstore
@@ -57,8 +146,6 @@ def create_chroma_vectorstore(text_content):
 @st.cache_resource
 def get_llm(model_name, api_key):
     """Setup LLM using Hugging Face API"""
-    from langchain_community.llms import HuggingFaceEndpoint
-    
     if not api_key:
         return None
         
@@ -73,9 +160,6 @@ def get_llm(model_name, api_key):
 # Function to setup QA chain
 def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
     """Setup the QA chain with the vectorstore and LLM"""
-    from langchain.chains import RetrievalQA
-    from langchain.prompts import PromptTemplate
-    
     # Get LLM
     llm = get_llm(model_name, api_key)
     if not llm:
@@ -115,23 +199,9 @@ def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
 # Main UI
 st.title("🤖 Démonstrateur de RAG")
 st.markdown("""
-Cette application démontre la fonctionnalité de Retrieval Augmented Generation (RAG) avec une base de connaissances pré-entraînée.
-Posez simplement vos questions sur le contenu de la base de connaissances.
+Cette application démontre la fonctionnalité de Retrieval Augmented Generation (RAG) avec des documents XML-TEI.
+Posez simplement vos questions sur le contenu des documents.
 """)
-
-# Display debug info
-if st.sidebar.checkbox("Show debug info", False):
-    st.sidebar.write(f"CUDA available: {torch.cuda.is_available()}")
-    
-    if os.path.exists(VECTORSTORE_PATH):
-        st.sidebar.write(f"Vectorstore exists: {os.path.getsize(VECTORSTORE_PATH)/1024/1024:.2f} MB")
-    else:
-        st.sidebar.write("Vectorstore does not exist!")
-        
-    if os.path.exists(METADATA_PATH):
-        st.sidebar.write(f"Metadata exists: {os.path.getsize(METADATA_PATH)/1024:.1f} KB")
-    else:
-        st.sidebar.write("Metadata does not exist!")
 
 # Sidebar for configuration
 with st.sidebar:
@@ -150,6 +220,11 @@ with st.sidebar:
         index=0
     )
     
+    # Chunking parameters
+    st.subheader("Paramètres de découpage")
+    chunk_size = st.slider("Taille des chunks", 500, 2000, 1000)
+    chunk_overlap = st.slider("Chevauchement", 0, 200, 100)
+    
     # Top-k retrieval
     k_value = st.slider("Nombre de chunks à récupérer", 1, 5, 3)
     
@@ -158,37 +233,32 @@ with st.sidebar:
         if not hf_api_key:
             st.error("Veuillez entrer votre clé API Hugging Face pour continuer.")
         else:
-            # Create vectorstore from metadata
+            # Create vectorstore from XML files
             with st.spinner("Création de la base de connaissances..."):
-                metadata_content = "Bienvenue dans la démonstration de RAG. Ceci est un texte d'exemple pour la base de connaissances."
+                # Process XML files and create documents
+                documents = create_documents_from_xml_files()
                 
-                # Try to load metadata content if available
-                if os.path.exists(METADATA_PATH):
-                    with open(METADATA_PATH, "r") as f:
-                        metadata_content = f.read()
-                
-                try:
-                    vectorstore = create_chroma_vectorstore(metadata_content)
-                    st.session_state.vectorstore = vectorstore
-                    st.success("Base de connaissances créée avec succès!")
+                if documents:
+                    # Create vectorstore from documents
+                    vectorstore = create_vectorstore(documents, chunk_size, chunk_overlap)
                     
-                    # Setup QA chain
-                    with st.spinner("Configuration du modèle de génération..."):
-                        qa_chain = setup_qa_chain(vectorstore, llm_model, hf_api_key, k_value)
+                    if vectorstore:
+                        st.session_state.vectorstore = vectorstore
+                        st.success(f"Base de connaissances créée avec {len(documents)} documents!")
                         
-                        if qa_chain:
-                            st.session_state.qa_chain = qa_chain
-                            st.success("Système initialisé avec succès!")
-                        else:
-                            st.error("Erreur lors de la configuration du modèle de génération.")
-                except Exception as e:
-                    st.error(f"Erreur lors de la création de la base de connaissances: {str(e)}")
-    
-    # Display metadata if available
-    if os.path.exists(METADATA_PATH):
-        with st.expander("Informations sur la base de connaissances"):
-            with open(METADATA_PATH, "r") as f:
-                st.text(f.read())
+                        # Setup QA chain
+                        with st.spinner("Configuration du modèle de génération..."):
+                            qa_chain = setup_qa_chain(vectorstore, llm_model, hf_api_key, k_value)
+                            
+                            if qa_chain:
+                                st.session_state.qa_chain = qa_chain
+                                st.success("Système initialisé avec succès!")
+                            else:
+                                st.error("Erreur lors de la configuration du modèle de génération.")
+                    else:
+                        st.error("Erreur lors de la création de la base de connaissances.")
+                else:
+                    st.error("Aucun document trouvé pour créer la base de connaissances.")
 
 # Chat interface
 if st.session_state.vectorstore is not None and st.session_state.qa_chain is not None:
@@ -226,6 +296,10 @@ if st.session_state.vectorstore is not None and st.session_state.qa_chain is not
                     st.markdown("**Sources:**")
                     for i, doc in enumerate(source_docs):
                         with st.expander(f"Source {i+1}"):
+                            st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
+                            st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
+                            st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+                            st.markdown("**Extrait:**")
                             st.markdown(doc.page_content)
                 
                 # Add assistant response to chat history

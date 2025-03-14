@@ -1,13 +1,7 @@
 streamlit==1.28.2
 langchain==0.0.338
 langchain-community==0.0.13
-# Vectorstores alternatifs
 chromadb==0.4.22
-faiss-cpu==1.7.4
-hnswlib==0.7.0
-# Pour les modèles d'embedding
 sentence-transformers==2.2.2
 transformers==4.35.2
 huggingface-hub==0.19.4
-# Pour télécharger depuis Google Drive
-gdown==4.7.1
