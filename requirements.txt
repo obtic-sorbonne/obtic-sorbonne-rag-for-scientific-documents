@@ -1,9 +1,8 @@
 streamlit==1.28.2
 langchain==0.0.338
 langchain-community==0.0.13
-faiss-cpu==1.7.4; platform_system != "Linux"
-# Pre-built FAISS for Linux
-pypi-faiss==0.0.11; platform_system == "Linux"
+# Replace faiss-cpu with a pure Python implementation for vector search
+hnswlib==0.7.0
 # For embedding models
 sentence-transformers==2.2.2
 transformers==4.35.2

@@ -1,10 +1,13 @@
 import streamlit as st
 import os
 import pickle
-import platform
+import gdown
 from langchain_community.llms import HuggingFaceEndpoint
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain_community.vectorstores import FAISS, Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+import platform
 
 # Set page configuration
 st.set_page_config(
@@ -13,8 +16,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# Path to your pre-trained vectorstore
+# Path configurations
 VECTORSTORE_PATH = "vectorstore.pkl"
+BACKUP_URL = "https://drive.google.com/file/d/1JuMct3RweKjzEVWVVSYo_afGUz6EQQWA/view?usp=sharing"
 
 # Initialize session state variables
 if 'messages' not in st.session_state:
@@ -24,23 +28,81 @@ if 'vectorstore' not in st.session_state:
 if 'qa_chain' not in st.session_state:
     st.session_state.qa_chain = None
 
+# If we can't load the existing vectorstore, we'll try to create a new one from the content
+def convert_faiss_to_chroma(faiss_store_path):
+    """Convert a FAISS vectorstore to Chroma which doesn't use FAISS"""
+    try:
+        # Load the FAISS store
+        with open(faiss_store_path, "rb") as f:
+            faiss_store = pickle.load(f)
+        
+        # Extract the documents and their embeddings
+        docs = []
+        for doc_id in faiss_store.docstore._dict:
+            docs.append(faiss_store.docstore._dict[doc_id])
+        
+        # Create a new embedding function
+        embedding_function = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        )
+        
+        # Create a Chroma vectorstore from the documents
+        chroma_store = Chroma.from_documents(
+            docs, 
+            embedding_function,
+            collection_name="converted_from_faiss"
+        )
+        
+        return chroma_store
+    except Exception as e:
+        st.error(f"Error converting vectorstore: {str(e)}")
+        return None
+
 # Function to load the pre-trained vectorstore
 @st.cache_resource
 def load_vectorstore(path):
     """Load a pre-trained vectorstore from disk"""
+    # Try different methods to load the vectorstore
+    
+    # Method 1: Direct loading of the pickle file
     try:
-        # Check if the file exists
-        if not os.path.exists(path):
-            st.error(f"Vector store file not found: {path}")
-            st.info("Please make sure the file exists. If you're using Git LFS, verify it was pulled correctly.")
-            return None
-            
-        with open(path, "rb") as f:
-            vectorstore = pickle.load(f)
-        return vectorstore
+        if os.path.exists(path):
+            st.info("Loading vectorstore from disk...")
+            with open(path, "rb") as f:
+                vectorstore = pickle.load(f)
+            st.success("Vectorstore loaded successfully!")
+            return vectorstore
     except Exception as e:
-        st.error(f"Error loading vectorstore: {str(e)}")
-        return None
+        st.warning(f"Error loading vectorstore directly: {str(e)}")
+    
+    # Method 2: Try to download from Google Drive
+    try:
+        st.info("Attempting to download vectorstore from backup...")
+        if "YOUR_GOOGLE_DRIVE_FILE_ID" not in BACKUP_URL:
+            output = gdown.download(BACKUP_URL, path, quiet=False)
+            if output:
+                with open(path, "rb") as f:
+                    vectorstore = pickle.load(f)
+                st.success("Vectorstore downloaded and loaded successfully!")
+                return vectorstore
+        else:
+            st.warning("No backup URL configured. Skipping download.")
+    except Exception as e:
+        st.warning(f"Error downloading vectorstore: {str(e)}")
+    
+    # Method 3: Try to convert FAISS to another format
+    try:
+        st.info("Attempting to convert vectorstore format...")
+        converted_store = convert_faiss_to_chroma(path)
+        if converted_store:
+            st.success("Vectorstore converted successfully!")
+            return converted_store
+    except Exception as e:
+        st.warning(f"Error converting vectorstore: {str(e)}")
+    
+    # All methods failed
+    st.error("Could not load or create a vectorstore through any method.")
+    return None
 
 # Function to setup LLM with Hugging Face API
 @st.cache_resource
