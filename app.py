@@ -299,7 +299,9 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Démonstration RAG - Développé avec Langchain et Streamlit")import streamlit as st
+st.markdown("Démonstration RAG - Développé avec Langchain et Streamlit")
+
+import streamlit as st
 import os
 import pickle
 import gdown
