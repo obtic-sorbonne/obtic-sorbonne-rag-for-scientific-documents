@@ -3,14 +3,11 @@ import os
 import xml.etree.ElementTree as ET
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
-from langchain_community.embeddings import HuggingFaceEmbeddings
-import numpy as np
-import pickle
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
-    page_title="RAG Démonstration",
-    page_icon="🤖",
+    page_title="XML Document Explorer",
+    page_icon="📄",
     layout="wide"
 )
 
@@ -20,16 +17,10 @@ NAMESPACES = {
 }
 
 # Initialize session state variables
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
 if 'documents' not in st.session_state:
     st.session_state.documents = []
 if 'chunks' not in st.session_state:
     st.session_state.chunks = []
-if 'embeddings' not in st.session_state:
-    st.session_state.embeddings = []
-if 'embedding_function' not in st.session_state:
-    st.session_state.embedding_function = None
 if 'is_ready' not in st.session_state:
     st.session_state.is_ready = False
 
@@ -114,8 +105,8 @@ def create_documents_from_xml_files():
     
     return documents
 
-def initialize_system(api_key, chunk_size=1000, chunk_overlap=100):
-    """Initialize the RAG system by processing documents and creating embeddings."""
+def initialize_system(chunk_size=1000, chunk_overlap=100):
+    """Initialize the system by processing documents and creating chunks."""
     # Process XML files and create documents
     documents = create_documents_from_xml_files()
     
@@ -132,163 +123,93 @@ def initialize_system(api_key, chunk_size=1000, chunk_overlap=100):
     chunks = text_splitter.split_documents(documents)
     st.success(f"Created {len(chunks)} chunks.")
     
-    # Create embedding function
-    st.info("Initializing embedding model...")
-    embedding_function = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-    )
-    
-    # Create embeddings for all chunks
-    st.info("Creating vector embeddings...")
-    texts = [doc.page_content for doc in chunks]
-    embeddings = embedding_function.embed_documents(texts)
-    
     # Store in session state
     st.session_state.documents = documents
     st.session_state.chunks = chunks
-    st.session_state.embeddings = embeddings
-    st.session_state.embedding_function = embedding_function
     st.session_state.is_ready = True
     
     return True
 
-def search_similar_documents(query, k=3):
-    """Search for documents similar to the query."""
+def search_documents(query):
+    """Search for documents containing the query text (simple keyword search)."""
     if not st.session_state.is_ready:
         st.error("System not initialized.")
         return []
     
-    # Get query embedding
-    query_embedding = st.session_state.embedding_function.embed_query(query)
+    query = query.lower()
+    results = []
     
-    # Calculate similarity with all chunks
-    similarities = []
-    for i, doc_embedding in enumerate(st.session_state.embeddings):
-        similarity = np.dot(query_embedding, doc_embedding) / (
-            np.linalg.norm(query_embedding) * np.linalg.norm(doc_embedding)
-        )
-        similarities.append((i, similarity))
+    for chunk in st.session_state.chunks:
+        content = chunk.page_content.lower()
+        if query in content:
+            # Calculate a simple relevance score based on word frequency
+            relevance = content.count(query) / len(content.split())
+            results.append((chunk, relevance))
     
-    # Sort by similarity (higher is better)
-    sorted_results = sorted(similarities, key=lambda x: x[1], reverse=True)
+    # Sort by relevance score
+    sorted_results = sorted(results, key=lambda x: x[1], reverse=True)
     
-    # Return top k results
-    top_results = []
-    for i, score in sorted_results[:k]:
-        top_results.append((st.session_state.chunks[i], score))
-    
-    return top_results
-
-def generate_answer(query, context):
-    """Generate an answer based on the retrieved context."""
-    # Simple template for the answer
-    answer = f"""
-Sur la base des informations trouvées dans les documents, voici une réponse à votre question :
-
-"{query}"
-
-Les documents pertinents indiquent que :
-"""
-    
-    # Add context from each document
-    for i, (doc, _) in enumerate(context):
-        answer += f"\n- {doc.page_content[:500]}...\n"
-        
-    answer += "\n\nCeci est un résumé des informations disponibles dans les documents fournis."
-    
-    return answer
+    # Take top 5 results or fewer if less available
+    return sorted_results[:5]
 
 # Main UI
-st.title("🤖 Démonstrateur de RAG")
+st.title("📄 XML Document Explorer")
 st.markdown("""
-Cette application démontre la fonctionnalité de Retrieval Augmented Generation (RAG) avec des documents XML-TEI.
-Posez simplement vos questions sur le contenu des documents.
+Cette application vous permet d'explorer le contenu de documents XML-TEI.
+Vous pouvez effectuer une recherche simple dans les documents.
 """)
 
 # Sidebar for configuration
 with st.sidebar:
     st.title("Configuration")
     
-    # API key input
-    hf_api_key = st.text_input("Hugging Face API Key", type="password")
-    if not hf_api_key:
-        st.warning("Veuillez entrer votre clé API Hugging Face pour utiliser les modèles.")
-        st.info("Vous pouvez obtenir une clé API gratuite sur [huggingface.co](https://huggingface.co/settings/tokens)")
-    
     # Chunking parameters
     st.subheader("Paramètres de découpage")
     chunk_size = st.slider("Taille des chunks", 500, 2000, 1000)
     chunk_overlap = st.slider("Chevauchement", 0, 200, 100)
     
-    # Top-k retrieval
-    k_value = st.slider("Nombre de chunks à récupérer", 1, 5, 3)
-    
     # Initialize system button
     if st.button("Initialiser le système"):
-        if not hf_api_key:
-            st.error("Veuillez entrer votre clé API Hugging Face pour continuer.")
-        else:
-            # Initialize system
-            with st.spinner("Initialisation du système..."):
-                success = initialize_system(hf_api_key, chunk_size, chunk_overlap)
-                if success:
-                    st.success("Système initialisé avec succès!")
-                else:
-                    st.error("Erreur lors de l'initialisation du système.")
+        # Initialize system
+        with st.spinner("Initialisation du système..."):
+            success = initialize_system(chunk_size, chunk_overlap)
+            if success:
+                st.success("Système initialisé avec succès!")
+            else:
+                st.error("Erreur lors de l'initialisation du système.")
 
-# Chat interface
+# Search interface
 if st.session_state.is_ready:
-    # Display existing messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    st.subheader("Recherche dans les documents")
+    search_query = st.text_input("Entrez votre terme de recherche:")
     
-    # User input
-    if prompt := st.chat_input("Posez votre question..."):
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    if search_query:
+        with st.spinner("Recherche..."):
+            results = search_documents(search_query)
         
-        # Display user message
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        # Generate and display assistant response
-        with st.chat_message("assistant"):
-            message_placeholder = st.empty()
-            
-            try:
-                with st.spinner("Recherche de documents pertinents..."):
-                    # Search for similar documents
-                    results = search_similar_documents(prompt, k=k_value)
-                    
-                    # Generate answer
-                    answer = generate_answer(prompt, results)
-                
-                # Display the answer
-                message_placeholder.markdown(answer)
-                
-                # Display source documents
-                if results:
-                    st.markdown("---")
-                    st.markdown("**Sources:**")
-                    for i, (doc, score) in enumerate(results):
-                        with st.expander(f"Source {i+1} (Similarité: {score:.4f})"):
-                            st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
-                            st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
-                            st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
-                            st.markdown("**Extrait:**")
-                            st.markdown(doc.page_content)
-                
-                # Add assistant response to chat history
-                st.session_state.messages.append({"role": "assistant", "content": answer})
-                
-            except Exception as e:
-                error_msg = f"Erreur lors de la génération de la réponse: {str(e)}"
-                message_placeholder.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+        if results:
+            st.success(f"Trouvé {len(results)} résultats pertinents.")
+            for i, (doc, score) in enumerate(results):
+                with st.expander(f"Résultat {i+1} (Pertinence: {score:.4f})"):
+                    st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
+                    st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
+                    st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+                    st.markdown("**Extrait:**")
+                    st.markdown(doc.page_content)
+        else:
+            st.warning(f"Aucun résultat trouvé pour '{search_query}'.")
+    
+    # Show all documents
+    st.subheader("Tous les documents")
+    for i, doc in enumerate(st.session_state.documents):
+        with st.expander(f"Document {i+1}: {doc.metadata.get('title', 'Unknown')}"):
+            st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
+            st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+            st.markdown("**Contenu:**")
+            st.markdown(doc.page_content[:1000] + "..." if len(doc.page_content) > 1000 else doc.page_content)
 else:
     st.info("Veuillez initialiser le système en utilisant le bouton dans la barre latérale.")
 
 # Footer
 st.markdown("---")
-st.markdown("Démonstration RAG - Version simplifiée")
+st.markdown("Explorer de documents XML - Version ultra simplifiée")
