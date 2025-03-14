@@ -4,7 +4,6 @@ import xml.etree.ElementTree as ET
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 import requests
-import json
 import time
 
 # Set page configuration - MUST be the first Streamlit command
@@ -135,13 +134,78 @@ def initialize_system(api_key, chunk_size=1000, chunk_overlap=100):
     
     return True
 
-def search_documents(query, k=3):
-    """Search for documents relevant to the query."""
+def search_documents(query, api_key, k=3):
+    """Search for documents by semantic similarity to the query."""
     if not st.session_state.is_ready:
         st.error("System not initialized.")
         return []
     
-    # Simple hybrid search - combine keyword and relevance
+    # Extract content from all chunks
+    chunk_texts = [chunk.page_content for chunk in st.session_state.chunks]
+    
+    # If no chunks, return empty list
+    if not chunk_texts:
+        return []
+    
+    try:
+        # Use Embedding API to generate embeddings for query and chunks
+        API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        headers = {"Authorization": f"Bearer {api_key}"}
+        
+        # Get query embedding
+        response = requests.post(API_URL, 
+                                headers=headers, 
+                                json={"inputs": query})
+        
+        if response.status_code != 200:
+            # Fall back to simple keyword matching if API fails
+            return fallback_search(query, k)
+            
+        query_embedding = response.json()
+        
+        # Get embeddings for all chunks (in batches to avoid timeouts)
+        batch_size = 10
+        chunk_embeddings = []
+        
+        for i in range(0, len(chunk_texts), batch_size):
+            batch = chunk_texts[i:i+batch_size]
+            response = requests.post(API_URL, 
+                                    headers=headers, 
+                                    json={"inputs": batch})
+            
+            if response.status_code != 200:
+                # Fall back if API fails
+                return fallback_search(query, k)
+                
+            batch_embeddings = response.json()
+            chunk_embeddings.extend(batch_embeddings)
+            time.sleep(1)  # Avoid rate limits
+        
+        # Calculate similarity scores
+        results = []
+        for i, chunk_embedding in enumerate(chunk_embeddings):
+            # Compute cosine similarity
+            similarity = cosine_similarity(query_embedding, chunk_embedding)
+            results.append((st.session_state.chunks[i], similarity))
+        
+        # Sort by similarity score (higher is better)
+        sorted_results = sorted(results, key=lambda x: x[1], reverse=True)
+        
+        # Return top k results
+        return sorted_results[:k]
+        
+    except Exception as e:
+        st.warning(f"Error in semantic search: {str(e)}. Using fallback search.")
+        return fallback_search(query, k)
+
+def cosine_similarity(v1, v2):
+    """Compute cosine similarity between two vectors."""
+    import numpy as np
+    v1, v2 = np.array(v1), np.array(v2)
+    return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+
+def fallback_search(query, k=3):
+    """Simple keyword-based search as fallback."""
     query_terms = set(query.lower().split())
     results = []
     
@@ -152,72 +216,37 @@ def search_documents(query, k=3):
         # Calculate term overlap
         term_overlap = len(query_terms.intersection(content_words))
         if term_overlap > 0:
-            # Simple relevance score based on term overlap and density
-            relevance = term_overlap / max(1, len(query_terms))
+            # Simple relevance score based on term overlap
+            relevance = term_overlap / max(1, len(query_terms)) 
             results.append((chunk, relevance))
     
     # Sort by relevance score
     sorted_results = sorted(results, key=lambda x: x[1], reverse=True)
     
-    # Return top k results or all if fewer
+    # Return top k results
     return sorted_results[:k]
 
-def analyze_documents():
-    """Analyze all the documents to extract frequently mentioned topics."""
-    from collections import Counter
-    import re
-    
-    if not st.session_state.chunks:
-        return "Veuillez d'abord initialiser le système avec des documents."
-    
-    # Combine all text from all chunks
-    all_text = " ".join([chunk.page_content for chunk in st.session_state.chunks])
-    
-    # Extract words (excluding common stopwords)
-    stopwords = set(["le", "la", "les", "un", "une", "des", "et", "ou", "de", "du", "à", "au", "aux", 
-                     "ce", "cette", "ces", "mon", "ma", "mes", "ton", "ta", "tes", "son", "sa", "ses",
-                     "notre", "nos", "votre", "vos", "leur", "leurs", "en", "dans", "par", "pour", "avec",
-                     "sur", "sous", "est", "sont", "était", "qui", "que", "quoi", "dont", "où", "d'un", "d'une"])
-    
-    words = re.findall(r'\b[a-zA-ZÀ-ÿ]{4,}\b', all_text.lower())
-    words = [word for word in words if word not in stopwords]
-    
-    # Count word frequencies
-    word_counts = Counter(words)
-    
-    # Get the most common words
-    common_words = word_counts.most_common(20)
-    
-    # Format the response
-    response = "Après analyse des documents, voici les sujets les plus fréquemment mentionnés:\n\n"
-    for word, count in common_words:
-        response += f"- \"{word}\": mentionné {count} fois\n"
-    
-    return response
-
-def query_llm_api(api_key, query, context):
-    """Query LLM API with the context and question."""
+def generate_with_llama(api_key, query, context):
+    """Generate a response using Meta-Llama-3-8B-Instruct."""
     # Prepare the context from retrieved documents
     context_text = "\n\n".join([doc.page_content for doc, _ in context])
     
-    # Check if it's a document analysis query
-    if "sujet le plus présent" in query.lower() or "thème principal" in query.lower() or "sujets les plus fréquents" in query.lower():
-        return analyze_documents()
-    
-    # Construct the prompt
-    prompt = f"""Tu es un assistant spécialisé qui répond aux questions basées uniquement sur les informations fournies.
-    
+    # Construct the prompt for Llama 3
+    prompt = f"""<|system|>
+Tu es un assistant spécialisé qui répond aux questions basées uniquement sur les informations fournies dans le contexte. Réponds de manière précise et informative en utilisant uniquement les informations du contexte. Si l'information ne se trouve pas dans le contexte, dis simplement que tu ne disposes pas de cette information.
+</|system|>
+
+<|user|>
 Contexte:
 {context_text}
 
 Question: {query}
+</|user|>
 
-Réponds de manière précise et informative en utilisant uniquement les informations du contexte. 
-Si l'information ne se trouve pas dans le contexte, dis simplement que tu ne disposes pas de cette information."""
+<|assistant|>"""
 
     try:
-        # Send request to Hugging Face API
-        API_URL = f"https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
+        API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
         headers = {"Authorization": f"Bearer {api_key}"}
         
         payload = {
@@ -226,65 +255,29 @@ Si l'information ne se trouve pas dans le contexte, dis simplement que tu ne dis
                 "max_new_tokens": 512,
                 "temperature": 0.7,
                 "top_p": 0.95,
-                "do_sample": True
+                "return_full_text": False
             }
         }
         
-        # Send the request with retries
-        max_retries = 3
-        for attempt in range(max_retries):
-            response = requests.post(API_URL, headers=headers, json=payload)
-            
-            # Check if the response is valid
-            if response.status_code == 200:
-                try:
-                    result = response.json()
-                    
-                    # Extract the generated text from response
-                    if isinstance(result, list) and len(result) > 0:
-                        generated_text = result[0].get("generated_text", "")
-                        if prompt in generated_text:
-                            return generated_text.replace(prompt, "").strip()
-                        return generated_text
-                    elif isinstance(result, dict) and "generated_text" in result:
-                        generated_text = result["generated_text"]
-                        if prompt in generated_text:
-                            return generated_text.replace(prompt, "").strip()
-                        return generated_text
-                    else:
-                        # Handle unexpected response format
-                        return f"La réponse a été reçue mais le format est inattendu. Détails: {str(result)}"
-                
-                except json.JSONDecodeError:
-                    # If not retry-able or last attempt, return the raw response
-                    if attempt == max_retries - 1:
-                        # Fall back to document analysis for context-based answer
-                        return "Impossible de générer une réponse via l'API. Voici les informations des documents pertinents:\n\n" + \
-                               "\n\n".join([f"Document: {doc.metadata.get('title')}\n{doc.page_content[:500]}..." for doc, _ in context])
-                    
-                    # Wait before retrying
-                    time.sleep(2)
-            else:
-                # API error
-                error_msg = f"Erreur API (code {response.status_code}): "
-                try:
-                    error_details = response.json()
-                    error_msg += str(error_details)
-                except:
-                    error_msg += response.text
-                
-                # If not retry-able or last attempt, return the error
-                if attempt == max_retries - 1:
-                    return error_msg
-                
-                # Wait before retrying
-                time.sleep(2)
+        # Send the request
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
         
-        # If we've exhausted all retries
-        return "Impossible de générer une réponse après plusieurs tentatives. Veuillez réessayer plus tard."
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Extract generated text
+            if isinstance(result, list) and len(result) > 0:
+                return result[0].get("generated_text", "")
+            elif isinstance(result, dict) and "generated_text" in result:
+                return result["generated_text"]
+            else:
+                return "Le modèle a répondu dans un format inattendu. Voici les informations des documents pertinents à votre question."
+        else:
+            # API error
+            return f"Erreur API (code {response.status_code}): Le modèle n'a pas pu générer de réponse. Veuillez réessayer plus tard."
     
     except Exception as e:
-        return f"Erreur lors de la génération de la réponse: {str(e)}"
+        return f"Erreur lors de la génération: {str(e)}"
 
 # Main UI
 st.title("🤖 Démonstrateur de RAG")
@@ -345,46 +338,40 @@ if st.session_state.is_ready:
             message_placeholder = st.empty()
             
             try:
-                # Special case for document analysis
-                if "sujet" in prompt.lower() and ("principal" in prompt.lower() or "fréquent" in prompt.lower() or "présent" in prompt.lower()):
-                    answer = analyze_documents()
-                    message_placeholder.markdown(answer)
-                    st.session_state.messages.append({"role": "assistant", "content": answer})
+                with st.spinner("Recherche de documents pertinents..."):
+                    # Search for similar documents using embeddings
+                    results = search_documents(prompt, hf_api_key, k=k_value)
+                
+                if not results:
+                    message_placeholder.warning("Aucun document pertinent trouvé pour répondre à votre question.")
+                    st.session_state.messages.append({
+                        "role": "assistant", 
+                        "content": "Aucun document pertinent trouvé pour répondre à votre question."
+                    })
                 else:
-                    with st.spinner("Recherche de documents pertinents..."):
-                        # Search for similar documents
-                        results = search_documents(prompt, k=k_value)
+                    with st.spinner("Génération de la réponse avec Llama 3..."):
+                        # Generate answer using Meta-Llama-3
+                        answer = generate_with_llama(hf_api_key, prompt, results)
                     
-                    if not results:
-                        message_placeholder.warning("Aucun document pertinent trouvé pour répondre à votre question.")
-                        st.session_state.messages.append({
-                            "role": "assistant", 
-                            "content": "Aucun document pertinent trouvé pour répondre à votre question."
-                        })
-                    else:
-                        with st.spinner("Génération de la réponse..."):
-                            # Generate answer using Hugging Face API
-                            answer = query_llm_api(hf_api_key, prompt, results)
-                        
-                        # Display the answer
-                        message_placeholder.markdown(answer)
-                        
-                        # Display source documents
-                        st.markdown("---")
-                        st.markdown("**Sources:**")
-                        for i, (doc, score) in enumerate(results):
-                            with st.expander(f"Source {i+1} (Pertinence: {score:.4f})"):
-                                st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
-                                st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
-                                st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
-                                st.markdown("**Extrait:**")
-                                st.markdown(doc.page_content)
-                        
-                        # Add assistant response to chat history
-                        st.session_state.messages.append({"role": "assistant", "content": answer})
+                    # Display the answer
+                    message_placeholder.markdown(answer)
+                    
+                    # Display source documents
+                    st.markdown("---")
+                    st.markdown("**Sources:**")
+                    for i, (doc, score) in enumerate(results):
+                        with st.expander(f"Source {i+1} (Similarité: {score:.4f})"):
+                            st.markdown(f"**Document:** {doc.metadata.get('title', 'Unknown')}")
+                            st.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
+                            st.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+                            st.markdown("**Extrait:**")
+                            st.markdown(doc.page_content)
+                    
+                    # Add assistant response to chat history
+                    st.session_state.messages.append({"role": "assistant", "content": answer})
                 
             except Exception as e:
-                error_msg = f"Erreur lors de la génération de la réponse: {str(e)}"
+                error_msg = f"Erreur lors du traitement de la requête: {str(e)}"
                 message_placeholder.error(error_msg)
                 st.session_state.messages.append({"role": "assistant", "content": error_msg})
 else:
