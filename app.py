@@ -4,12 +4,12 @@ import xml.etree.ElementTree as ET
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.llms import HuggingFaceEndpoint
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import numpy as np
 import pickle
 from typing import List, Dict, Any
+from langchain.llms.huggingface_hub import HuggingFaceHub
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -212,13 +212,12 @@ def get_llm(model_name, api_key):
     """Setup LLM using Hugging Face API"""
     if not api_key:
         return None
-        
-    return HuggingFaceEndpoint(
-        repo_id=model_name,
+    
+    # Using HuggingFaceHub instead of HuggingFaceEndpoint
+    return HuggingFaceHub(
         huggingfacehub_api_token=api_key,
-        max_length=512,
-        temperature=0.7,
-        top_p=0.95
+        repo_id=model_name,
+        model_kwargs={"temperature": 0.7, "max_length": 512, "top_p": 0.95}
     )
 
 # Function to setup QA chain
