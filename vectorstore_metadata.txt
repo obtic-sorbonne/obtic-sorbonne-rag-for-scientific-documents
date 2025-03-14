@@ -1,0 +1,11 @@
+Number of documents: 3
+Number of chunks: 1367
+Embedding model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Chunk size: 1000
+Chunk overlap: 100
+Created from folder: /home/mbiriuchinskii/rag_test/data/test
+
+Processed files:
+- /home/mbiriuchinskii/rag_test/data/test/SFP_1983_1.xml
+- /home/mbiriuchinskii/rag_test/data/test/SFP_1984_3.xml
+- /home/mbiriuchinskii/rag_test/data/test/SFP_1984_2.xml
