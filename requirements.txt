@@ -10,3 +10,4 @@ onnxruntime
 numpy>=1.22.0
 fastapi
 uvicorn[standard]
+faiss-cpu==1.7.4

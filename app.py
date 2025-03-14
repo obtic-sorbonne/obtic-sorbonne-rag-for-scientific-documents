@@ -112,7 +112,7 @@ def create_documents_from_xml_files():
 
 # Function to create vectorstore from documents
 def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
-    """Create a vectorstore from the provided documents."""
+    """Create a vectorstore from the provided documents using FAISS instead of Chroma."""
     if not documents:
         st.error("No documents to process.")
         return None
@@ -132,19 +132,20 @@ def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
-    # Create vectorstore with persist_directory to avoid in-memory issues
-    st.info("Creating vector database...")
-    persist_directory = "./chroma_db"
-    os.makedirs(persist_directory, exist_ok=True)
+    # Create vectorstore with FAISS instead of Chroma
+    st.info("Creating vector database with FAISS...")
+    from langchain_community.vectorstores import FAISS
     
-    vectorstore = Chroma.from_documents(
+    vectorstore = FAISS.from_documents(
         chunks, 
-        embedding_function,
-        collection_name="xmltei_documents",
-        persist_directory=persist_directory
+        embedding_function
     )
     
+    # Save the index to disk
+    vectorstore.save_local("faiss_index")
+    
     return vectorstore
+
 
 # Function to setup LLM with Hugging Face API
 @st.cache_resource
