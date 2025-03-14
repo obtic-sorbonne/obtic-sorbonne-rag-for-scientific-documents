@@ -1,11 +1,13 @@
 streamlit==1.28.2
 langchain==0.0.338
 langchain-community==0.0.13
-# Replace faiss-cpu with a pure Python implementation for vector search
+# Vectorstores alternatifs
+chromadb==0.4.22
+faiss-cpu==1.7.4
 hnswlib==0.7.0
-# For embedding models
+# Pour les modèles d'embedding
 sentence-transformers==2.2.2
 transformers==4.35.2
 huggingface-hub==0.19.4
-# Add gdown to download the vectorstore if needed
+# Pour télécharger depuis Google Drive
 gdown==4.7.1

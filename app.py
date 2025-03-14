@@ -1,14 +1,6 @@
 import streamlit as st
 import os
-import pickle
-import gdown
 import torch
-import io
-import platform
-from langchain_community.llms import HuggingFaceEndpoint
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
-from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Set page configuration - MUST be the first Streamlit command
 st.set_page_config(
@@ -19,7 +11,7 @@ st.set_page_config(
 
 # Path configurations
 VECTORSTORE_PATH = "vectorstore.pkl"
-BACKUP_URL = "https://drive.google.com/uc?id=YOUR_GOOGLE_DRIVE_FILE_ID"  # Replace with your actual Google Drive file ID
+METADATA_PATH = "vectorstore_metadata.txt"
 
 # Initialize session state variables
 if 'messages' not in st.session_state:
@@ -29,95 +21,44 @@ if 'vectorstore' not in st.session_state:
 if 'qa_chain' not in st.session_state:
     st.session_state.qa_chain = None
 
-# Function to load the pre-trained vectorstore
-@st.cache_resource
-def load_vectorstore(path):
-    """Load a pre-trained vectorstore from disk with CUDA handling"""
-    # Method 1: Direct loading of the pickle file with CUDA handling
-    try:
-        if os.path.exists(path):
-            st.info("Loading vectorstore from disk...")
-            # Custom unpickler to handle CUDA tensors
-            class CPUUnpickler(pickle.Unpickler):
-                def find_class(self, module, name):
-                    if module == 'torch.storage' and name == '_load_from_bytes':
-                        return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-                    else:
-                        return super().find_class(module, name)
-            
-            with open(path, 'rb') as f:
-                vectorstore = CPUUnpickler(f).load()
-                
-            st.success("Vectorstore loaded successfully!")
-            return vectorstore
-    except Exception as e:
-        st.warning(f"Error loading vectorstore directly: {str(e)}")
-        
-        # Try with a simpler method
-        try:
-            st.info("Trying simpler loading method...")
-            with open(path, "rb") as f:
-                vectorstore = pickle.load(f, map_location=lambda storage, loc: storage)
-            st.success("Vectorstore loaded successfully with simple method!")
-            return vectorstore
-        except Exception as e2:
-            st.warning(f"Error with simple loading method: {str(e2)}")
+# Function to create a new vectorstore from metadata content
+def create_chroma_vectorstore(text_content):
+    """Create a Chroma vectorstore from text content"""
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
+    from langchain.docstore.document import Document
+    from langchain_community.vectorstores import Chroma
+    from langchain_community.embeddings import HuggingFaceEmbeddings
     
-    # Method 2: Try to download from Google Drive
-    try:
-        st.info("Attempting to download vectorstore from backup...")
-        if "YOUR_GOOGLE_DRIVE_FILE_ID" not in BACKUP_URL:
-            output = gdown.download(BACKUP_URL, "backup_vectorstore.pkl", quiet=False)
-            if output:
-                # Use CPU loading for downloaded file
-                with open("backup_vectorstore.pkl", "rb") as f:
-                    vectorstore = pickle.load(f, map_location=lambda storage, loc: storage)
-                st.success("Vectorstore downloaded and loaded successfully!")
-                return vectorstore
-        else:
-            st.warning("No backup URL configured. Skipping download.")
-    except Exception as e:
-        st.warning(f"Error downloading vectorstore: {str(e)}")
+    # Create a sample document
+    doc = Document(page_content=text_content, metadata={"source": "Metadata"})
     
-    # Method 3: Create a basic vectorstore in-memory if all else fails
-    try:
-        st.info("Attempting to create a basic in-memory vectorstore...")
-        from langchain_community.vectorstores import Chroma
-        from langchain.docstore.document import Document
-        
-        # Check if there's a sample document we can use
-        metadata_path = os.path.splitext(VECTORSTORE_PATH)[0] + "_metadata.txt"
-        if os.path.exists(metadata_path):
-            # Create a simple document from the metadata
-            with open(metadata_path, "r") as f:
-                text = f.read()
-                
-            # Create a document
-            doc = Document(page_content=text, metadata={"source": "metadata"})
-            
-            # Create embeddings and store
-            embeddings = HuggingFaceEmbeddings(
-                model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-            )
-            vectorstore = Chroma.from_documents(
-                [doc], 
-                embeddings,
-                collection_name="demo_collection"
-            )
-            
-            st.success("Created basic in-memory vectorstore!")
-            return vectorstore
-    except Exception as e:
-        st.warning(f"Error creating basic vectorstore: {str(e)}")
+    # Split into chunks
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,
+        chunk_overlap=200
+    )
+    docs = text_splitter.split_documents([doc])
     
-    # All methods failed
-    st.error("Could not load or create a vectorstore through any method.")
-    return None
+    # Create embedding function
+    embedding_function = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    )
+    
+    # Create vectorstore
+    vectorstore = Chroma.from_documents(
+        docs, 
+        embedding_function,
+        collection_name="demo_collection"
+    )
+    
+    return vectorstore
 
 # Function to setup LLM with Hugging Face API
 @st.cache_resource
 def get_llm(model_name, api_key):
     """Setup LLM using Hugging Face API"""
+    from langchain_community.llms import HuggingFaceEndpoint
+    
     if not api_key:
         return None
         
@@ -132,6 +73,9 @@ def get_llm(model_name, api_key):
 # Function to setup QA chain
 def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
     """Setup the QA chain with the vectorstore and LLM"""
+    from langchain.chains import RetrievalQA
+    from langchain.prompts import PromptTemplate
+    
     # Get LLM
     llm = get_llm(model_name, api_key)
     if not llm:
@@ -168,22 +112,26 @@ def setup_qa_chain(vectorstore, model_name, api_key, k_value=3):
     
     return chain
 
-# Display system info for debugging
-if st.sidebar.checkbox("Show debug info", False):
-    st.sidebar.write(f"Platform: {platform.system()}")
-    st.sidebar.write(f"Python version: {platform.python_version()}")
-    st.sidebar.write(f"CUDA available: {torch.cuda.is_available()}")
-    if os.path.exists(VECTORSTORE_PATH):
-        st.sidebar.write(f"Vectorstore file exists, size: {os.path.getsize(VECTORSTORE_PATH)/1024/1024:.2f} MB")
-    else:
-        st.sidebar.write("Vectorstore file does not exist!")
-
 # Main UI
 st.title("🤖 Démonstrateur de RAG")
 st.markdown("""
 Cette application démontre la fonctionnalité de Retrieval Augmented Generation (RAG) avec une base de connaissances pré-entraînée.
 Posez simplement vos questions sur le contenu de la base de connaissances.
 """)
+
+# Display debug info
+if st.sidebar.checkbox("Show debug info", False):
+    st.sidebar.write(f"CUDA available: {torch.cuda.is_available()}")
+    
+    if os.path.exists(VECTORSTORE_PATH):
+        st.sidebar.write(f"Vectorstore exists: {os.path.getsize(VECTORSTORE_PATH)/1024/1024:.2f} MB")
+    else:
+        st.sidebar.write("Vectorstore does not exist!")
+        
+    if os.path.exists(METADATA_PATH):
+        st.sidebar.write(f"Metadata exists: {os.path.getsize(METADATA_PATH)/1024:.1f} KB")
+    else:
+        st.sidebar.write("Metadata does not exist!")
 
 # Sidebar for configuration
 with st.sidebar:
@@ -210,12 +158,19 @@ with st.sidebar:
         if not hf_api_key:
             st.error("Veuillez entrer votre clé API Hugging Face pour continuer.")
         else:
-            with st.spinner("Chargement de la base de connaissances..."):
-                # Load the vectorstore
-                vectorstore = load_vectorstore(VECTORSTORE_PATH)
+            # Create vectorstore from metadata
+            with st.spinner("Création de la base de connaissances..."):
+                metadata_content = "Bienvenue dans la démonstration de RAG. Ceci est un texte d'exemple pour la base de connaissances."
                 
-                if vectorstore:
+                # Try to load metadata content if available
+                if os.path.exists(METADATA_PATH):
+                    with open(METADATA_PATH, "r") as f:
+                        metadata_content = f.read()
+                
+                try:
+                    vectorstore = create_chroma_vectorstore(metadata_content)
                     st.session_state.vectorstore = vectorstore
+                    st.success("Base de connaissances créée avec succès!")
                     
                     # Setup QA chain
                     with st.spinner("Configuration du modèle de génération..."):
@@ -226,14 +181,13 @@ with st.sidebar:
                             st.success("Système initialisé avec succès!")
                         else:
                             st.error("Erreur lors de la configuration du modèle de génération.")
-                else:
-                    st.error("Erreur lors du chargement de la base de connaissances.")
+                except Exception as e:
+                    st.error(f"Erreur lors de la création de la base de connaissances: {str(e)}")
     
     # Display metadata if available
-    metadata_path = os.path.splitext(VECTORSTORE_PATH)[0] + "_metadata.txt"
-    if os.path.exists(metadata_path):
+    if os.path.exists(METADATA_PATH):
         with st.expander("Informations sur la base de connaissances"):
-            with open(metadata_path, "r") as f:
+            with open(METADATA_PATH, "r") as f:
                 st.text(f.read())
 
 # Chat interface
