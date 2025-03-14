@@ -132,12 +132,16 @@ def create_vectorstore(documents, chunk_size=1000, chunk_overlap=100):
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
-    # Create vectorstore
+    # Create vectorstore with persist_directory to avoid in-memory issues
     st.info("Creating vector database...")
+    persist_directory = "./chroma_db"
+    os.makedirs(persist_directory, exist_ok=True)
+    
     vectorstore = Chroma.from_documents(
         chunks, 
         embedding_function,
-        collection_name="xmltei_documents"
+        collection_name="xmltei_documents",
+        persist_directory=persist_directory
     )
     
     return vectorstore
