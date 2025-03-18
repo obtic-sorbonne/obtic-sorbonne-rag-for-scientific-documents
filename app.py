@@ -15,11 +15,16 @@ from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 
 import nltk
+
+# Change this part in your code
 try:
+    # Check for punkt
     nltk.data.find('tokenizers/punkt')
+    # Also check for French punkt specifically
+    nltk.data.find('tokenizers/punkt/french.pickle')
 except LookupError:
+    # Download all punkt resources
     nltk.download('punkt')
-from nltk.tokenize import sent_tokenize
 
 def preprocess_text(text):
     # Tokeniser par phrases
@@ -27,6 +32,7 @@ def preprocess_text(text):
     # Reconstruire le texte avec des phrases complètes
     clean_text = " ".join(sentences)
     return clean_text
+
 
 
 # Define paths
