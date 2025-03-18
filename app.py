@@ -211,7 +211,12 @@ def query_llm(retriever, query, hf_api_key):
     )
     
     # Run the chain
-    result = qa_chain({"query": query})
+    enh_query = f"""
+    {query}
+    Important : Présente ta réponse de façon claire et bien structurée. 
+    Réponds en français en utilisant un langage naturel et cohérent.
+     """
+    result = qa_chain({"query": enh_query})
     
     # Post-process to remove any notes that might still appear
     answer = result["result"]
