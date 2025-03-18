@@ -177,11 +177,10 @@ def query_llm(retriever, query, hf_api_key):
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        model_kwargs={
-            "temperature": 0.7,
-            "max_new_tokens": 512,
-            "top_p": 0.95
-        }
+        temperature=0.7,          # Direct parameter
+        max_new_tokens=512,       # Direct parameter
+        top_p=0.95                # Direct parameter
+        # Remove model_kwargs
     )
     
     qa_chain = RetrievalQA.from_chain_type(
