@@ -12,6 +12,7 @@ from langchain_huggingface import HuggingFaceEndpoint
 from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
+from langchain_community.vectorstores import FAISS
 
 # Define paths
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -150,22 +151,23 @@ def split_documents(documents):
     return texts
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
-    """Create embeddings and store in a local vector database."""
-    # Set the environment variable for the HuggingFace Hub API token
+    """Create embeddings and store in a local vector database using FAISS instead of Chroma."""
     import os
-    os.environ["HUGGINGFACE_API_TOKEN"] = hf_api_key  
+    os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
     
-    # Initialize embeddings with only the required parameters
+    model_kwargs = {"token": hf_api_key}
+    
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        model_kwargs=model_kwargs
     )
     
-    vectordb = Chroma.from_documents(
-        texts, 
-        embeddings,
-        persist_directory=LOCAL_VECTOR_STORE_DIR.as_posix()
-    )
-    vectordb.persist()
+    # Use FAISS instead of Chroma
+    vectordb = FAISS.from_documents(texts, embeddings)
+    
+    # Save the index
+    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
+    
     retriever = vectordb.as_retriever(search_kwargs={'k': 3})
     return retriever
 
