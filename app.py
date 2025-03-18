@@ -7,11 +7,10 @@ from pathlib import Path
 import streamlit as st
 from langchain.chains import RetrievalQA
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEndpoint
-from langchain.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.docstore.document import Document
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.text_splitter import RecursiveCharacterTextSplitter
 
 # Define paths
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
