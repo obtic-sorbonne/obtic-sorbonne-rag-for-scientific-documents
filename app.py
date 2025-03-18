@@ -173,15 +173,14 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
-    from langchain.schema.retriever import BaseRetriever
     
-    # Add system message to instruct the model to respond in French with better formatting
+    # Updated system prompt that explicitly tells the model not to include notes
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        temperature=0.6,          
-        max_new_tokens=512,       
+        temperature=0.4,
+        max_new_tokens=512,
         top_p=0.95,
         model_kwargs={
             "parameters": {
@@ -189,19 +188,13 @@ def query_llm(retriever, query, hf_api_key):
                 Réponds toujours en français de façon claire et structurée.
                 Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
                 N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
-                Si les informations extraites sont incomplètes ou confuses, ne les inclus pas."""
+                Ne commente jamais tes propres réponses.
+                N'ajoute jamais de notes, d'évaluations ou de commentaires sur ta réponse.
+                N'écris jamais de texte commençant par "Note:" ou similaire.
+                Donne uniquement la réponse directe à la question, sans métacommentaire."""
             }
         }
     )
-    
-    
-    # Create a properly formatted query with instructions
-    enhanced_query = f"""
-    {query}
-    
-    Important : Présente ta réponse de façon claire et bien structurée. 
-    Réponds en français en utilisant un langage naturel et cohérent.
-    """
     
     # Create the QA chain
     qa_chain = RetrievalQA.from_chain_type(
@@ -212,9 +205,16 @@ def query_llm(retriever, query, hf_api_key):
         verbose=True
     )
     
-    # Run the chain with our enhanced query
-    result = qa_chain({"query": enhanced_query})
+    # Run the chain
+    result = qa_chain({"query": query})
+    
+    # Post-process to remove any notes that might still appear
     answer = result["result"]
+    if "Note:" in answer:
+        answer = answer.split("Note:")[0].strip()
+    if "Note :" in answer:
+        answer = answer.split("Note :")[0].strip()
+        
     source_docs = result["source_documents"]
     
     # Update message history
