@@ -195,22 +195,9 @@ def query_llm(retriever, query, hf_api_key):
         }
     )
     
-    # Function to clean and prepare data for the LLM
-    def clean_content(content):
-        """Clean and prepare content by removing technical artifacts"""
-        # Remove XML tags and special characters
-        cleaned = re.sub(r'<[^>]+>', ' ', content)
-        cleaned = re.sub(r'\]\]>', '', cleaned)
-        # Normalize whitespace
-        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-        return cleaned
     
     # Get the documents
     docs = retriever.get_relevant_documents(query)
-    
-    # Clean the documents
-    for doc in docs:
-        doc.page_content = clean_content(doc.page_content)
     
     # Create a properly formatted query with instructions
     enhanced_query = f"""
