@@ -287,10 +287,6 @@ def boot():
     if "retriever" not in st.session_state:
         st.session_state.retriever = None
     
-    # Initialize view state for source buttons if not exists
-    if "source_views" not in st.session_state:
-        st.session_state.source_views = {}
-    
     # Submit documents button
     if st.button("Traiter les documents"):
         st.session_state.retriever = process_documents(st.session_state.hf_api_key)
@@ -316,57 +312,43 @@ def boot():
                     st.session_state.hf_api_key
                 )
                 
-                # Reset source views for new question
-                st.session_state.source_views = {}
-                
                 # Display the answer
                 response_container = st.chat_message("ai")
                 response_container.write(answer)
                 
-                # Display source buttons
+                # Display source documents with expanders (simple approach)
                 if source_docs:
                     response_container.markdown("---")
                     response_container.markdown("**Sources:**")
                     
-                    # Create buttons for each source
+                    # Create an expander for each source
                     for i, doc in enumerate(source_docs):
-                        # Create a unique key for this source
-                        source_key = f"source_{i}_{hash(query)}"
+                        # Prepare document info
+                        doc_title = doc.metadata.get('title', 'Document sans titre')
+                        doc_date = doc.metadata.get('date', 'Date inconnue')
+                        doc_year = doc.metadata.get('year', '')
+                        doc_file = doc.metadata.get('source', 'Fichier inconnu')
                         
-                        # Button to toggle source visibility
-                        if response_container.button(f"📄 Source {i+1}", key=source_key):
-                            # Toggle the view state for this source
-                            st.session_state.source_views[source_key] = not st.session_state.source_views.get(source_key, False)
-                        
-                        # Show source content if toggled
-                        if st.session_state.source_views.get(source_key, False):
-                            # Prepare document info
-                            doc_title = doc.metadata.get('title', 'Document sans titre')
-                            doc_date = doc.metadata.get('date', 'Date inconnue')
-                            doc_year = doc.metadata.get('year', '')
-                            doc_file = doc.metadata.get('source', 'Fichier inconnu')
+                        # Use expander as a button-like interface
+                        with response_container.expander(f"📄 Source {i+1}: {doc_title}", expanded=False):
+                            st.markdown(f"**Date:** {doc_date}")
+                            st.markdown(f"**Fichier:** {doc_file}")
                             
-                            # Show source details
-                            with response_container.container():
-                                st.markdown(f"**{doc_title}** ({doc_year or doc_date})")
-                                st.markdown(f"**Fichier:** {doc_file}")
-                                
-                                # Show persons if available
-                                if doc.metadata.get('persons'):
-                                    persons = doc.metadata.get('persons')
-                                    if isinstance(persons, list) and persons:
-                                        st.markdown("**Personnes mentionnées:**")
-                                        st.markdown(", ".join(persons))
-                                
-                                # Show content
-                                st.markdown("**Extrait:**")
-                                content = doc.page_content
-                                # Clean up content if needed
-                                if content.startswith(f"Document: {doc_title}"):
-                                    content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
-                                
-                                st.text_area("", value=content, height=150, key=f"content_{source_key}", disabled=True)
-                                st.markdown("---")
+                            # Show persons if available
+                            if doc.metadata.get('persons'):
+                                persons = doc.metadata.get('persons')
+                                if isinstance(persons, list) and persons:
+                                    st.markdown("**Personnes mentionnées:**")
+                                    st.markdown(", ".join(persons))
+                            
+                            # Show content
+                            st.markdown("**Extrait:**")
+                            content = doc.page_content
+                            # Clean up content if needed
+                            if content.startswith(f"Document: {doc_title}"):
+                                content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
+                            
+                            st.text_area("", value=content, height=150, disabled=True)
             
             except Exception as e:
                 st.error(f"Error generating response: {e}")
