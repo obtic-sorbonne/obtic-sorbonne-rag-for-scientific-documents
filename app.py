@@ -196,9 +196,6 @@ def query_llm(retriever, query, hf_api_key):
     )
     
     
-    # Get the documents
-    docs = retriever.get_relevant_documents(query)
-    
     # Create a properly formatted query with instructions
     enhanced_query = f"""
     {query}
@@ -208,22 +205,19 @@ def query_llm(retriever, query, hf_api_key):
     Réponds en français en utilisant un langage naturel et cohérent.
     """
     
-    # Create the QA chain with the original retriever
+    # Create the QA chain
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
-        retriever=retriever,  # Using the original retriever
+        retriever=retriever,
         return_source_documents=True,
         verbose=True
     )
     
-    # Run the chain with our enhanced query and pre-fetched documents
+    # Run the chain with our enhanced query
     result = qa_chain({"query": enhanced_query})
     answer = result["result"]
     source_docs = result["source_documents"]
-    
-    # Clean up the answer if necessary
-    answer = clean_content(answer)
     
     # Update message history
     if "messages" in st.session_state:
