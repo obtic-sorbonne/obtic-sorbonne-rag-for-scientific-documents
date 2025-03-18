@@ -1,4 +1,5 @@
 import os
+import torch
 import re
 import tempfile
 import xml.etree.ElementTree as ET
@@ -38,10 +39,12 @@ def preprocess_text(text):
         print(f"Tokenization failed: {str(e)}. Returning original text.")
         return text
 
-
-
-
 # Define paths
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+os.environ["CUDA_VISIBLE_DEVICES"] = "cpu"
+print(f"PyTorch version: {torch.__version__}")
+print(f"CUDA available: {torch.cuda.is_available()}")
+
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
 
@@ -204,49 +207,46 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
-    from langchain.schema.retriever import BaseRetriever
     
-    # Add system message to instruct the model to respond in French with better formatting
+    # Update the system message to be clearer and more concise
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        temperature=0.6,          
-        max_new_tokens=512,       
-        top_p=0.95,
+        temperature=0.3,  # Reduced temperature for more focused responses
+        max_new_tokens=512,
+        top_p=0.9,
         model_kwargs={
             "parameters": {
-                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques. 
-                Réponds toujours en français de façon claire et structurée.
-                Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
-                N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
-                Si les informations extraites sont incomplètes ou confuses, ne les inclus pas."""
+                "system": """Tu es un assistant IA spécialisé dans l'analyse de documents scientifiques. 
+                Réponds toujours de façon claire et précise.
+                Ne fais pas d'analyse réflexive sur tes propres réponses.
+                N'ajoute jamais de notes de discussion ou de métacommentaires dans ta réponse.
+                Si les informations extraites sont incomplètes ou si tu ne connais pas la réponse, dis-le simplement."""
             }
         }
     )
     
+    # Simplify the query - remove unnecessary instructions that might confuse the model
+    enhanced_query = f"{query}"
     
-    # Create a properly formatted query with instructions
-    enhanced_query = f"""
-    {query}
-    
-    Important : Présente ta réponse de façon claire et bien structurée. 
-    Réponds en français en utilisant un langage naturel et cohérent.
-    """
-    
-    # Create the QA chain
+    # Create the QA chain with simplified parameters
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
         return_source_documents=True,
-        verbose=True
+        verbose=False  # Set to False to reduce noise
     )
     
-    # Run the chain with our enhanced query
+    # Run the chain
     result = qa_chain({"query": enhanced_query})
     answer = result["result"]
     source_docs = result["source_documents"]
+    
+    # Post-process the answer to remove any trailing notes or meta-comments
+    if "[Note :" in answer:
+        answer = answer.split("[Note :")[0].strip()
     
     # Update message history
     if "messages" in st.session_state:
