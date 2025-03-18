@@ -1,12 +1,8 @@
-torch==2.0.1
-transformers==4.30.2
 streamlit==1.28.2
-langchain>=0.3.0
-langchain-huggingface>=0.1.2
-langchain-community>=0.0.1
-langchain-text-splitters>=0.0.1
-huggingface-hub>=0.19.0
-sentence-transformers>=2.6.0
-faiss-cpu>=1.7.4
-nltk>=3.8.1
-
+ langchain>=0.3.0
+ langchain-huggingface>=0.1.2
+ langchain-community>=0.0.1
+ langchain-text-splitters>=0.0.1
+ huggingface-hub>=0.19.0
+ sentence-transformers>=2.6.0
+ faiss-cpu>=1.7.4
