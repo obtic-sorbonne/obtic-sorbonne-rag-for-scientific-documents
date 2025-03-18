@@ -173,7 +173,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
-    # Add system message to instruct the model to respond in French
+    # Add system message to instruct the model to respond in French with better formatting
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
@@ -183,7 +183,12 @@ def query_llm(retriever, query, hf_api_key):
         top_p=0.95,
         model_kwargs={
             "parameters": {
-                "system": "Tu es un assistant IA français. Réponds toujours en français, quelle que soit la langue de la question."
+                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques. 
+                Réponds toujours en français de façon claire et structurée.
+                Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
+                Si tu rencontres des tableaux ou des données structurées, présente-les de manière claire.
+                N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
+                Si les informations extraites sont incomplètes ou confuses, explique-le et suggère des alternatives."""
             }
         }
     )
@@ -196,8 +201,53 @@ def query_llm(retriever, query, hf_api_key):
         verbose=True
     )
     
-    # Modify the query to include language instruction if not already present
-    enhanced_query = f"{query} Réponds en français."
+    # Function to clean and prepare data for the LLM
+    def clean_retrieved_content(content):
+        """Clean and prepare retrieved content by removing technical artifacts"""
+        # Remove XML tags and special characters
+        cleaned = re.sub(r'<[^>]+>', ' ', content)
+        cleaned = re.sub(r'\]\]>', '', cleaned)
+        # Normalize whitespace
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        return cleaned
+    
+    # Enhance the query with better instructions
+    enhanced_query = f"""
+    {query}
+    
+    Important : Présente ta réponse de façon claire et bien structurée. 
+    Si tu trouves des tableaux de données, présente-les dans un format lisible.
+    Réponds en français en utilisant un langage naturel et cohérent.
+    """
+    
+    # Get the documents first
+    retrieved_docs = retriever.get_relevant_documents(query)
+    
+    # Clean the content of each document
+    cleaned_docs = []
+    for doc in retrieved_docs:
+        cleaned_content = clean_retrieved_content(doc.page_content)
+        cleaned_doc = Document(
+            page_content=cleaned_content,
+            metadata=doc.metadata
+        )
+        cleaned_docs.append(cleaned_doc)
+    
+    # Create a custom retriever that returns our cleaned documents
+    class CustomRetriever:
+        def get_relevant_documents(self, *args, **kwargs):
+            return cleaned_docs
+    
+    custom_retriever = CustomRetriever()
+    
+    # Use the custom retriever with the chain
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=custom_retriever,
+        return_source_documents=True,
+        verbose=True
+    )
     
     result = qa_chain({"query": enhanced_query})
     answer = result["result"]
@@ -208,7 +258,6 @@ def query_llm(retriever, query, hf_api_key):
         st.session_state.messages.append((query, answer))
     
     return answer, source_docs
-
 def process_documents(hf_api_key):
     """Process documents and create the retriever."""
     if not hf_api_key:
