@@ -152,7 +152,7 @@ def split_documents(documents):
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database."""
     embeddings = HuggingFaceEmbeddings(
-        api_key=hf_api_key,
+        huggingfacehub_api_token=hf_api_key,  # Changed from api_key
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
     
