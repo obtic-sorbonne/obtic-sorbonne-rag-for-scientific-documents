@@ -173,6 +173,8 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
+    from langchain.schema.retriever import BaseRetriever
+    
     # Add system message to instruct the model to respond in French with better formatting
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
@@ -193,17 +195,9 @@ def query_llm(retriever, query, hf_api_key):
         }
     )
     
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        verbose=True
-    )
-    
     # Function to clean and prepare data for the LLM
-    def clean_retrieved_content(content):
-        """Clean and prepare retrieved content by removing technical artifacts"""
+    def clean_content(content):
+        """Clean and prepare content by removing technical artifacts"""
         # Remove XML tags and special characters
         cleaned = re.sub(r'<[^>]+>', ' ', content)
         cleaned = re.sub(r'\]\]>', '', cleaned)
@@ -211,7 +205,14 @@ def query_llm(retriever, query, hf_api_key):
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
         return cleaned
     
-    # Enhance the query with better instructions
+    # Get the documents
+    docs = retriever.get_relevant_documents(query)
+    
+    # Clean the documents
+    for doc in docs:
+        doc.page_content = clean_content(doc.page_content)
+    
+    # Create a properly formatted query with instructions
     enhanced_query = f"""
     {query}
     
@@ -220,44 +221,29 @@ def query_llm(retriever, query, hf_api_key):
     Réponds en français en utilisant un langage naturel et cohérent.
     """
     
-    # Get the documents first
-    retrieved_docs = retriever.get_relevant_documents(query)
-    
-    # Clean the content of each document
-    cleaned_docs = []
-    for doc in retrieved_docs:
-        cleaned_content = clean_retrieved_content(doc.page_content)
-        cleaned_doc = Document(
-            page_content=cleaned_content,
-            metadata=doc.metadata
-        )
-        cleaned_docs.append(cleaned_doc)
-    
-    # Create a custom retriever that returns our cleaned documents
-    class CustomRetriever:
-        def get_relevant_documents(self, *args, **kwargs):
-            return cleaned_docs
-    
-    custom_retriever = CustomRetriever()
-    
-    # Use the custom retriever with the chain
+    # Create the QA chain with the original retriever
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
-        retriever=custom_retriever,
+        retriever=retriever,  # Using the original retriever
         return_source_documents=True,
         verbose=True
     )
     
+    # Run the chain with our enhanced query and pre-fetched documents
     result = qa_chain({"query": enhanced_query})
     answer = result["result"]
     source_docs = result["source_documents"]
+    
+    # Clean up the answer if necessary
+    answer = clean_content(answer)
     
     # Update message history
     if "messages" in st.session_state:
         st.session_state.messages.append((query, answer))
     
     return answer, source_docs
+
 def process_documents(hf_api_key):
     """Process documents and create the retriever."""
     if not hf_api_key:
