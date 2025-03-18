@@ -277,6 +277,7 @@ def input_fields():
                     f.write(uploaded_file.getbuffer())
                 st.success(f"Fichier {uploaded_file.name} sauvegardé.")
 
+# Amélioration de l'affichage des sources dans la fonction boot()
 def boot():
     """Main function to run the application."""
     # Setup input fields
@@ -318,16 +319,43 @@ def boot():
                 response_container = st.chat_message("ai")
                 response_container.write(answer)
                 
-                # Display source documents
+                # Display source documents with improved formatting
                 if source_docs:
                     response_container.markdown("---")
-                    response_container.markdown("**Sources:**")
-                    for i, doc in enumerate(source_docs):
-                        with response_container.expander(f"Source {i+1}: {doc.metadata.get('title', 'Unknown')}"):
-                            response_container.markdown(f"**Date:** {doc.metadata.get('date', 'Unknown')}")
-                            response_container.markdown(f"**Fichier:** {doc.metadata.get('source', 'Unknown')}")
+                    response_container.markdown("### Sources utilisées")
+                    
+                    # Deduplicate sources based on source file
+                    seen_sources = set()
+                    unique_sources = []
+                    
+                    for doc in source_docs:
+                        source_key = doc.metadata.get('source', '')
+                        if source_key not in seen_sources:
+                            seen_sources.add(source_key)
+                            unique_sources.append(doc)
+                    
+                    # Display sources in a cleaner format
+                    for i, doc in enumerate(unique_sources):
+                        source_title = doc.metadata.get('title', 'Document sans titre')
+                        source_date = doc.metadata.get('date', 'Date inconnue')
+                        source_file = doc.metadata.get('source', 'Fichier inconnu')
+                        source_year = doc.metadata.get('year', '')
+                        
+                        with response_container.expander(f"📄 {source_title} ({source_date})"):
+                            response_container.markdown(f"**Fichier:** `{source_file}`")
+                            if source_year:
+                                response_container.markdown(f"**Année:** {source_year}")
+                            
+                            # Show persons if available
                             if doc.metadata.get('persons'):
-                                response_container.markdown(f"**Personnes mentionnées:** {', '.join(doc.metadata.get('persons'))}")
+                                response_container.markdown("**Personnes mentionnées:**")
+                                for person in doc.metadata.get('persons'):
+                                    response_container.markdown(f"- {person}")
+                            
+                            # Show a preview of the chunk's content
+                            response_container.markdown("**Extrait du document:**")
+                            preview = doc.page_content[:500] + "..." if len(doc.page_content) > 500 else doc.page_content
+                            response_container.markdown(f"```\n{preview}\n```")
             
             except Exception as e:
                 st.error(f"Error generating response: {e}")
