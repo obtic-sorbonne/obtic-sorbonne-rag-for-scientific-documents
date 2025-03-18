@@ -15,6 +15,7 @@ from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 
 import nltk
+from nltk.tokenize import sent_tokenize
 
 # Change this part in your code
 try:
@@ -32,6 +33,7 @@ def preprocess_text(text):
     # Reconstruire le texte avec des phrases complètes
     clean_text = " ".join(sentences)
     return clean_text
+
 
 
 
