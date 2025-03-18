@@ -184,8 +184,19 @@ def query_llm(retriever, query, hf_api_key):
         top_p=0.95,
         model_kwargs={
             "parameters": {
-                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
-                Réponds toujours en français de façon claire et structurée."""
+                "system": """
+                Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
+                Instructions:
+                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
+                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
+                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
+                4. Cite les passages précis du contexte qui appuient ta réponse.
+                5. Structure ta réponse de manière claire et concise.
+                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
+                7. Si la question est ambiguë, demande des précisions.
+                
+                Réponds en français, dans un style professionnel et accessible.
+                """
             }
         }
     )
