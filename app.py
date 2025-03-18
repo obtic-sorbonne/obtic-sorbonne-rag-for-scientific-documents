@@ -6,7 +6,7 @@ from pathlib import Path
 
 import streamlit as st
 from langchain.chains import RetrievalQA
-from langchain_huggingface import HuggingFaceInferenceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEndpoint
 from langchain.document_loaders import DirectoryLoader
@@ -151,7 +151,7 @@ def split_documents(documents):
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database."""
-    embeddings = HuggingFaceInferenceEmbeddings(
+    embeddings = HuggingFaceEmbeddings(
         api_key=hf_api_key,
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
