@@ -180,7 +180,7 @@ def query_llm(retriever, query, hf_api_key):
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        temperature=0.7,          
+        temperature=0.6,          
         max_new_tokens=512,       
         top_p=0.95,
         model_kwargs={
@@ -188,9 +188,8 @@ def query_llm(retriever, query, hf_api_key):
                 "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques. 
                 Réponds toujours en français de façon claire et structurée.
                 Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
-                Si tu rencontres des tableaux ou des données structurées, présente-les de manière claire.
                 N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
-                Si les informations extraites sont incomplètes ou confuses, explique-le et suggère des alternatives."""
+                Si les informations extraites sont incomplètes ou confuses, ne les inclus pas."""
             }
         }
     )
@@ -201,7 +200,6 @@ def query_llm(retriever, query, hf_api_key):
     {query}
     
     Important : Présente ta réponse de façon claire et bien structurée. 
-    Si tu trouves des tableaux de données, présente-les dans un format lisible.
     Réponds en français en utilisant un langage naturel et cohérent.
     """
     
@@ -289,6 +287,10 @@ def boot():
     if "retriever" not in st.session_state:
         st.session_state.retriever = None
     
+    # Initialize view state for source buttons if not exists
+    if "source_views" not in st.session_state:
+        st.session_state.source_views = {}
+    
     # Submit documents button
     if st.button("Traiter les documents"):
         st.session_state.retriever = process_documents(st.session_state.hf_api_key)
@@ -314,60 +316,60 @@ def boot():
                     st.session_state.hf_api_key
                 )
                 
+                # Reset source views for new question
+                st.session_state.source_views = {}
+                
                 # Display the answer
                 response_container = st.chat_message("ai")
                 response_container.write(answer)
                 
-                # Display source documents in a more compact format
+                # Display source buttons
                 if source_docs:
                     response_container.markdown("---")
                     response_container.markdown("**Sources:**")
                     
-                    # Create a row of buttons for sources
-                    cols = response_container.columns(min(len(source_docs), 3))
-                    
-                    for i, (col, doc) in enumerate(zip(cols, source_docs)):
-                        # Prepare document info
-                        doc_title = doc.metadata.get('title', 'Document sans titre')
-                        doc_date = doc.metadata.get('date', 'Date inconnue')
-                        doc_year = doc.metadata.get('year', '')
-                        doc_file = doc.metadata.get('source', 'Fichier inconnu')
+                    # Create buttons for each source
+                    for i, doc in enumerate(source_docs):
+                        # Create a unique key for this source
+                        source_key = f"source_{i}_{hash(query)}"
                         
-                        # Create year info text if available
-                        year_info = f" ({doc_year})" if doc_year else ""
+                        # Button to toggle source visibility
+                        if response_container.button(f"📄 Source {i+1}", key=source_key):
+                            # Toggle the view state for this source
+                            st.session_state.source_views[source_key] = not st.session_state.source_views.get(source_key, False)
                         
-                        # Use columns instead of nested expanders
-                        with col:
-                            # Create a button-like display
-                            st.button(f"📄 Source {i+1}", key=f"source_{i}", help=f"Afficher les détails de la source {i+1}")
+                        # Show source content if toggled
+                        if st.session_state.source_views.get(source_key, False):
+                            # Prepare document info
+                            doc_title = doc.metadata.get('title', 'Document sans titre')
+                            doc_date = doc.metadata.get('date', 'Date inconnue')
+                            doc_year = doc.metadata.get('year', '')
+                            doc_file = doc.metadata.get('source', 'Fichier inconnu')
                             
-                            # Display basic info
-                            st.markdown(f"**{doc_title}**{year_info}")
-                            st.markdown(f"**Date:** {doc_date}")
-                            
-                            # Toggle for persons (using checkbox to simulate an expansion)
-                            if doc.metadata.get('persons'):
-                                persons_list = doc.metadata.get('persons')
-                                if isinstance(persons_list, list) and len(persons_list) > 0:
-                                    if st.checkbox(f"👤 Personnes mentionnées", key=f"persons_{i}"):
-                                        for person in persons_list:
-                                            st.markdown(f"- {person}")
-                            
-                            # Toggle for content preview
-                            if st.checkbox(f"🔍 Voir l'extrait", key=f"content_{i}"):
-                                # Clean up the extract
+                            # Show source details
+                            with response_container.container():
+                                st.markdown(f"**{doc_title}** ({doc_year or doc_date})")
+                                st.markdown(f"**Fichier:** {doc_file}")
+                                
+                                # Show persons if available
+                                if doc.metadata.get('persons'):
+                                    persons = doc.metadata.get('persons')
+                                    if isinstance(persons, list) and persons:
+                                        st.markdown("**Personnes mentionnées:**")
+                                        st.markdown(", ".join(persons))
+                                
+                                # Show content
+                                st.markdown("**Extrait:**")
                                 content = doc.page_content
+                                # Clean up content if needed
                                 if content.startswith(f"Document: {doc_title}"):
                                     content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
                                 
-                                # Limit content length for preview
-                                max_length = 300
-                                if len(content) > max_length:
-                                    content = content[:max_length] + "..."
-                                
-                                st.text_area("", value=content, height=150, key=f"content_area_{i}", disabled=True)
+                                st.text_area("", value=content, height=150, key=f"content_{source_key}", disabled=True)
+                                st.markdown("---")
             
             except Exception as e:
                 st.error(f"Error generating response: {e}")
+
 if __name__ == '__main__':
     boot()
