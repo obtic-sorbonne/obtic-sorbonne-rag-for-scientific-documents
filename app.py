@@ -14,6 +14,18 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 
+import nltk
+nltk.download('punkt')
+from nltk.tokenize import sent_tokenize
+
+def preprocess_text(text):
+    # Tokeniser par phrases
+    sentences = sent_tokenize(text, language='french')
+    # Reconstruire le texte avec des phrases complètes
+    clean_text = " ".join(sentences)
+    return clean_text
+
+
 # Define paths
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
@@ -78,15 +90,15 @@ def parse_xmltei_document(file_path):
         for para in paragraphs:
             para_text = ''.join(para.itertext()).strip()
             if para_text:
+                # Nettoyer les espaces excessifs
+                para_text = re.sub(r'\s+', ' ', para_text)
                 all_paragraphs.append(para_text)
         
-        # Combine header with paragraphs
-        full_text = header + "\n".join(all_paragraphs)
+        # Joindre les paragraphes avec des sauts de ligne
+        full_text = header + "\n\n".join(all_paragraphs)
         
-        # Add person names as additional information
-        if person_text:
-            person_section = "\n\nPersonnes mentionnées: " + ", ".join(person_text)
-            full_text += person_section
+        # Prétraiter pour avoir des phrases complètes
+        full_text = preprocess_text(full_text)
         
         return {
             "title": title_text,
@@ -145,7 +157,11 @@ def load_documents():
 
 def split_documents(documents):
     """Split documents into chunks for processing."""
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, 
+        chunk_overlap=100,
+        separators=["\n\n", "\n", ". ", "! ", "? ", ";", ",", " ", ""]
+    )
     texts = text_splitter.split_documents(documents)
     
     return texts
