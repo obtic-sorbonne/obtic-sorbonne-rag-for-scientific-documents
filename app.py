@@ -277,7 +277,6 @@ def input_fields():
                     f.write(uploaded_file.getbuffer())
                 st.success(f"Fichier {uploaded_file.name} sauvegardé.")
 
-# Amélioration de l'affichage des sources dans la fonction boot()
 def boot():
     """Main function to run the application."""
     # Setup input fields
@@ -319,54 +318,51 @@ def boot():
                 response_container = st.chat_message("ai")
                 response_container.write(answer)
                 
-                # Display source documents with improved formatting
+                # Display source documents in a more compact format
                 if source_docs:
                     response_container.markdown("---")
-                    response_container.markdown("### Sources utilisées")
                     
-                    # Calculate similarity scores (not perfect without the actual vectors but better than nothing)
-                    # Here we use a simplified approach where the order of documents implies relevance
-                    for i, doc in enumerate(source_docs):
-                        # Create a pseudo-similarity score that decreases with position
-                        # This is just for display purposes
-                        similarity = round(1.0 - (i * 0.1), 2)
-                        if similarity < 0.5:
-                            similarity = round(0.5 + (random.random() * 0.2), 2)
-                        
-                        # Prepare document information
+                    # Create a row of small buttons (sources)
+                    cols = response_container.columns(min(len(source_docs), 3))
+                    
+                    for i, (col, doc) in enumerate(zip(cols, source_docs)):
+                        # Prepare document info
                         doc_title = doc.metadata.get('title', 'Document sans titre')
                         doc_date = doc.metadata.get('date', 'Date inconnue')
                         doc_year = doc.metadata.get('year', '')
-                        doc_file = doc.metadata.get('source', 'Fichier inconnu')
                         
                         # Create year info text if available
                         year_info = f" ({doc_year})" if doc_year else ""
                         
-                        # Create expander with title and similarity score
-                        with response_container.expander(f"Source {i+1}: {doc_title}{year_info} (Similarité: {similarity:.2f})"):
-                            response_container.markdown(f"**Date:** {doc_date}")
-                            response_container.markdown(f"**Fichier:** `{doc_file}`")
-                            
-                            # Display persons if available
-                            if doc.metadata.get('persons'):
-                                response_container.markdown("**Personnes mentionnées:**")
-                                persons_list = doc.metadata.get('persons')
-                                if isinstance(persons_list, list):
-                                    for person in persons_list:
-                                        response_container.markdown(f"- {person}")
-                                else:
-                                    response_container.markdown(f"{persons_list}")
-                            
-                            # Display content extract
-                            response_container.markdown("**Extrait:**")
-                            
-                            # Clean up the extract by removing metadata headers if present
-                            content = doc.page_content
-                            if content.startswith(f"Document: {doc_title}"):
-                                content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
-                            
-                            # Use code block to display the content with better formatting
-                            response_container.markdown(f"```\n{content}\n```")
+                        # Create a small button-like container for each source
+                        with col:
+                            # Use a styled expander to look more like a button
+                            source_container = st.expander(f"📄 Source {i+1}", expanded=False)
+                            with source_container:
+                                st.markdown(f"**{doc_title}**{year_info}")
+                                st.markdown(f"**Date:** {doc_date}")
+                                
+                                # Show persons if available
+                                if doc.metadata.get('persons'):
+                                    persons_list = doc.metadata.get('persons')
+                                    if isinstance(persons_list, list) and len(persons_list) > 0:
+                                        with st.expander("👤 Personnes mentionnées"):
+                                            for person in persons_list:
+                                                st.markdown(f"- {person}")
+                                
+                                # Show a preview of content
+                                with st.expander("🔍 Voir l'extrait"):
+                                    # Clean up the extract
+                                    content = doc.page_content
+                                    if content.startswith(f"Document: {doc_title}"):
+                                        content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
+                                    
+                                    # Limit content length for preview
+                                    max_length = 500
+                                    if len(content) > max_length:
+                                        content = content[:max_length] + "..."
+                                    
+                                    st.markdown(content)
             
             except Exception as e:
                 st.error(f"Error generating response: {e}")
