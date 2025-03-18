@@ -173,14 +173,19 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
+    # Add system message to instruct the model to respond in French
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        temperature=0.7,          # Direct parameter
-        max_new_tokens=512,       # Direct parameter
-        top_p=0.95                # Direct parameter
-        # Remove model_kwargs
+        temperature=0.7,          
+        max_new_tokens=512,       
+        top_p=0.95,
+        model_kwargs={
+            "parameters": {
+                "system": "Tu es un assistant IA français. Réponds toujours en français, quelle que soit la langue de la question."
+            }
+        }
     )
     
     qa_chain = RetrievalQA.from_chain_type(
@@ -191,7 +196,10 @@ def query_llm(retriever, query, hf_api_key):
         verbose=True
     )
     
-    result = qa_chain({"query": query})
+    # Modify the query to include language instruction if not already present
+    enhanced_query = f"{query} Réponds en français."
+    
+    result = qa_chain({"query": enhanced_query})
     answer = result["result"]
     source_docs = result["source_documents"]
     
