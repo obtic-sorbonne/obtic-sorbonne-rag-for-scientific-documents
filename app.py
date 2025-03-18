@@ -15,7 +15,10 @@ from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 
 import nltk
-nltk.download('punkt')
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 from nltk.tokenize import sent_tokenize
 
 def preprocess_text(text):
