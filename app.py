@@ -184,14 +184,8 @@ def query_llm(retriever, query, hf_api_key):
         top_p=0.95,
         model_kwargs={
             "parameters": {
-                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques. 
-                Réponds toujours en français de façon claire et structurée.
-                Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
-                N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
-                Ne commente jamais tes propres réponses.
-                N'ajoute jamais de notes, d'évaluations ou de commentaires sur ta réponse.
-                N'écris jamais de texte commençant par "Note:" ou similaire.
-                Donne uniquement la réponse directe à la question, sans métacommentaire."""
+                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
+                Réponds toujours en français de façon claire et structurée."""
             }
         }
     )
