@@ -14,25 +14,29 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 
+
 import nltk
 from nltk.tokenize import sent_tokenize
 
-# Change this part in your code
+# Use the safe punkt_tab instead of the deprecated punkt package
 try:
-    # Check for punkt
-    nltk.data.find('tokenizers/punkt')
-    # Also check for French punkt specifically
-    nltk.data.find('tokenizers/punkt/french.pickle')
+    nltk.data.find('tokenizers/punkt_tab')
 except LookupError:
-    # Download all punkt resources
-    nltk.download('punkt')
+    nltk.download('punkt_tab')
 
 def preprocess_text(text):
-    # Tokeniser par phrases
-    sentences = sent_tokenize(text, language='french')
-    # Reconstruire le texte avec des phrases complètes
-    clean_text = " ".join(sentences)
-    return clean_text
+    """
+    Tokenize text into sentences and rejoin to ensure we have complete sentences.
+    Uses the secure punkt_tab tokenizer for French language.
+    """
+    try:
+        sentences = sent_tokenize(text, language='french')
+        clean_text = " ".join(sentences)
+        return clean_text
+    except Exception as e:
+        # If tokenization fails, log the error and return the original text
+        print(f"Tokenization failed: {str(e)}. Returning original text.")
+        return text
 
 
 
