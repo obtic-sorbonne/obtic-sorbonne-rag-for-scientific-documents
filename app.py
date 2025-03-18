@@ -6,9 +6,9 @@ from pathlib import Path
 
 import streamlit as st
 from langchain.chains import RetrievalQA
-from langchain.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain.embeddings import HuggingFaceInferenceEmbeddings
 from langchain.vectorstores import Chroma
-from langchain.llms import HuggingFaceHub
+from langchain_huggingface import HuggingFaceEndpoint
 from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
@@ -151,7 +151,7 @@ def split_documents(documents):
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database."""
-    embeddings = HuggingFaceInferenceAPIEmbeddings(
+    embeddings = HuggingFaceInferenceEmbeddings(
         api_key=hf_api_key,
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     )
@@ -167,9 +167,10 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
-    llm = HuggingFaceHub(
-        repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+    llm = HuggingFaceEndpoint(
+        endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
+        task="text-generation",
         model_kwargs={
             "temperature": 0.7,
             "max_new_tokens": 512,
