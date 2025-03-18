@@ -1,5 +1,4 @@
 import os
-import torch
 import re
 import tempfile
 import xml.etree.ElementTree as ET
@@ -15,36 +14,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 
-
-import nltk
-from nltk.tokenize import sent_tokenize
-
-# Use the safe punkt_tab instead of the deprecated punkt package
-try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt_tab')
-
-def preprocess_text(text):
-    """
-    Tokenize text into sentences and rejoin to ensure we have complete sentences.
-    Uses the secure punkt_tab tokenizer for French language.
-    """
-    try:
-        sentences = sent_tokenize(text, language='french')
-        clean_text = " ".join(sentences)
-        return clean_text
-    except Exception as e:
-        # If tokenization fails, log the error and return the original text
-        print(f"Tokenization failed: {str(e)}. Returning original text.")
-        return text
-
 # Define paths
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-os.environ["CUDA_VISIBLE_DEVICES"] = "cpu"
-print(f"PyTorch version: {torch.__version__}")
-print(f"CUDA available: {torch.cuda.is_available()}")
-
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
 
@@ -108,15 +78,15 @@ def parse_xmltei_document(file_path):
         for para in paragraphs:
             para_text = ''.join(para.itertext()).strip()
             if para_text:
-                # Nettoyer les espaces excessifs
-                para_text = re.sub(r'\s+', ' ', para_text)
                 all_paragraphs.append(para_text)
         
-        # Joindre les paragraphes avec des sauts de ligne
-        full_text = header + "\n\n".join(all_paragraphs)
+        # Combine header with paragraphs
+        full_text = header + "\n".join(all_paragraphs)
         
-        # Prétraiter pour avoir des phrases complètes
-        full_text = preprocess_text(full_text)
+        # Add person names as additional information
+        if person_text:
+            person_section = "\n\nPersonnes mentionnées: " + ", ".join(person_text)
+            full_text += person_section
         
         return {
             "title": title_text,
@@ -175,11 +145,7 @@ def load_documents():
 
 def split_documents(documents):
     """Split documents into chunks for processing."""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, 
-        chunk_overlap=100,
-        separators=["\n\n", "\n", ". ", "! ", "? ", ";", ",", " ", ""]
-    )
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
     
     return texts
@@ -207,46 +173,49 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 
 def query_llm(retriever, query, hf_api_key):
     """Query the LLM using Hugging Face and LangChain."""
+    from langchain.schema.retriever import BaseRetriever
     
-    # Update the system message to be clearer and more concise
+    # Add system message to instruct the model to respond in French with better formatting
     llm = HuggingFaceEndpoint(
         endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
         huggingfacehub_api_token=hf_api_key,
         task="text-generation",
-        temperature=0.3,  # Reduced temperature for more focused responses
-        max_new_tokens=512,
-        top_p=0.9,
+        temperature=0.6,          
+        max_new_tokens=512,       
+        top_p=0.95,
         model_kwargs={
             "parameters": {
-                "system": """Tu es un assistant IA spécialisé dans l'analyse de documents scientifiques. 
-                Réponds toujours de façon claire et précise.
-                Ne fais pas d'analyse réflexive sur tes propres réponses.
-                N'ajoute jamais de notes de discussion ou de métacommentaires dans ta réponse.
-                Si les informations extraites sont incomplètes ou si tu ne connais pas la réponse, dis-le simplement."""
+                "system": """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques. 
+                Réponds toujours en français de façon claire et structurée.
+                Quand tu présentes des données extraites des documents, assure-toi de les organiser de façon lisible.
+                N'inclus pas de caractères techniques ou de formatage brut dans tes réponses.
+                Si les informations extraites sont incomplètes ou confuses, ne les inclus pas."""
             }
         }
     )
     
-    # Simplify the query - remove unnecessary instructions that might confuse the model
-    enhanced_query = f"{query}"
     
-    # Create the QA chain with simplified parameters
+    # Create a properly formatted query with instructions
+    enhanced_query = f"""
+    {query}
+    
+    Important : Présente ta réponse de façon claire et bien structurée. 
+    Réponds en français en utilisant un langage naturel et cohérent.
+    """
+    
+    # Create the QA chain
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
         retriever=retriever,
         return_source_documents=True,
-        verbose=False  # Set to False to reduce noise
+        verbose=True
     )
     
-    # Run the chain
+    # Run the chain with our enhanced query
     result = qa_chain({"query": enhanced_query})
     answer = result["result"]
     source_docs = result["source_documents"]
-    
-    # Post-process the answer to remove any trailing notes or meta-comments
-    if "[Note :" in answer:
-        answer = answer.split("[Note :")[0].strip()
     
     # Update message history
     if "messages" in st.session_state:
