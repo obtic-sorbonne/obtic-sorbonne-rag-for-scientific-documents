@@ -321,8 +321,9 @@ def boot():
                 # Display source documents in a more compact format
                 if source_docs:
                     response_container.markdown("---")
+                    response_container.markdown("**Sources:**")
                     
-                    # Create a row of small buttons (sources)
+                    # Create a row of buttons for sources
                     cols = response_container.columns(min(len(source_docs), 3))
                     
                     for i, (col, doc) in enumerate(zip(cols, source_docs)):
@@ -330,42 +331,43 @@ def boot():
                         doc_title = doc.metadata.get('title', 'Document sans titre')
                         doc_date = doc.metadata.get('date', 'Date inconnue')
                         doc_year = doc.metadata.get('year', '')
+                        doc_file = doc.metadata.get('source', 'Fichier inconnu')
                         
                         # Create year info text if available
                         year_info = f" ({doc_year})" if doc_year else ""
                         
-                        # Create a small button-like container for each source
+                        # Use columns instead of nested expanders
                         with col:
-                            # Use a styled expander to look more like a button
-                            source_container = st.expander(f"📄 Source {i+1}", expanded=False)
-                            with source_container:
-                                st.markdown(f"**{doc_title}**{year_info}")
-                                st.markdown(f"**Date:** {doc_date}")
+                            # Create a button-like display
+                            st.button(f"📄 Source {i+1}", key=f"source_{i}", help=f"Afficher les détails de la source {i+1}")
+                            
+                            # Display basic info
+                            st.markdown(f"**{doc_title}**{year_info}")
+                            st.markdown(f"**Date:** {doc_date}")
+                            
+                            # Toggle for persons (using checkbox to simulate an expansion)
+                            if doc.metadata.get('persons'):
+                                persons_list = doc.metadata.get('persons')
+                                if isinstance(persons_list, list) and len(persons_list) > 0:
+                                    if st.checkbox(f"👤 Personnes mentionnées", key=f"persons_{i}"):
+                                        for person in persons_list:
+                                            st.markdown(f"- {person}")
+                            
+                            # Toggle for content preview
+                            if st.checkbox(f"🔍 Voir l'extrait", key=f"content_{i}"):
+                                # Clean up the extract
+                                content = doc.page_content
+                                if content.startswith(f"Document: {doc_title}"):
+                                    content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
                                 
-                                # Show persons if available
-                                if doc.metadata.get('persons'):
-                                    persons_list = doc.metadata.get('persons')
-                                    if isinstance(persons_list, list) and len(persons_list) > 0:
-                                        with st.expander("👤 Personnes mentionnées"):
-                                            for person in persons_list:
-                                                st.markdown(f"- {person}")
+                                # Limit content length for preview
+                                max_length = 300
+                                if len(content) > max_length:
+                                    content = content[:max_length] + "..."
                                 
-                                # Show a preview of content
-                                with st.expander("🔍 Voir l'extrait"):
-                                    # Clean up the extract
-                                    content = doc.page_content
-                                    if content.startswith(f"Document: {doc_title}"):
-                                        content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
-                                    
-                                    # Limit content length for preview
-                                    max_length = 500
-                                    if len(content) > max_length:
-                                        content = content[:max_length] + "..."
-                                    
-                                    st.markdown(content)
+                                st.text_area("", value=content, height=150, key=f"content_area_{i}", disabled=True)
             
             except Exception as e:
                 st.error(f"Error generating response: {e}")
-
 if __name__ == '__main__':
     boot()
