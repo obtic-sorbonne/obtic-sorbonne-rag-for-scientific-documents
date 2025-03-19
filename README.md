@@ -11,9 +11,9 @@ Cette application Streamlit implémente un système de Retrieval Augmented Gener
 - **Personnalisation avancée** du prompt système pour ajuster les réponses
 - **Visualisation des extraits** de texte pertinents pour chaque réponse
 
-## 📋 Prérequis
+## 📋 Prérequis pour le déploiement
 
-- Python 3.8+ 
+- Compte Streamlit (même gratuit)
 - Compte Hugging Face (pour l'API key)
 - Compte OpenAI (optionnel, pour utiliser GPT-3.5 avec l'API key)
 
