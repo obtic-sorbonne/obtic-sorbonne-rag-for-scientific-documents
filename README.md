@@ -17,24 +17,9 @@ Cette application Streamlit implémente un système de Retrieval Augmented Gener
 - Compte Hugging Face (pour l'API key)
 - Compte OpenAI (optionnel, pour utiliser GPT-3.5 avec l'API key)
 
-## 🚀 Installation
+## 🚀 Lancement de l'application
 
-1. Clonez ce dépôt :
-```bash
-git clone https://github.com/votre-username/simple-rag.git
-cd simple-rag
-```
-
-2. Créez un environnement virtuel et activez-le :
-```bash
-python -m venv venv
-source venv/bin/activate  # Sous Windows: venv\Scripts\activate
-```
-
-3. Installez les dépendances :
-```bash
-pip install -r requirements.txt
-```
+L'application actuelle est exécutée directement via le service Streamlit, qui prend en entrée le répertoire GitHub et construit l'application sur leur infrastructure cloud, la rendant immédiatement utilisable. Pour cela, il est nécessaire de disposer d'un compte Streamlit et de créer un projet. Les instructions sur leur site sont claires et faciles à suivre.
 
 ## 📊 Structure du projet
 
@@ -46,6 +31,26 @@ simple-rag/
 ├── .gitignore          # Fichiers ignorés par Git
 └── data/               # Répertoire pour les documents à traiter par défaut
 ```
+
+## 📝 Guide d'utilisation
+
+### Configurer l'application
+1. Dans la barre latérale, entrez votre clé API Hugging Face (obligatoire)
+2. Si vous souhaitez utiliser GPT-3.5, entrez également votre clé API OpenAI
+3. Choisissez le modèle LLM à utiliser (Llama 3 ou GPT-3.5)
+
+### Ajouter des documents
+1. Téléchargez vos fichiers XML-TEI via le sélecteur de fichiers dans la barre latérale
+2. Cochez "Utiliser uniquement les fichiers téléchargés" si vous ne voulez pas utiliser le corpus par défaut
+3. Cliquez sur "Traiter les documents" pour indexer votre corpus (cela peut prendre un peu du temps)
+
+### Interroger votre corpus
+1. Saisissez votre question dans le champ de texte en bas de l'écran
+2. Consultez la réponse générée et les sources utilisées
+3. Cliquez sur les sources pour voir les extraits exacts utilisés pour la réponse
+
+### Personnaliser les réponses
+Pour ajuster le style ou le comportement des réponses, utilisez l'option "Options avancées" pour modifier le prompt système.
 
 ## 🧠 Spécifications techniques
 
@@ -68,30 +73,6 @@ simple-rag/
 - **Base de données vectorielle** : FAISS (rapide et efficace pour la recherche de similarité)
 - **Configuration du retriever** : k=3 (récupère les 3 documents les plus pertinents)
 
-## 🚀 Lancement de l'application
-
-L'application actuelle est exécutée directement via le service Streamlit, qui prend en entrée le répertoire GitHub et construit l'application sur leur infrastructure cloud, la rendant immédiatement utilisable. Pour cela, il est nécessaire de disposer d'un compte Streamlit et de créer un projet. Les instructions sur leur site sont claires et faciles à suivre.
-
-## 📝 Guide d'utilisation
-
-### Configurer l'application
-1. Dans la barre latérale, entrez votre clé API Hugging Face (obligatoire)
-2. Si vous souhaitez utiliser GPT-3.5, entrez également votre clé API OpenAI
-3. Choisissez le modèle LLM à utiliser (Llama 3 ou GPT-3.5)
-
-### Ajouter des documents
-1. Téléchargez vos fichiers XML-TEI via le sélecteur de fichiers dans la barre latérale
-2. Cochez "Utiliser uniquement les fichiers téléchargés" si vous ne voulez pas utiliser le corpus par défaut
-3. Cliquez sur "Traiter les documents" pour indexer votre corpus (cela peut prendre un peu du temps)
-
-### Interroger votre corpus
-1. Saisissez votre question dans le champ de texte en bas de l'écran
-2. Consultez la réponse générée et les sources utilisées
-3. Cliquez sur les sources pour voir les extraits exacts utilisés pour la réponse
-
-### Personnaliser les réponses
-Pour ajuster le style ou le comportement des réponses, utilisez l'option "Options avancées" pour modifier le prompt système.
-
 ## 🔄 Format des fichiers XML-TEI supportés
 
 L'application est conçue pour traiter des documents XML-TEI avec les balises suivantes :
@@ -106,7 +87,7 @@ Ce projet est sous une licence open source MIT.
 
 ## 🤝 Contributions
 
-Le projet est préparé par Mikhail Biriuchinskii, ingénieur en Traitement Automatique des Langues, équipe ObTIC, Sorbonne Université.
+Le projet est préparé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur en Traitement Automatique des Langues, équipe ObTIC, Sorbonne Université.
 
 Pour découvrir d'autres projets de l'équipe ObTIC ainsi que les formations proposées, consultez le site : https://obtic.sorbonne-universite.fr/
 
