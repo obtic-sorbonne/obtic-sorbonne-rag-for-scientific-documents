@@ -13,6 +13,7 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
+from langchain_openai import ChatOpenAI  # Added for OpenAI support
 
 # Define paths
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -28,7 +29,7 @@ NAMESPACES = {
 }
 
 st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
-st.title("Retrieval Augmented Generation avec Llama")
+st.title("Retrieval Augmented Generation avec Llama/GPT")
 
 # Function to extract year from document date
 def extract_year(date_str):
@@ -100,22 +101,35 @@ def parse_xmltei_document(file_path):
         st.error(f"Error parsing XML file {file_path}: {str(e)}")
         return None
 
-def load_documents():
-    """Load XML documents from the current directory and data directory."""
-    # Check for XML files in the current directory and data directory
+def load_documents(use_uploaded_only=False):
+    """Load XML documents from the data directory and/or uploaded files.
+    
+    Args:
+        use_uploaded_only: If True, only use uploaded files and ignore default corpus
+    """
     documents = []
     document_dates = {}
     
     xml_files = []
-    for path in [".", "data"]:
-        if os.path.exists(path):
-            for file in os.listdir(path):
-                if file.endswith(".xml") or file.endswith(".xmltei"):
-                    file_path = os.path.join(path, file)
+    
+    # Check if we should use uploaded files only or include default corpus
+    if use_uploaded_only:
+        # Only check for files in the uploaded directory (session state)
+        if "uploaded_files" in st.session_state and st.session_state.uploaded_files:
+            for file_path in st.session_state.uploaded_files:
+                if os.path.exists(file_path) and (file_path.endswith(".xml") or file_path.endswith(".xmltei")):
                     xml_files.append(file_path)
+    else:
+        # Check default corpus in data directory
+        for path in [".", "data"]:
+            if os.path.exists(path):
+                for file in os.listdir(path):
+                    if file.endswith(".xml") or file.endswith(".xmltei"):
+                        file_path = os.path.join(path, file)
+                        xml_files.append(file_path)
     
     if not xml_files:
-        st.error("No XML files found. Please upload XML files to the 'data' directory.")
+        st.error("No XML files found. Please upload XML files or use the default corpus.")
         return documents, document_dates
     
     # Parse each XML file and create documents
@@ -171,35 +185,48 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     retriever = vectordb.as_retriever(search_kwargs={'k': 3})
     return retriever
 
-def query_llm(retriever, query, hf_api_key):
-    """Query the LLM using Hugging Face and LangChain."""
+def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
+    """Query the LLM using either Hugging Face (Llama) or OpenAI (GPT-3.5)."""
     
-    # Updated system prompt that explicitly tells the model not to include notes
-    llm = HuggingFaceEndpoint(
-        endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
-        huggingfacehub_api_token=hf_api_key,
-        task="text-generation",
-        temperature=0.4,
-        max_new_tokens=512,
-        top_p=0.95,
-        model_kwargs={
-            "parameters": {
-                "system": """
-                Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
-                Instructions:
-                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
-                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
-                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
-                4. Cite les passages précis du contexte qui appuient ta réponse.
-                5. Structure ta réponse de manière claire et concise.
-                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
-                7. Si la question est ambiguë, demande des précisions.
-                
-                Réponds en français, dans un style professionnel et accessible.
-                """
+    if model_choice == "gpt":
+        # Use OpenAI GPT-3.5
+        if not openai_api_key:
+            st.error("OpenAI API key is required to use GPT-3.5 model")
+            return None, None
+            
+        llm = ChatOpenAI(
+            temperature=0.4,
+            model_name="gpt-3.5-turbo",
+            openai_api_key=openai_api_key,
+            max_tokens=512
+        )
+    else:
+        # Use Hugging Face Llama model (default)
+        llm = HuggingFaceEndpoint(
+            endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+            huggingfacehub_api_token=hf_api_key,
+            task="text-generation",
+            temperature=0.4,
+            max_new_tokens=512,
+            top_p=0.95,
+            model_kwargs={
+                "parameters": {
+                    "system": """
+                    Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
+                    Instructions:
+                    1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
+                    2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
+                    3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
+                    4. Cite les passages précis du contexte qui appuient ta réponse.
+                    5. Structure ta réponse de manière claire et concise.
+                    6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
+                    7. Si la question est ambiguë, demande des précisions.
+                    
+                    Réponds en français, dans un style professionnel et accessible.
+                    """
+                }
             }
-        }
-    )
+        )
     
     # Create the QA chain
     qa_chain = RetrievalQA.from_chain_type(
@@ -233,7 +260,7 @@ def query_llm(retriever, query, hf_api_key):
     
     return answer, source_docs
 
-def process_documents(hf_api_key):
+def process_documents(hf_api_key, use_uploaded_only):
     """Process documents and create the retriever."""
     if not hf_api_key:
         st.warning("Please provide the Hugging Face API key.")
@@ -241,7 +268,7 @@ def process_documents(hf_api_key):
     
     try:
         # Load documents
-        documents, document_dates = load_documents()
+        documents, document_dates = load_documents(use_uploaded_only)
         
         if not documents:
             st.error("No documents found to process.")
@@ -266,24 +293,56 @@ def input_fields():
     with st.sidebar:
         st.title("Configuration")
         
+        # Hugging Face API Key
         if "hf_api_key" in st.secrets:
             st.session_state.hf_api_key = st.secrets.hf_api_key
         else:
             st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password")
+        
+        # OpenAI API Key (new)
+        if "openai_api_key" in st.secrets:
+            st.session_state.openai_api_key = st.secrets.openai_api_key
+        else:
+            st.session_state.openai_api_key = st.text_input("OpenAI API Key (Pour GPT-3.5)", type="password")
+            
+        # Model selection radio button
+        st.session_state.model_choice = st.radio(
+            "Choisir un modèle LLM",
+            ["llama", "gpt"],
+            format_func=lambda x: "Llama 3" if x == "llama" else "GPT-3.5"
+        )
             
         # File uploader for XML files
         uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
                                           type=["xml", "xmltei"], 
                                           accept_multiple_files=True)
         
+        # Initialize uploaded_files in session state if it doesn't exist
+        if "uploaded_files" not in st.session_state:
+            st.session_state.uploaded_files = []
+            
+        # Process uploaded files
         if uploaded_files:
+            # Clear previous uploaded files list
+            st.session_state.uploaded_files = []
+            
             for uploaded_file in uploaded_files:
                 # Save the uploaded file to the data directory
-                os.makedirs("data", exist_ok=True)
-                file_path = os.path.join("data", uploaded_file.name)
+                os.makedirs("data/uploaded", exist_ok=True)
+                file_path = os.path.join("data/uploaded", uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 st.success(f"Fichier {uploaded_file.name} sauvegardé.")
+                st.session_state.uploaded_files.append(file_path)
+        
+        # Corpus selection (default or uploaded)
+        st.session_state.use_uploaded_only = st.checkbox(
+            "Utiliser uniquement les fichiers téléchargés", 
+            value=bool(st.session_state.uploaded_files)
+        )
+        
+        if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
+            st.warning("Aucun fichier téléchargé. Veuillez télécharger des fichiers ou utiliser le corpus par défaut.")
 
 def boot():
     """Main function to run the application."""
@@ -299,7 +358,10 @@ def boot():
     
     # Submit documents button
     if st.button("Traiter les documents"):
-        st.session_state.retriever = process_documents(st.session_state.hf_api_key)
+        st.session_state.retriever = process_documents(
+            st.session_state.hf_api_key, 
+            st.session_state.use_uploaded_only
+        )
     
     # Display chat history
     for message in st.session_state.messages:
@@ -316,10 +378,17 @@ def boot():
         
         with st.spinner("Génération de la réponse..."):
             try:
+                # Check model requirements
+                if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
+                    st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
+                    return
+                
                 answer, source_docs = query_llm(
                     st.session_state.retriever, 
                     query, 
-                    st.session_state.hf_api_key
+                    st.session_state.hf_api_key,
+                    st.session_state.openai_api_key,
+                    st.session_state.model_choice
                 )
                 
                 # Display the answer
