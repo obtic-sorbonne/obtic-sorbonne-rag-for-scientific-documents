@@ -15,23 +15,22 @@ from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI  # Added for OpenAI support
 
-# Define paths
+# Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
 
-# Create directories if they don't exist
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Define namespaces for XML-TEI documents
+# Define namespaces for XML-tei
 NAMESPACES = {
     'tei': 'http://www.tei-c.org/ns/1.0'
 }
 
 st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
 st.title("Retrieval Augmented Generation avec Llama/GPT")
+st.markdown("### Retrieval Augmented Generation agent ")
 
-# Function to extract year from document date
 def extract_year(date_str):
     """Extract year from a date string."""
     year_match = re.search(r'\b(19\d{2}|20\d{2})\b', date_str)
@@ -84,7 +83,6 @@ def parse_xmltei_document(file_path):
         # Combine header with paragraphs
         full_text = header + "\n".join(all_paragraphs)
         
-        # Add person names as additional information
         if person_text:
             person_section = "\n\nPersonnes mentionnées: " + ", ".join(person_text)
             full_text += person_section
@@ -102,7 +100,7 @@ def parse_xmltei_document(file_path):
         return None
 
 def load_documents(use_uploaded_only=False):
-    """Load XML documents from the data directory and/or uploaded files.
+    """Default execution - using files from ./data/ 
     
     Args:
         use_uploaded_only: If True, only use uploaded files and ignore default corpus
@@ -112,15 +110,12 @@ def load_documents(use_uploaded_only=False):
     
     xml_files = []
     
-    # Check if we should use uploaded files only or include default corpus
     if use_uploaded_only:
-        # Only check for files in the uploaded directory (session state)
         if "uploaded_files" in st.session_state and st.session_state.uploaded_files:
             for file_path in st.session_state.uploaded_files:
                 if os.path.exists(file_path) and (file_path.endswith(".xml") or file_path.endswith(".xmltei")):
                     xml_files.append(file_path)
     else:
-        # Check default corpus in data directory
         for path in [".", "data"]:
             if os.path.exists(path):
                 for file in os.listdir(path):
@@ -132,7 +127,6 @@ def load_documents(use_uploaded_only=False):
         st.error("No XML files found. Please upload XML files or use the default corpus.")
         return documents, document_dates
     
-    # Parse each XML file and create documents
     for file_path in xml_files:
         st.info(f"Processing {file_path}...")
         doc_data = parse_xmltei_document(file_path)
@@ -158,14 +152,13 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    """Split documents into chunks for processing."""
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(documents)
     
     return texts
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
-    """Create embeddings and store in a local vector database using FAISS instead of Chroma."""
+    """Create embeddings and store in a local vector database using FAISS."""
     import os
     os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
     
@@ -176,20 +169,15 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
         model_kwargs=model_kwargs
     )
     
-    # Use FAISS instead of Chroma
     vectordb = FAISS.from_documents(texts, embeddings)
-    
-    # Save the index
-    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
-    
-    retriever = vectordb.as_retriever(search_kwargs={'k': 3})
+    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix()) # saving vectors during session
+    retriever = vectordb.as_retriever(search_kwargs={'k': 3}) #top retrieval
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
-    """Query the LLM using either Hugging Face (Llama) or OpenAI (GPT-3.5)."""
+    """Query the LLM using either Hugging Face (Llama3.2 Instruct) or OpenAI (GPT-3.5)."""
     
     if model_choice == "gpt":
-        # Use OpenAI GPT-3.5
         if not openai_api_key:
             st.error("OpenAI API key is required to use GPT-3.5 model")
             return None, None
@@ -201,7 +189,6 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
             max_tokens=512
         )
     else:
-        # Use Hugging Face Llama model (default)
         llm = HuggingFaceEndpoint(
             endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
             huggingfacehub_api_token=hf_api_key,
@@ -211,24 +198,11 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
             top_p=0.95,
             model_kwargs={
                 "parameters": {
-                    "system": """
-                    Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
-                    Instructions:
-                    1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
-                    2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
-                    3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
-                    4. Cite les passages précis du contexte qui appuient ta réponse.
-                    5. Structure ta réponse de manière claire et concise.
-                    6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
-                    7. Si la question est ambiguë, demande des précisions.
-                    
-                    Réponds en français, dans un style professionnel et accessible.
-                    """
+                    "system": st.session_state.system_prompt
                 }
             }
         )
     
-    # Create the QA chain
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
         chain_type="stuff",
@@ -237,20 +211,34 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         verbose=True
     )
     
-    # Run the chain
     enh_query = f"""
     {query}
-    Important : Présente ta réponse de façon claire et bien structurée. 
-    Réponds en français en utilisant un langage naturel et cohérent.
-     """
+    Important : 
+    1. Présente ta réponse de façon claire et bien structurée.
+    2. Utilise le formatage markdown pour mettre en évidence les points importants.
+    3. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
+    4. Commence ta réponse par un court résumé de 1-2 phrases.
+    5. Ajoute des titres et sous-titres si nécessaire pour organiser l'information.
+    6. Utilise des listes à puces pour les énumérations.
+    7. Réponds en français en utilisant un langage naturel et cohérent.
+    """
     result = qa_chain({"query": enh_query})
     
-    # Post-process to remove any notes that might still appear
+    # Post-process to remove any notes that might still appear and format the answer
     answer = result["result"]
     if "Note:" in answer:
         answer = answer.split("Note:")[0].strip()
     if "Note :" in answer:
         answer = answer.split("Note :")[0].strip()
+        
+    # Apply additional formatting if needed
+    if not any(marker in answer for marker in ["##", "**", "- ", "1. ", "_"]):
+        # If the model didn't use markdown formatting, add some basic structure
+        lines = answer.split("\n")
+        if len(lines) > 2:
+            # Add a summary header
+            formatted_answer = f"## Résumé\n\n{lines[0]}\n\n## Détails\n\n" + "\n".join(lines[1:])
+            answer = formatted_answer
         
     source_docs = result["source_documents"]
     
@@ -261,15 +249,12 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
     return answer, source_docs
 
 def process_documents(hf_api_key, use_uploaded_only):
-    """Process documents and create the retriever."""
     if not hf_api_key:
         st.warning("Please provide the Hugging Face API key.")
         return None
     
     try:
-        # Load documents
         documents, document_dates = load_documents(use_uploaded_only)
-        
         if not documents:
             st.error("No documents found to process.")
             return None
@@ -299,7 +284,7 @@ def input_fields():
         else:
             st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password")
         
-        # OpenAI API Key (new)
+        # OpenAI API Key
         if "openai_api_key" in st.secrets:
             st.session_state.openai_api_key = st.secrets.openai_api_key
         else:
@@ -311,23 +296,40 @@ def input_fields():
             ["llama", "gpt"],
             format_func=lambda x: "Llama 3" if x == "llama" else "GPT-3.5"
         )
+        
+        # Add system prompt customization option
+        with st.expander("Options avancées"):
+            if "system_prompt" not in st.session_state:
+                default_prompt = """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
+                Instructions:
+                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
+                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
+                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
+                4. Cite les passages précis du contexte qui appuient ta réponse.
+                5. Structure ta réponse de manière claire et concise.
+                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
+                7. Si la question est ambiguë, demande des précisions.
+                
+                Réponds en français, dans un style professionnel et accessible."""
+                st.session_state.system_prompt = default_prompt
             
-        # File uploader for XML files
+            st.session_state.system_prompt = st.text_area(
+                "Personnaliser l'instruction système (prompt)",
+                value=st.session_state.system_prompt,
+                height=200
+            )
+            
         uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
                                           type=["xml", "xmltei"], 
                                           accept_multiple_files=True)
         
-        # Initialize uploaded_files in session state if it doesn't exist
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
             
-        # Process uploaded files
         if uploaded_files:
-            # Clear previous uploaded files list
             st.session_state.uploaded_files = []
             
             for uploaded_file in uploaded_files:
-                # Save the uploaded file to the data directory
                 os.makedirs("data/uploaded", exist_ok=True)
                 file_path = os.path.join("data/uploaded", uploaded_file.name)
                 with open(file_path, "wb") as f:
@@ -335,7 +337,6 @@ def input_fields():
                 st.success(f"Fichier {uploaded_file.name} sauvegardé.")
                 st.session_state.uploaded_files.append(file_path)
         
-        # Corpus selection (default or uploaded)
         st.session_state.use_uploaded_only = st.checkbox(
             "Utiliser uniquement les fichiers téléchargés", 
             value=bool(st.session_state.uploaded_files)
@@ -391,11 +392,10 @@ def boot():
                     st.session_state.model_choice
                 )
                 
-                # Display the answer
+                # Display the answer with markdown support
                 response_container = st.chat_message("ai")
-                response_container.write(answer)
+                response_container.markdown(answer)
                 
-                # Display source documents with expanders (simple approach)
                 if source_docs:
                     response_container.markdown("---")
                     response_container.markdown("**Sources:**")
