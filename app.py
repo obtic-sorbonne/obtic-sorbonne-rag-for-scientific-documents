@@ -29,7 +29,7 @@ NAMESPACES = {
 
 st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
 st.title("Retrieval Augmented Generation avec Llama/GPT")
-st.markdown("### Projet préparé par l'équipe ObTIC.")
+st.markdown("#### Projet préparé par l'équipe ObTIC.")
 
 def extract_year(date_str):
     """Extract year from a date string."""
