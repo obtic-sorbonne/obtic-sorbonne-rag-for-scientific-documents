@@ -1,11 +1,11 @@
 # SimpleRAG - Application de Retrieval Augmented Generation
 
-Cette application Streamlit implémente un système de Retrieval Augmented Generation (RAG) permettant d'interroger des documents scientifiques au format XML-TEI. L'application utilise au choix Llama 3 via l'API Hugging Face ou GPT-3.5 via l'API OpenAI pour générer des réponses précises à partir de votre corpus de documents.
+Cette application Streamlit implémente un système de Retrieval Augmented Generation (RAG) permettant d'interroger des documents scientifiques au format XML-TEI. L'application utilise au choix plusieurs LLMs via l'API Hugging Face ou GPT-3.5 via l'API OpenAI pour générer des réponses précises à partir de votre corpus de documents.
 
 ## 🌟 Fonctionnalités
 
 - **Interface conversationnelle** pour poser des questions sur vos documents
-- **Double support de LLM** : choix entre Llama 3 et GPT-3.5
+- **Support de multiples LLMs** : choix entre Llama 3, GPT-3.5, Mistral Small 24B et Phi-4-mini
 - **Traitement de corpus personnalisé** via l'upload de fichiers XML-TEI
 - **Affichage des sources** pour chaque réponse avec métadonnées détaillées
 - **Personnalisation avancée** du prompt système pour ajuster les réponses
@@ -37,7 +37,7 @@ simple-rag/
 ### Configurer l'application
 1. Dans la barre latérale, entrez votre clé API Hugging Face (obligatoire)
 2. Si vous souhaitez utiliser GPT-3.5, entrez également votre clé API OpenAI
-3. Choisissez le modèle LLM à utiliser (Llama 3 ou GPT-3.5)
+3. Choisissez le modèle LLM à utiliser parmi les 4 options disponibles
 
 ### Ajouter des documents
 1. Téléchargez vos fichiers XML-TEI via le sélecteur de fichiers dans la barre latérale
@@ -54,10 +54,12 @@ Pour ajuster le style ou le comportement des réponses, utilisez l'option "Optio
 
 ## 🧠 Spécifications techniques
 
-### LLM utilisés
+### LLMs utilisés
 - **Llama 3** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
 - **GPT-3.5** : gpt-3.5-turbo via l'API OpenAI
-- **Température** : 0.6-0.4 
+- **Mistral Small** : Mistral-Small-24B-Instruct-2501 via l'API Hugging Face  
+- **Phi-4-mini** : Phi-4-mini-instruct via l'API Hugging Face
+- **Température** : 0.4 
 - **Tokens maximum** : 512
 - **Top_p** : 0.95 (permet une diversité contrôlée dans les réponses)
 
@@ -90,4 +92,3 @@ Ce projet est sous une licence open source MIT.
 Le projet est préparé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur en Traitement Automatique des Langues, équipe ObTIC, Sorbonne Université.
 
 Pour découvrir d'autres projets de l'équipe ObTIC ainsi que les formations proposées, consultez le site : https://obtic.sorbonne-universite.fr/
-
