@@ -165,7 +165,7 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     texts = text_splitter.split_documents(documents)
     
     return texts
@@ -271,9 +271,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         2. Utilise le formatage markdown pour mettre en évidence les points importants.
         3. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
         4. Commence ta réponse par un court résumé de 1-2 phrases.
-        5. Ajoute des titres et sous-titres si nécessaire pour organiser l'information.
-        6. Utilise des listes à puces pour les énumérations.
-        7. Réponds en français en utilisant un langage naturel et cohérent.
+        5. Réponds en français, dans un style professionnel et accessible.
         """
         
         # Generate response
@@ -332,7 +330,7 @@ def process_documents(hf_api_key, use_uploaded_only):
         
         # Split into chunks with progress indication
         status_container.info("Découpage des documents en fragments...")
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         texts = text_splitter.split_documents(documents)
         
         # Create embeddings with progress indication
@@ -477,23 +475,19 @@ def input_fields():
         # System prompt in compact expander
         with st.expander("Options avancées", expanded=False):
             if "system_prompt" not in st.session_state:
-                default_prompt = """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
-                Instructions:
-                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
-                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
-                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
-                4. Cite les passages précis du contexte qui appuient ta réponse.
-                5. Structure ta réponse de manière claire et concise.
-                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
-                7. Si la question est ambiguë, demande des précisions.
+                default_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques.
+                Instructions importantes:
+                1. Recherche ATTENTIVEMENT toutes les informations pertinentes dans les documents fournis.
+                2. Pour les questions factuelles (chiffres, dates, quantités), vérifie minutieusement les documents.
+                3. Si la réponse exacte est présente dans les documents, cite-la précisément.
+                4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents."""
                 
-                Réponds en français, dans un style professionnel et accessible."""
                 st.session_state.system_prompt = default_prompt
             
             st.session_state.system_prompt = st.text_area(
                 "Personnaliser prompt",  
                 value=st.session_state.system_prompt,
-                height=150,  # Reduced height
+                height=150,
                 key="system_prompt_area"
             )
             
