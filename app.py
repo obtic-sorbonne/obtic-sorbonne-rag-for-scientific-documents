@@ -187,56 +187,6 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     retriever = vectordb.as_retriever(search_kwargs={'k': 3}) #top retrieval
     return retriever
 
-def create_mistral_llm(hf_api_key, system_prompt):
-    """Create a Mistral language model with proper configuration."""
-    return HuggingFaceEndpoint(
-        endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
-        huggingfacehub_api_token=hf_api_key,
-        task="text-generation",
-        temperature=0.4,
-        max_new_tokens=512,
-        top_p=0.95,
-        model_kwargs={
-            "do_sample": True,
-            "max_new_tokens": 512,
-            "repetition_penalty": 1.03,
-            "return_full_text": False
-        }
-    )
-
-def create_phi_llm(hf_api_key, system_prompt):
-    """Create a Phi-4 language model with proper configuration."""
-    return HuggingFaceEndpoint(
-        endpoint_url="https://api-inference.huggingface.co/models/microsoft/phi-2",
-        huggingfacehub_api_token=hf_api_key,
-        task="text-generation",
-        temperature=0.4,
-        max_new_tokens=512,
-        top_p=0.95,
-        model_kwargs={
-            "do_sample": True,
-            "max_new_tokens": 512,
-            "return_full_text": False
-        }
-    )
-
-def create_llama_llm(hf_api_key, system_prompt):
-    """Create a Llama language model with proper configuration."""
-    return HuggingFaceEndpoint(
-        endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
-        huggingfacehub_api_token=hf_api_key,
-        task="text-generation",
-        temperature=0.4,
-        max_new_tokens=512,
-        top_p=0.95,
-        model_kwargs={
-            "do_sample": True,
-            "max_new_tokens": 512,
-            "repetition_penalty": 1.03,
-            "return_full_text": False
-        }
-    )
-
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
     
@@ -263,15 +213,43 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            llm = create_mistral_llm(hf_api_key, st.session_state.system_prompt)
+            # Using a more stable Mistral model with proper parameters
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95
+            )
         elif model_choice == "phi":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            llm = create_phi_llm(hf_api_key, st.session_state.system_prompt)
+            # Using the more stable Phi-2 model
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/microsoft/phi-2",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95
+            )
         else:  # Default to llama
-            llm = create_llama_llm(hf_api_key, st.session_state.system_prompt)
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
+                }
+            )
         
         # Update progress
         progress_bar.progress(0.3)
