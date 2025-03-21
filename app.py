@@ -375,24 +375,24 @@ def input_fields():
         with st.expander("Infos modèle", expanded=False):
             if st.session_state.model_choice == "llama":
                 st.markdown("""**Meta-Llama-3-8B**  
-                • 8 milliards de paramètres  
-                • Support multilingue  
-                • Contexte: 8K tokens""")
+                • Bonne compréhension des instructions
+                • Fort en synthèse de documents longs
+                • Précision factuelle solide""")
             elif st.session_state.model_choice == "gpt":
                 st.markdown("""**GPT-3.5-Turbo**  
-                • 175 milliards de paramètres  
-                • Support multilingue  
-                • Contexte: 4K tokens""")
+                • Excellent en analyse contextuelle
+                • Fort en résumé et reformulation
+                • Bonnes capacités multilingues""")
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""**Mistral-24B**  
-                • 24 milliards de paramètres  
-                • 10+ langues  
-                • Contexte: 32K tokens""")
+                • Raisonnement avancé sur documents
+                • Excellente extraction d'informations
+                • Réponses structurées et complètes""")
             elif st.session_state.model_choice == "phi":
                 st.markdown("""**Phi-4-mini**  
-                • 3.8 milliards de paramètres  
-                • 24 langues  
-                • Contexte: 128K tokens""")
+                • Rapide pour traitement RAG léger
+                • Bon ratio performance/taille
+                • Précision sur citations textuelles""")
         
         # System prompt in compact expander
         with st.expander("Options avancées", expanded=False):
@@ -405,7 +405,6 @@ def input_fields():
                 4. Cite les passages précis du contexte qui appuient ta réponse.
                 5. Structure ta réponse de manière claire et concise.
                 6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
-                7. Si la question est ambiguë, demande des précisions.
                 
                 Réponds en français, dans un style professionnel et accessible."""
                 st.session_state.system_prompt = default_prompt
