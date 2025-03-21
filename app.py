@@ -13,7 +13,7 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI  # Added for OpenAI support
 
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -213,38 +213,29 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            # Fixed Mistral model configuration
+            # Using Mistral 7B-Instruct-v0.2 which is more widely supported on HF
+            # This model is very similar to the larger Mistral models but with better API compatibility
             llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
+                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95,
-                model_kwargs={
-                    "parameters": {
-                        "system": st.session_state.system_prompt
-                    }
-                }
+                top_p=0.95
             )
         elif model_choice == "phi":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            # Fixed Phi model configuration
+            # Keep the Phi-4-mini-instruct model since it's working
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95,
-                model_kwargs={
-                    "parameters": {
-                        "system": st.session_state.system_prompt
-                    }
-                }
+                top_p=0.95
             )
         else:  # Default to llama
             llm = HuggingFaceEndpoint(
@@ -446,8 +437,8 @@ def input_fields():
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
-                "mistral": "Mistral Small 24B",  # Keep original model name
-                "phi": "Phi-4-mini"  # Keep original model name
+                "mistral": "Mistral 7B",  # Changed to 7B which is more widely supported
+                "phi": "Phi-4-mini"
             }[x],
             horizontal=False  # Ensure vertical layout to save width
         )
@@ -472,11 +463,11 @@ def input_fields():
                 """)
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
-                **Mistral-Small-24B**
+                **Mistral-7B-Instruct**
                 
-                * Raisonnement avancé sur documents
-                * Excellente extraction d'informations
-                * Réponses structurées et complètes
+                * Raisonnement sur documents scientifiques
+                * Bonne extraction d'informations
+                * Réponses structurées en français
                 """)
             elif st.session_state.model_choice == "phi":
                 st.markdown("""
