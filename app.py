@@ -213,28 +213,38 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            # Using a more stable Mistral model with proper parameters
+            # Keep original model but fix parameters
             llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95
+                top_p=0.95,
+                # Only include the system prompt in model_kwargs
+                model_kwargs={
+                    "do_sample": True,
+                    "return_full_text": False
+                }
             )
         elif model_choice == "phi":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            # Using the more stable Phi-2 model
+            # Keep original model but fix parameters
             llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/microsoft/phi-2",
+                endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95
+                top_p=0.95,
+                # Only include parameters that don't cause conflicts
+                model_kwargs={
+                    "do_sample": True,
+                    "return_full_text": False
+                }
             )
         else:  # Default to llama
             llm = HuggingFaceEndpoint(
@@ -436,8 +446,8 @@ def input_fields():
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
-                "mistral": "Mistral 7B",  # Changed from 24B to 7B which is more widely available
-                "phi": "Phi-2"  # Changed to phi-2 which is more widely available
+                "mistral": "Mistral Small 24B",  # Keep original model name
+                "phi": "Phi-4-mini"  # Keep original model name
             }[x],
             horizontal=False  # Ensure vertical layout to save width
         )
@@ -462,15 +472,15 @@ def input_fields():
                 """)
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
-                **Mistral-7B**
+                **Mistral-Small-24B**
                 
-                * Raisonnement sur documents scientifiques
-                * Bonne extraction d'informations
-                * Réponses structurées en français
+                * Raisonnement avancé sur documents
+                * Excellente extraction d'informations
+                * Réponses structurées et complètes
                 """)
             elif st.session_state.model_choice == "phi":
                 st.markdown("""
-                **Phi-2**
+                **Phi-4-mini**
                 
                 * Rapide pour traitement RAG léger
                 * Bon ratio performance/taille
