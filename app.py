@@ -371,28 +371,40 @@ def input_fields():
             horizontal=False  # Ensure vertical layout to save width
         )
         
-        # Model information in expander with compact formatting
+        # Model information with clean markdown formatting
         with st.expander("Infos modèle", expanded=False):
             if st.session_state.model_choice == "llama":
-                st.markdown("""**Meta-Llama-3-8B**  
-                • Bonne compréhension des instructions
-                • Fort en synthèse de documents longs
-                • Précision factuelle solide""")
+                st.markdown("""
+                **Meta-Llama-3-8B**
+                
+                * Bonne compréhension des instructions
+                * Fort en synthèse de documents longs
+                * Précision factuelle solide
+                """)
             elif st.session_state.model_choice == "gpt":
-                st.markdown("""**GPT-3.5-Turbo**  
-                • Excellent en analyse contextuelle
-                • Fort en résumé et reformulation
-                • Bonnes capacités multilingues""")
+                st.markdown("""
+                **GPT-3.5-Turbo**
+                
+                * Excellent en analyse contextuelle
+                * Fort en résumé et reformulation
+                * Bonnes capacités multilingues
+                """)
             elif st.session_state.model_choice == "mistral":
-                st.markdown("""**Mistral-24B**  
-                • Raisonnement avancé sur documents
-                • Excellente extraction d'informations
-                • Réponses structurées et complètes""")
+                st.markdown("""
+                **Mistral-24B**
+                
+                * Raisonnement avancé sur documents
+                * Excellente extraction d'informations
+                * Réponses structurées et complètes
+                """)
             elif st.session_state.model_choice == "phi":
-                st.markdown("""**Phi-4-mini**  
-                • Rapide pour traitement RAG léger
-                • Bon ratio performance/taille
-                • Précision sur citations textuelles""")
+                st.markdown("""
+                **Phi-4-mini**
+                
+                * Rapide pour traitement RAG léger
+                * Bon ratio performance/taille
+                * Précision sur citations textuelles
+                """)
         
         # System prompt in compact expander
         with st.expander("Options avancées", expanded=False):
