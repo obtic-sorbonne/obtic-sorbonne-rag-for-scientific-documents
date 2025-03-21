@@ -411,28 +411,80 @@ def input_fields():
                 "Personnaliser l'instruction système (prompt)",
                 value=st.session_state.system_prompt,
                 height=200,
-                key="system_prompt_textarea"  # Added unique key
+                key="system_prompt_textarea"
             )
             
         # File uploader
-        uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
+        st.subheader("Télécharger des fichiers XML")
+        uploaded_files = st.file_uploader("", 
                                           type=["xml", "xmltei"], 
                                           accept_multiple_files=True)
         
+        # Initialize uploaded files in session state if not already present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
-            
-        if uploaded_files:
-            st.session_state.uploaded_files = []
-            
-            for uploaded_file in uploaded_files:
-                os.makedirs("data/uploaded", exist_ok=True)
-                file_path = os.path.join("data/uploaded", uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                st.success(f"Fichier {uploaded_file.name} sauvegardé.")
-                st.session_state.uploaded_files.append(file_path)
         
+        # Initialize saved files in session state if not already present    
+        if "saved_files" not in st.session_state:
+            st.session_state.saved_files = []
+            
+        # Process newly uploaded files
+        if uploaded_files:
+            # Create a container for upload status messages
+            status_container = st.empty()
+            
+            # Create directory if it doesn't exist
+            os.makedirs("data/uploaded", exist_ok=True)
+            
+            # Process each file
+            new_files_saved = []
+            for uploaded_file in uploaded_files:
+                file_path = os.path.join("data/uploaded", uploaded_file.name)
+                
+                # Don't re-save if the file is already in session state
+                if file_path not in st.session_state.uploaded_files:
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    st.session_state.uploaded_files.append(file_path)
+                    new_files_saved.append(uploaded_file.name)
+            
+            # Update saved files list for display
+            st.session_state.saved_files = new_files_saved
+            
+            # Show success messages for newly saved files
+            if new_files_saved:
+                for file_name in new_files_saved:
+                    status_container.success(f"Fichier {file_name} sauvegardé.")
+        
+        # Display the list of all uploaded files with a scrollable container
+        if st.session_state.uploaded_files:
+            st.subheader("Fichiers téléchargés")
+            
+            # Create a scrollable container for the file list
+            file_container = st.container()
+            
+            with file_container:
+                for file_path in st.session_state.uploaded_files:
+                    file_name = os.path.basename(file_path)
+                    file_size = os.path.getsize(file_path) / 1024  # Size in KB
+                    
+                    # Create a row for each file with delete button
+                    col1, col2, col3 = st.columns([3, 1, 0.5])
+                    with col1:
+                        st.text(file_name)
+                    with col2:
+                        st.text(f"{file_size:.1f} KB")
+                    with col3:
+                        # Create a unique key for each delete button
+                        if st.button("❌", key=f"delete_{file_name}"):
+                            try:
+                                os.remove(file_path)
+                                st.session_state.uploaded_files.remove(file_path)
+                                st.rerun()  # Rerun to update the UI
+                            except Exception as e:
+                                st.error(f"Erreur lors de la suppression: {e}")
+        
+        # Option to use only uploaded files
         st.session_state.use_uploaded_only = st.checkbox(
             "Utiliser uniquement les fichiers téléchargés", 
             value=bool(st.session_state.uploaded_files)
