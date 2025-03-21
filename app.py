@@ -213,17 +213,17 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
+            # Utilisation du point de terminaison TGI pour Mistral
             llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
+                endpoint_url="https://api-inference.huggingface.co/pipeline/text-generation/mistralai/Mistral-7B-Instruct-v0.2",  # Modèle alternatif plus stable
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
                 top_p=0.95,
                 model_kwargs={
-                    "parameters": {
-                        "system": st.session_state.system_prompt
-                    }
+                    "return_full_text": False,
+                    "do_sample": True
                 }
             )
         elif model_choice == "phi":
@@ -231,17 +231,17 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
+            # Utilisation du point de terminaison TGI pour Phi
             llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
+                endpoint_url="https://api-inference.huggingface.co/pipeline/text-generation/microsoft/phi-2",  # Modèle alternatif plus stable
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
                 top_p=0.95,
                 model_kwargs={
-                    "parameters": {
-                        "system": st.session_state.system_prompt
-                    }
+                    "return_full_text": False,
+                    "do_sample": True
                 }
             )
         else:  # Default to llama
@@ -263,20 +263,54 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         progress_bar.progress(0.3)
         progress_container.info("Création de la chaîne de traitement...")
         
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True,
-            verbose=True
-        )
+        # Add prompt formatting based on model type
+        if model_choice == "mistral" or model_choice == "phi":
+            # Format the system prompt for these models
+            formatted_system_prompt = f"<s>[INST] {st.session_state.system_prompt} [/INST]"
+            
+            # Create a custom prompt template for these models
+            from langchain.prompts import PromptTemplate
+            
+            template = """
+            <s>[INST] {system_prompt}
+            
+            Contexte à utiliser pour répondre à la question:
+            {context}
+            
+            Question: {query} [/INST]
+            """
+            
+            prompt = PromptTemplate(
+                template=template,
+                input_variables=["context", "query"],
+                partial_variables={"system_prompt": st.session_state.system_prompt}
+            )
+            
+            # Use the custom prompt template
+            qa_chain = RetrievalQA.from_chain_type(
+                llm=llm,
+                chain_type="stuff",
+                retriever=retriever,
+                return_source_documents=True,
+                chain_type_kwargs={"prompt": prompt},
+                verbose=True
+            )
+        else:
+            # Use the default chain for other models
+            qa_chain = RetrievalQA.from_chain_type(
+                llm=llm,
+                chain_type="stuff",
+                retriever=retriever,
+                return_source_documents=True,
+                verbose=True
+            )
         
         # Update progress
         progress_bar.progress(0.5)
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
-        enh_query = f"""
-        {query}
+        # Prepare enhanced query instructions
+        format_instructions = """
         Important : 
         1. Présente ta réponse de façon claire et bien structurée.
         2. Utilise le formatage markdown pour mettre en évidence les points importants.
@@ -286,6 +320,14 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         6. Utilise des listes à puces pour les énumérations.
         7. Réponds en français en utilisant un langage naturel et cohérent.
         """
+        
+        # Adjust query formatting based on model
+        if model_choice == "mistral" or model_choice == "phi":
+            # These models already have the format instructions in the prompt template
+            enh_query = query
+        else:
+            # Add format instructions for other models
+            enh_query = f"{query}\n\n{format_instructions}"
         
         # Generate response
         result = qa_chain({"query": enh_query})
@@ -324,6 +366,8 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         
     except Exception as e:
         progress_container.error(f"Erreur pendant la génération: {str(e)}")
+        # Add more detailed error handling and logging
+        st.error(f"Détails techniques de l'erreur: {type(e).__name__}: {str(e)}")
         return None, None
 
 def process_documents(hf_api_key, use_uploaded_only):
@@ -389,7 +433,7 @@ def process_documents(hf_api_key, use_uploaded_only):
 
 
 def input_fields():
-    """Set up the input fields in the sidebar with improved responsive layout."""
+    """Set up the input fields in the sidebar."""
     with st.sidebar:
         # Apply custom CSS to make sidebar elements more compact and responsive
         st.markdown("""
@@ -444,13 +488,13 @@ def input_fields():
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
-                "mistral": "Mistral 24B",  # Shortened names
-                "phi": "Phi-4-mini"
+                "mistral": "Mistral 7B-Instruct",  # Changed model name to reflect the actual model
+                "phi": "Phi-2"  # Changed model name to reflect the actual model
             }[x],
             horizontal=False  # Ensure vertical layout to save width
         )
         
-        # Model information with clean markdown formatting
+        # Model information in expander with compact formatting
         with st.expander("Infos modèle", expanded=False):
             if st.session_state.model_choice == "llama":
                 st.markdown("""
@@ -470,7 +514,7 @@ def input_fields():
                 """)
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
-                **Mistral-24B**
+                **Mistral-7B-Instruct**
                 
                 * Raisonnement avancé sur documents
                 * Excellente extraction d'informations
@@ -478,12 +522,13 @@ def input_fields():
                 """)
             elif st.session_state.model_choice == "phi":
                 st.markdown("""
-                **Phi-4-mini**
+                **Phi-2**
                 
                 * Rapide pour traitement RAG léger
                 * Bon ratio performance/taille
                 * Précision sur citations textuelles
                 """)
+
         
         # System prompt in compact expander
         with st.expander("Options avancées", expanded=False):
