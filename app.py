@@ -313,22 +313,7 @@ CONTEXTE:
         progress_bar.progress(0.9)
         progress_container.info("Finalisation et mise en forme de la réponse...")
         
-        # Post-process to remove any notes that might still appear and format the answer
         answer = result["result"]
-        if "Note:" in answer:
-            answer = answer.split("Note:")[0].strip()
-        if "Note :" in answer:
-            answer = answer.split("Note :")[0].strip()
-            
-        # Apply additional formatting if needed
-        if not any(marker in answer for marker in ["##", "**", "- ", "1. ", "_"]):
-            # If the model didn't use markdown formatting, add some basic structure
-            lines = answer.split("\n")
-            if len(lines) > 2:
-                # Add a summary header
-                formatted_answer = f"## Résumé\n\n{lines[0]}\n\n## Détails\n\n" + "\n".join(lines[1:])
-                answer = formatted_answer
-            
         source_docs = result["source_documents"]
         
         # Update message history
@@ -395,8 +380,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         status_container.info("Finalisation...")
         
         vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
-        # Use the same retrieval parameter k=5 consistently
-        retriever = vectordb.as_retriever(search_kwargs={'k': 5})
+        # Use the same retrieval parameter k=3 consistently
+        retriever = vectordb.as_retriever(search_kwargs={'k': 3})
         
         # Complete progress
         progress_bar.progress(1.0)
