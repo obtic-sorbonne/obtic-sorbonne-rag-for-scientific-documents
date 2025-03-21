@@ -410,31 +410,11 @@ def input_fields():
             st.session_state.system_prompt = st.text_area(
                 "Personnaliser l'instruction système (prompt)",
                 value=st.session_state.system_prompt,
-                height=200
-            )
-        
-        # Add system prompt customization option
-        with st.expander("Options avancées"):
-            if "system_prompt" not in st.session_state:
-                default_prompt = """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
-                Instructions:
-                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
-                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
-                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
-                4. Cite les passages précis du contexte qui appuient ta réponse.
-                5. Structure ta réponse de manière claire et concise.
-                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
-                7. Si la question est ambiguë, demande des précisions.
-                
-                Réponds en français, dans un style professionnel et accessible."""
-                st.session_state.system_prompt = default_prompt
-            
-            st.session_state.system_prompt = st.text_area(
-                "Personnaliser l'instruction système (prompt)",
-                value=st.session_state.system_prompt,
-                height=200
+                height=200,
+                key="system_prompt_textarea"  # Added unique key
             )
             
+        # File uploader
         uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
                                           type=["xml", "xmltei"], 
                                           accept_multiple_files=True)
