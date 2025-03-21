@@ -413,34 +413,41 @@ def input_fields():
                 height=200,
                 key="system_prompt_textarea"  # Added unique key
             )
-            
-        # File uploader
-        uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
-                                          type=["xml", "xmltei"], 
-                                          accept_multiple_files=True)
         
+        # Initialize uploaded_files in session state if not present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
-            
-        if uploaded_files:
-            st.session_state.uploaded_files = []
-            
-            for uploaded_file in uploaded_files:
-                os.makedirs("data/uploaded", exist_ok=True)
-                file_path = os.path.join("data/uploaded", uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                st.success(f"Fichier {uploaded_file.name} sauvegardé.")
-                st.session_state.uploaded_files.append(file_path)
         
+        # File uploader
+        uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
+                                        type=["xml", "xmltei"], 
+                                        accept_multiple_files=True)
+        
+        # IMPORTANT: Move the checkbox above the file processing messages
         st.session_state.use_uploaded_only = st.checkbox(
             "Utiliser uniquement les fichiers téléchargés", 
             value=bool(st.session_state.uploaded_files)
         )
         
+        # Create a container for success messages with scrolling
+        success_messages = st.container()
+            
+        if uploaded_files:
+            st.session_state.uploaded_files = []
+            
+            # Process uploaded files inside the scrollable container
+            with success_messages:
+                for uploaded_file in uploaded_files:
+                    os.makedirs("data/uploaded", exist_ok=True)
+                    file_path = os.path.join("data/uploaded", uploaded_file.name)
+                    with open(file_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    st.success(f"Fichier {uploaded_file.name} sauvegardé.")
+                    st.session_state.uploaded_files.append(file_path)
+        
         if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
             st.warning("Aucun fichier téléchargé. Veuillez télécharger des fichiers ou utiliser le corpus par défaut.")
-
+            
 def boot():
     """Main function to run the application."""
     # Setup input fields
