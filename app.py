@@ -127,8 +127,17 @@ def load_documents(use_uploaded_only=False):
         st.error("No XML files found. Please upload XML files or use the default corpus.")
         return documents, document_dates
     
-    for file_path in xml_files:
-        st.info(f"Processing {file_path}...")
+    # Create a progress bar
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    # Process files with progress updates
+    for i, file_path in enumerate(xml_files):
+        # Update progress bar and status
+        progress = (i) / len(xml_files)
+        progress_bar.progress(progress)
+        status_text.text(f"Traitement du fichier {i+1}/{len(xml_files)}: {os.path.basename(file_path)}")
+        
         doc_data = parse_xmltei_document(file_path)
         
         if doc_data:
@@ -148,6 +157,10 @@ def load_documents(use_uploaded_only=False):
             # Store year information
             if doc_data["year"]:
                 document_dates[file_path] = doc_data["year"]
+    
+    # Complete the progress bar
+    progress_bar.progress(1.0)
+    status_text.text(f"Traitement terminé! {len(documents)} documents analysés.")
     
     return documents, document_dates
 
@@ -177,112 +190,141 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
     
-    if model_choice == "gpt":
-        if not openai_api_key:
-            st.error("OpenAI API key is required to use GPT-3.5 model")
-            return None, None
-            
-        llm = ChatOpenAI(
-            temperature=0.4,
-            model_name="gpt-3.5-turbo",
-            openai_api_key=openai_api_key,
-            max_tokens=512
-        )
-    elif model_choice == "mistral":
-        if not hf_api_key:
-            st.error("Hugging Face API key is required to use Mistral model")
-            return None, None
-            
-        llm = HuggingFaceEndpoint(
-            endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
-            huggingfacehub_api_token=hf_api_key,
-            task="text-generation",
-            temperature=0.4,
-            max_new_tokens=512,
-            top_p=0.95,
-            model_kwargs={
-                "parameters": {
-                    "system": st.session_state.system_prompt
-                }
-            }
-        )
-    elif model_choice == "phi":
-        if not hf_api_key:
-            st.error("Hugging Face API key is required to use Phi model")
-            return None, None
-            
-        llm = HuggingFaceEndpoint(
-            endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
-            huggingfacehub_api_token=hf_api_key,
-            task="text-generation",
-            temperature=0.4,
-            max_new_tokens=512,
-            top_p=0.95,
-            model_kwargs={
-                "parameters": {
-                    "system": st.session_state.system_prompt
-                }
-            }
-        )
-    else:  # Default to llama
-        llm = HuggingFaceEndpoint(
-            endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
-            huggingfacehub_api_token=hf_api_key,
-            task="text-generation",
-            temperature=0.4,
-            max_new_tokens=512,
-            top_p=0.95,
-            model_kwargs={
-                "parameters": {
-                    "system": st.session_state.system_prompt
-                }
-            }
-        )
+    # Create progress container
+    progress_container = st.empty()
+    progress_container.info("Recherche des documents pertinents...")
+    progress_bar = st.progress(0)
     
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        verbose=True
-    )
-    
-    enh_query = f"""
-    {query}
-    Important : 
-    1. Présente ta réponse de façon claire et bien structurée.
-    2. Utilise le formatage markdown pour mettre en évidence les points importants.
-    3. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
-    4. Commence ta réponse par un court résumé de 1-2 phrases.
-    5. Ajoute des titres et sous-titres si nécessaire pour organiser l'information.
-    6. Utilise des listes à puces pour les énumérations.
-    7. Réponds en français en utilisant un langage naturel et cohérent.
-    """
-    result = qa_chain({"query": enh_query})
-    
-    # Post-process to remove any notes that might still appear and format the answer
-    answer = result["result"]
-    if "Note:" in answer:
-        answer = answer.split("Note:")[0].strip()
-    if "Note :" in answer:
-        answer = answer.split("Note :")[0].strip()
+    # Set up model
+    try:
+        if model_choice == "gpt":
+            if not openai_api_key:
+                st.error("OpenAI API key is required to use GPT-3.5 model")
+                return None, None
+                
+            llm = ChatOpenAI(
+                temperature=0.4,
+                model_name="gpt-3.5-turbo",
+                openai_api_key=openai_api_key,
+                max_tokens=512
+            )
+        elif model_choice == "mistral":
+            if not hf_api_key:
+                st.error("Hugging Face API key is required to use Mistral model")
+                return None, None
+                
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
+                }
+            )
+        elif model_choice == "phi":
+            if not hf_api_key:
+                st.error("Hugging Face API key is required to use Phi model")
+                return None, None
+                
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
+                }
+            )
+        else:  # Default to llama
+            llm = HuggingFaceEndpoint(
+                endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+                huggingfacehub_api_token=hf_api_key,
+                task="text-generation",
+                temperature=0.4,
+                max_new_tokens=512,
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
+                }
+            )
         
-    # Apply additional formatting if needed
-    if not any(marker in answer for marker in ["##", "**", "- ", "1. ", "_"]):
-        # If the model didn't use markdown formatting, add some basic structure
-        lines = answer.split("\n")
-        if len(lines) > 2:
-            # Add a summary header
-            formatted_answer = f"## Résumé\n\n{lines[0]}\n\n## Détails\n\n" + "\n".join(lines[1:])
-            answer = formatted_answer
+        # Update progress
+        progress_bar.progress(0.3)
+        progress_container.info("Création de la chaîne de traitement...")
         
-    source_docs = result["source_documents"]
-    
-    # Update message history
-    if "messages" in st.session_state:
-        st.session_state.messages.append((query, answer))
-    
-    return answer, source_docs
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=llm,
+            chain_type="stuff",
+            retriever=retriever,
+            return_source_documents=True,
+            verbose=True
+        )
+        
+        # Update progress
+        progress_bar.progress(0.5)
+        progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
+        
+        enh_query = f"""
+        {query}
+        Important : 
+        1. Présente ta réponse de façon claire et bien structurée.
+        2. Utilise le formatage markdown pour mettre en évidence les points importants.
+        3. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
+        4. Commence ta réponse par un court résumé de 1-2 phrases.
+        5. Ajoute des titres et sous-titres si nécessaire pour organiser l'information.
+        6. Utilise des listes à puces pour les énumérations.
+        7. Réponds en français en utilisant un langage naturel et cohérent.
+        """
+        
+        # Generate response
+        result = qa_chain({"query": enh_query})
+        
+        # Update progress
+        progress_bar.progress(0.9)
+        progress_container.info("Finalisation et mise en forme de la réponse...")
+        
+        # Post-process to remove any notes that might still appear and format the answer
+        answer = result["result"]
+        if "Note:" in answer:
+            answer = answer.split("Note:")[0].strip()
+        if "Note :" in answer:
+            answer = answer.split("Note :")[0].strip()
+            
+        # Apply additional formatting if needed
+        if not any(marker in answer for marker in ["##", "**", "- ", "1. ", "_"]):
+            # If the model didn't use markdown formatting, add some basic structure
+            lines = answer.split("\n")
+            if len(lines) > 2:
+                # Add a summary header
+                formatted_answer = f"## Résumé\n\n{lines[0]}\n\n## Détails\n\n" + "\n".join(lines[1:])
+                answer = formatted_answer
+            
+        source_docs = result["source_documents"]
+        
+        # Update message history
+        if "messages" in st.session_state:
+            st.session_state.messages.append((query, answer))
+        
+        # Complete progress
+        progress_bar.progress(1.0)
+        progress_container.empty()
+        
+        return answer, source_docs
+        
+    except Exception as e:
+        progress_container.error(f"Erreur pendant la génération: {str(e)}")
+        return None, None
 
 def process_documents(hf_api_key, use_uploaded_only):
     if not hf_api_key:
@@ -290,24 +332,61 @@ def process_documents(hf_api_key, use_uploaded_only):
         return None
     
     try:
+        # Create main status container
+        status_container = st.empty()
+        status_container.info("Chargement des documents...")
+        
         documents, document_dates = load_documents(use_uploaded_only)
         if not documents:
             st.error("No documents found to process.")
             return None
         
-        # Split into chunks
-        texts = split_documents(documents)
-        st.success(f"Created {len(texts)} chunks from {len(documents)} documents.")
+        # Split into chunks with progress indication
+        status_container.info("Découpage des documents en fragments...")
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        texts = text_splitter.split_documents(documents)
         
-        # Create embeddings and retriever
-        retriever = embeddings_on_local_vectordb(texts, hf_api_key)
-        st.success("Embeddings created and stored in vector database.")
+        # Create embeddings with progress indication
+        status_container.info("Création des embeddings (cela peut prendre plusieurs minutes)...")
+        progress_bar = st.progress(0)
+        
+        # Update manually with approximate progress values
+        progress_bar.progress(0.2)
+        
+        # Create embeddings
+        import os
+        os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
+        
+        model_kwargs = {"token": hf_api_key}
+        
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            model_kwargs=model_kwargs
+        )
+        
+        # Update progress
+        progress_bar.progress(0.5)
+        status_container.info("Construction de la base de données vectorielle...")
+        
+        vectordb = FAISS.from_documents(texts, embeddings)
+        
+        # Update progress
+        progress_bar.progress(0.8)
+        status_container.info("Finalisation...")
+        
+        vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
+        retriever = vectordb.as_retriever(search_kwargs={'k': 3})
+        
+        # Complete progress
+        progress_bar.progress(1.0)
+        status_container.success(f"Traitement terminé! {len(texts)} fragments créés à partir de {len(documents)} documents.")
         
         return retriever
     
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Une erreur s'est produite: {e}")
         return None
+
 
 def input_fields():
     """Set up the input fields in the sidebar with improved responsive layout."""
