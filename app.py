@@ -413,40 +413,51 @@ def input_fields():
                 height=200,
                 key="system_prompt_textarea"  # Added unique key
             )
-        
+            
         # Initialize uploaded_files in session state if not present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
-        
+
         # File uploader
         uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
                                         type=["xml", "xmltei"], 
                                         accept_multiple_files=True)
         
-        # IMPORTANT: Move the checkbox above the file processing messages
+        # Process uploaded files and store them in session state
+        if uploaded_files:
+            # Clear existing files first
+            st.session_state.uploaded_files = []
+            
+            # Create the upload directory if it doesn't exist
+            os.makedirs("data/uploaded", exist_ok=True)
+            
+            # Process each file silently without success messages here
+            for uploaded_file in uploaded_files:
+                file_path = os.path.join("data/uploaded", uploaded_file.name)
+                with open(file_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                st.session_state.uploaded_files.append(file_path)
+            
+            # Show a single success message instead of multiple ones
+            if len(uploaded_files) > 0:
+                st.success(f"{len(uploaded_files)} fichier(s) sauvegardé(s).")
+        
+        # Display checkbox for using only uploaded files
         st.session_state.use_uploaded_only = st.checkbox(
             "Utiliser uniquement les fichiers téléchargés", 
             value=bool(st.session_state.uploaded_files)
         )
         
-        # Create a container for success messages with scrolling
-        success_messages = st.container()
-            
-        if uploaded_files:
-            st.session_state.uploaded_files = []
-            
-            # Process uploaded files inside the scrollable container
-            with success_messages:
-                for uploaded_file in uploaded_files:
-                    os.makedirs("data/uploaded", exist_ok=True)
-                    file_path = os.path.join("data/uploaded", uploaded_file.name)
-                    with open(file_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
-                    st.success(f"Fichier {uploaded_file.name} sauvegardé.")
-                    st.session_state.uploaded_files.append(file_path)
-        
+        # Warning if checkbox is checked but no files are uploaded
         if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
             st.warning("Aucun fichier téléchargé. Veuillez télécharger des fichiers ou utiliser le corpus par défaut.")
+        
+        # Display the list of uploaded files in an expander to save space
+        if st.session_state.uploaded_files:
+            with st.expander("Fichiers téléchargés", expanded=False):
+                for file_path in st.session_state.uploaded_files:
+                    file_name = os.path.basename(file_path)
+                    st.text(f"✓ {file_name}")
             
 def boot():
     """Main function to run the application."""
