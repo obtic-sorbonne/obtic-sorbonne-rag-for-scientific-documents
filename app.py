@@ -199,7 +199,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     vectordb = FAISS.from_documents(texts, embeddings)
     vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix()) # saving vectors during session
     # Increased k from 3 to 5 to retrieve more potentially relevant documents
-    retriever = vectordb.as_retriever(search_kwargs={'k': 5}) 
+    retriever = vectordb.as_retriever(search_kwargs={'k': 3}) 
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
@@ -211,13 +211,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
     
     try:
         # Define a standard system prompt for all models
-        standard_system_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques.
-        Instructions importantes:
-        1. Recherche ATTENTIVEMENT toutes les informations pertinentes dans les documents fournis.
-        2. Pour les questions factuelles (chiffres, dates, quantités), vérifie minutieusement les documents.
-        3. Si la réponse exacte est présente dans les documents, cite-la précisément.
-        4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents.
-        5. Si tu trouves une mention de scorpions, nombre d'espèces collectées, ou toute donnée quantitative, fais-la ressortir."""
+        standard_system_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques historiques en français.
+CONTEXTE:
+- Tu travailles avec un corpus de documents XML-TEI qui contiennent des informations scientifiques.
+- Tu disposes d'une base de connaissances vectorielle qui permet de retrouver les passages pertinents.
+- Tu reçois une question et plusieurs documents contenant potentiellement les informations pour y répondre.
+- Certains documents sont OCRisés, donc contiennent du bruit. Il faut payer une attention particulère aux chiffres.
+"""
         
         if model_choice == "gpt":
             if not openai_api_key:
@@ -303,17 +303,15 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
         # Modified query enhancement to focus on thorough searching
-        enh_query = f"""
+        enh_query = f""" Voici la question de l'utilisateur: 
         {query}
-        Important : 
-        1. Recherche ATTENTIVEMENT toutes les mentions de '{query.lower()}' dans les documents.
-        2. Si la question porte sur des chiffres ou des quantités, cherche explicitement ces données.
+        
+        Instructions : 
+        1. Recherche ATTENTIVEMENT toutes les informations pertinentes qui porte sur la quesiton de l'utilisateur.
+        2. Si la question porte sur des chiffres ou des quantités, cherche explicitement ces données et présente-les de manière structurée.
         3. Vérifie chaque document fourni avant de conclure à l'absence d'information.
-        4. Présente ta réponse de façon claire et bien structurée.
-        5. Utilise le formatage markdown pour mettre en évidence les points importants.
-        6. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
-        7. Commence ta réponse par un court résumé de 1-2 phrases.
-        8. Réponds en français, dans un style professionnel et accessible.
+        4. Utilise le formatage markdown pour mettre en évidence les points importants.
+        5. Réponds en français, dans un style professionnel et accessible.
         """
         
         # Generate response
