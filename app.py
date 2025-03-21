@@ -308,62 +308,6 @@ def process_documents(hf_api_key, use_uploaded_only):
     except Exception as e:
         st.error(f"An error occurred: {e}")
         return None
-        
-def display_model_info():
-    """Display information about the selected model."""
-    model_choice = st.session_state.model_choice
-    
-    with st.expander("Informations sur le modèle", expanded=False):
-        if model_choice == "llama":
-            st.markdown("""
-            ### Meta-Llama-3-8B-Instruct
-            
-            **Paramètres**: 8 milliards
-            
-            **Caractéristiques**:
-            - Modèle d'instruction open source de Meta
-            - Support multilingue
-            - Fenêtre de contexte : 8K tokens
-            - Bon équilibre entre qualité et performance
-            """)
-        elif model_choice == "gpt":
-            st.markdown("""
-            ### GPT-3.5-Turbo
-            
-            **Paramètres**: 175 milliards
-            
-            **Caractéristiques**:
-            - Modèle propriétaire d'OpenAI
-            - Excellent support multilingue
-            - Fenêtre de contexte : 4K tokens (16K disponible)
-            - Robuste pour de multiples tâches
-            """)
-        elif model_choice == "mistral":
-            st.markdown("""
-            ### Mistral-Small-24B-Instruct-2501
-            
-            **Paramètres**: 24 milliards
-            
-            **Caractéristiques**:
-            - Modèle de Mistral AI sous licence Apache 2.0
-            - Excellent support multilingue (10+ langues)
-            - Fenêtre de contexte : 32K tokens
-            - Capacités avancées de raisonnement et conversation
-            - Optimisé pour les agents et fonction calling
-            """)
-        elif model_choice == "phi":
-            st.markdown("""
-            ### Phi-4-mini-instruct
-            
-            **Paramètres**: 3.8 milliards
-            
-            **Caractéristiques**:
-            - Modèle léger de Microsoft sous licence MIT
-            - Support pour 24 langues
-            - Fenêtre de contexte : 128K tokens
-            - Excellent en mathématiques et raisonnement logique
-            - Optimisé pour des environnements avec ressources limitées
-            """)
 
 def input_fields():
     """Set up the input fields in the sidebar."""
@@ -387,14 +331,87 @@ def input_fields():
             "Choisir un modèle LLM",
             ["llama", "gpt", "mistral", "phi"],
             format_func=lambda x: {
-                "llama": "Meta/Llama-3-8B-Instruct",
-                "gpt": "OpenAI/gpt-3.5-turbo",
-                "mistral": "MistralAI/Mistral-Small-24B-Instruct-2501",
-                "phi": "Microsoft/Phi-4-mini-instruct"
+                "llama": "Llama 3",
+                "gpt": "GPT-3.5",
+                "mistral": "Mistral Small 24B",
+                "phi": "Phi-4-mini"
             }[x]
         )
         
-        display_model_info()
+        # Affichage des informations sur le modèle sélectionné
+        with st.expander("Informations sur le modèle", expanded=False):
+            if st.session_state.model_choice == "llama":
+                st.markdown("""
+                ### Meta-Llama-3-8B-Instruct
+                
+                **Paramètres**: 8 milliards
+                
+                **Caractéristiques**:
+                - Modèle d'instruction open source de Meta
+                - Support multilingue
+                - Fenêtre de contexte : 8K tokens
+                - Bon équilibre entre qualité et performance
+                """)
+            elif st.session_state.model_choice == "gpt":
+                st.markdown("""
+                ### GPT-3.5-Turbo
+                
+                **Paramètres**: 175 milliards
+                
+                **Caractéristiques**:
+                - Modèle propriétaire d'OpenAI
+                - Excellent support multilingue
+                - Fenêtre de contexte : 4K tokens (16K disponible)
+                - Robuste pour de multiples tâches
+                """)
+            elif st.session_state.model_choice == "mistral":
+                st.markdown("""
+                ### Mistral-Small-24B-Instruct-2501
+                
+                **Paramètres**: 24 milliards
+                
+                **Caractéristiques**:
+                - Modèle de Mistral AI sous licence Apache 2.0
+                - Excellent support multilingue (10+ langues)
+                - Fenêtre de contexte : 32K tokens
+                - Capacités avancées de raisonnement et conversation
+                - Optimisé pour les agents et fonction calling
+                """)
+            elif st.session_state.model_choice == "phi":
+                st.markdown("""
+                ### Phi-4-mini-instruct
+                
+                **Paramètres**: 3.8 milliards
+                
+                **Caractéristiques**:
+                - Modèle léger de Microsoft sous licence MIT
+                - Support pour 24 langues
+                - Fenêtre de contexte : 128K tokens
+                - Excellent en mathématiques et raisonnement logique
+                - Optimisé pour des environnements avec ressources limitées
+                """)
+        
+        # Add system prompt customization option
+        with st.expander("Options avancées"):
+            if "system_prompt" not in st.session_state:
+                default_prompt = """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
+                Instructions:
+                1. Utilise uniquement les informations fournies dans le contexte ci-dessus pour répondre à la question.
+                2. Si la réponse ne se trouve pas complètement dans le contexte, indique clairement les limites de ta réponse.
+                3. Ne génère pas d'informations qui ne sont pas présentes dans le contexte.
+                4. Cite les passages précis du contexte qui appuient ta réponse.
+                5. Structure ta réponse de manière claire et concise.
+                6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
+                7. Si la question est ambiguë, demande des précisions.
+                
+                Réponds en français, dans un style professionnel et accessible."""
+                st.session_state.system_prompt = default_prompt
+            
+            st.session_state.system_prompt = st.text_area(
+                "Personnaliser l'instruction système (prompt)",
+                value=st.session_state.system_prompt,
+                height=200
+            )
         
         # Add system prompt customization option
         with st.expander("Options avancées"):
