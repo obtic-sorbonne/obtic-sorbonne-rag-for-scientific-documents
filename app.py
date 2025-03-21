@@ -13,7 +13,7 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI  # Added for OpenAI support
+from langchain_openai import ChatOpenAI
 
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -190,12 +190,10 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
     
-    # Create progress container
     progress_container = st.empty()
     progress_container.info("Recherche des documents pertinents...")
     progress_bar = st.progress(0)
     
-    # Set up model
     try:
         if model_choice == "gpt":
             if not openai_api_key:
@@ -213,8 +211,6 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            # Using Mistral 7B-Instruct-v0.2 which is more widely supported on HF
-            # This model is very similar to the larger Mistral models but with better API compatibility
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
                 huggingfacehub_api_token=hf_api_key,
@@ -228,7 +224,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            # Keep the Phi-4-mini-instruct model since it's working
+            
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
@@ -237,7 +233,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 max_new_tokens=512,
                 top_p=0.95
             )
-        else:  # Default to llama
+        else:
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
@@ -437,10 +433,10 @@ def input_fields():
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
-                "mistral": "Mistral 7B",  # Changed to 7B which is more widely supported
+                "mistral": "Mistral 7B",
                 "phi": "Phi-4-mini"
             }[x],
-            horizontal=False  # Ensure vertical layout to save width
+            horizontal=False
         )
         
         # Model information with clean markdown formatting
@@ -489,12 +485,13 @@ def input_fields():
                 4. Cite les passages précis du contexte qui appuient ta réponse.
                 5. Structure ta réponse de manière claire et concise.
                 6. Si plusieurs interprétations sont possibles, présente les différentes perspectives.
+                7. Si la question est ambiguë, demande des précisions.
                 
                 Réponds en français, dans un style professionnel et accessible."""
                 st.session_state.system_prompt = default_prompt
             
             st.session_state.system_prompt = st.text_area(
-                "Personnaliser prompt",  # Shortened label
+                "Personnaliser prompt",  
                 value=st.session_state.system_prompt,
                 height=150,  # Reduced height
                 key="system_prompt_area"
