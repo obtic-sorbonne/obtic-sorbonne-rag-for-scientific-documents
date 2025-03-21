@@ -2,7 +2,7 @@ streamlit==1.31.0
 langchain-community==0.0.10
 langchain-openai==0.0.2
 openai>=1.6.0,<2.0.0
-faiss-cpu==1.7.4
+faiss-cpu
 protobuf==4.24.4
 pydantic==2.5.2
 numpy==1.26.2
