@@ -66,15 +66,7 @@ def parse_xmltei_document(file_path):
         # Get all paragraphs
         paragraphs = root.findall('.//tei:p', NAMESPACES)
         
-        # Debug: Print number of paragraphs found for key files
-        if os.path.basename(file_path).startswith("SFP_"):
-            st.write(f"Found {len(paragraphs)} paragraphs in {file_path}")
-            # Show first few paragraphs for debugging
-            for i, para in enumerate(paragraphs[:3]):
-                para_text = ''.join(para.itertext()).strip()
-                if "scorpion" in para_text.lower():
-                    st.write(f"FOUND SCORPION MENTION in para {i}: {para_text[:100]}...")
-        
+
         # Also get all persName elements to find scientists/authors
         person_names = root.findall('.//tei:persName', NAMESPACES)
         person_text = []
@@ -517,13 +509,12 @@ def input_fields():
         # System prompt in compact expander
         with st.expander("Options avancées", expanded=False):
             if "system_prompt" not in st.session_state:
-                default_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques.
-                Instructions importantes:
-                1. Recherche ATTENTIVEMENT toutes les informations pertinentes dans les documents fournis.
-                2. Pour les questions factuelles (chiffres, dates, quantités), vérifie minutieusement les documents.
-                3. Si la réponse exacte est présente dans les documents, cite-la précisément.
-                4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents.
-                5. Si tu trouves une mention de scorpions, nombre d'espèces collectées, ou toute donnée quantitative, fais-la ressortir."""
+                default_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques historiques en français.
+CONTEXTE:
+- Tu travailles avec un corpus de documents XML-TEI qui contiennent des informations scientifiques.
+- Tu disposes d'une base de connaissances vectorielle qui permet de retrouver les passages pertinents.
+- Tu reçois une question et plusieurs documents contenant potentiellement les informations pour y répondre.
+- Certains documents sont OCRisés, donc contiennent du bruit. Il faut payer une attention particulère aux chiffres."""
                 
                 st.session_state.system_prompt = default_prompt
             
