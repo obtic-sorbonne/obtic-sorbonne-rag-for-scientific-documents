@@ -13,7 +13,7 @@ from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI  # Added for OpenAI support
+from langchain_openai import ChatOpenAI
 
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -213,7 +213,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            # Keep original model but fix parameters
+            # Fixed Mistral model configuration
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
                 huggingfacehub_api_token=hf_api_key,
@@ -221,10 +221,10 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 temperature=0.4,
                 max_new_tokens=512,
                 top_p=0.95,
-                # Only include the system prompt in model_kwargs
                 model_kwargs={
-                    "do_sample": True,
-                    "return_full_text": False
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
                 }
             )
         elif model_choice == "phi":
@@ -232,7 +232,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            # Keep original model but fix parameters
+            # Fixed Phi model configuration
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
@@ -240,10 +240,10 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 temperature=0.4,
                 max_new_tokens=512,
                 top_p=0.95,
-                # Only include parameters that don't cause conflicts
                 model_kwargs={
-                    "do_sample": True,
-                    "return_full_text": False
+                    "parameters": {
+                        "system": st.session_state.system_prompt
+                    }
                 }
             )
         else:  # Default to llama
