@@ -175,7 +175,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
-    """Query the LLM using either Hugging Face (Llama3.2 Instruct) or OpenAI (GPT-3.5)."""
+    """Query the LLM using one of the supported models."""
     
     if model_choice == "gpt":
         if not openai_api_key:
@@ -188,7 +188,43 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
             openai_api_key=openai_api_key,
             max_tokens=512
         )
-    else:
+    elif model_choice == "mistral":
+        if not hf_api_key:
+            st.error("Hugging Face API key is required to use Mistral model")
+            return None, None
+            
+        llm = HuggingFaceEndpoint(
+            endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501",
+            huggingfacehub_api_token=hf_api_key,
+            task="text-generation",
+            temperature=0.4,
+            max_new_tokens=512,
+            top_p=0.95,
+            model_kwargs={
+                "parameters": {
+                    "system": st.session_state.system_prompt
+                }
+            }
+        )
+    elif model_choice == "phi":
+        if not hf_api_key:
+            st.error("Hugging Face API key is required to use Phi model")
+            return None, None
+            
+        llm = HuggingFaceEndpoint(
+            endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
+            huggingfacehub_api_token=hf_api_key,
+            task="text-generation",
+            temperature=0.4,
+            max_new_tokens=512,
+            top_p=0.95,
+            model_kwargs={
+                "parameters": {
+                    "system": st.session_state.system_prompt
+                }
+            }
+        )
+    else:  # Default to llama
         llm = HuggingFaceEndpoint(
             endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
             huggingfacehub_api_token=hf_api_key,
@@ -272,6 +308,62 @@ def process_documents(hf_api_key, use_uploaded_only):
     except Exception as e:
         st.error(f"An error occurred: {e}")
         return None
+        
+def display_model_info():
+    """Display information about the selected model."""
+    model_choice = st.session_state.model_choice
+    
+    with st.expander("Informations sur le modèle", expanded=False):
+        if model_choice == "llama":
+            st.markdown("""
+            ### Meta-Llama-3-8B-Instruct
+            
+            **Paramètres**: 8 milliards
+            
+            **Caractéristiques**:
+            - Modèle d'instruction open source de Meta
+            - Support multilingue
+            - Fenêtre de contexte : 8K tokens
+            - Bon équilibre entre qualité et performance
+            """)
+        elif model_choice == "gpt":
+            st.markdown("""
+            ### GPT-3.5-Turbo
+            
+            **Paramètres**: 175 milliards
+            
+            **Caractéristiques**:
+            - Modèle propriétaire d'OpenAI
+            - Excellent support multilingue
+            - Fenêtre de contexte : 4K tokens (16K disponible)
+            - Robuste pour de multiples tâches
+            """)
+        elif model_choice == "mistral":
+            st.markdown("""
+            ### Mistral-Small-24B-Instruct-2501
+            
+            **Paramètres**: 24 milliards
+            
+            **Caractéristiques**:
+            - Modèle de Mistral AI sous licence Apache 2.0
+            - Excellent support multilingue (10+ langues)
+            - Fenêtre de contexte : 32K tokens
+            - Capacités avancées de raisonnement et conversation
+            - Optimisé pour les agents et fonction calling
+            """)
+        elif model_choice == "phi":
+            st.markdown("""
+            ### Phi-4-mini-instruct
+            
+            **Paramètres**: 3.8 milliards
+            
+            **Caractéristiques**:
+            - Modèle léger de Microsoft sous licence MIT
+            - Support pour 24 langues
+            - Fenêtre de contexte : 128K tokens
+            - Excellent en mathématiques et raisonnement logique
+            - Optimisé pour des environnements avec ressources limitées
+            """)
 
 def input_fields():
     """Set up the input fields in the sidebar."""
@@ -293,9 +385,16 @@ def input_fields():
         # Model selection radio button
         st.session_state.model_choice = st.radio(
             "Choisir un modèle LLM",
-            ["llama", "gpt"],
-            format_func=lambda x: "Llama 3" if x == "llama" else "GPT-3.5"
+            ["llama", "gpt", "mistral", "phi"],
+            format_func=lambda x: {
+                "llama": "Meta/Llama-3-8B-Instruct",
+                "gpt": "OpenAI/gpt-3.5-turbo",
+                "mistral": "MistralAI/Mistral-Small-24B-Instruct-2501",
+                "phi": "Microsoft/Phi-4-mini-instruct"
+            }[x]
         )
+        
+        display_model_info()
         
         # Add system prompt customization option
         with st.expander("Options avancées"):
