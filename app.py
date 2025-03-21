@@ -46,6 +46,10 @@ def parse_xmltei_document(file_path):
         tree = ET.parse(file_path)
         root = tree.getroot()
         
+        # Debug: Print file being processed for key files
+        if os.path.basename(file_path).startswith("SFP_"):
+            st.write(f"Parsing: {file_path}")
+        
         # Extract document metadata for context
         title = root.find('.//tei:titleStmt/tei:title', NAMESPACES)
         title_text = title.text if title is not None else "Unknown Title"
@@ -61,6 +65,15 @@ def parse_xmltei_document(file_path):
         
         # Get all paragraphs
         paragraphs = root.findall('.//tei:p', NAMESPACES)
+        
+        # Debug: Print number of paragraphs found for key files
+        if os.path.basename(file_path).startswith("SFP_"):
+            st.write(f"Found {len(paragraphs)} paragraphs in {file_path}")
+            # Show first few paragraphs for debugging
+            for i, para in enumerate(paragraphs[:3]):
+                para_text = ''.join(para.itertext()).strip()
+                if "scorpion" in para_text.lower():
+                    st.write(f"FOUND SCORPION MENTION in para {i}: {para_text[:100]}...")
         
         # Also get all persName elements to find scientists/authors
         person_names = root.findall('.//tei:persName', NAMESPACES)
@@ -165,7 +178,8 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    # Increased chunk size to 2000 and overlap to 300 for better context
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
     texts = text_splitter.split_documents(documents)
     
     return texts
@@ -184,7 +198,8 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     
     vectordb = FAISS.from_documents(texts, embeddings)
     vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix()) # saving vectors during session
-    retriever = vectordb.as_retriever(search_kwargs={'k': 3}) #top retrieval
+    # Increased k from 3 to 5 to retrieve more potentially relevant documents
+    retriever = vectordb.as_retriever(search_kwargs={'k': 5}) 
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
@@ -195,6 +210,15 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
     progress_bar = st.progress(0)
     
     try:
+        # Define a standard system prompt for all models
+        standard_system_prompt = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques.
+        Instructions importantes:
+        1. Recherche ATTENTIVEMENT toutes les informations pertinentes dans les documents fournis.
+        2. Pour les questions factuelles (chiffres, dates, quantités), vérifie minutieusement les documents.
+        3. Si la réponse exacte est présente dans les documents, cite-la précisément.
+        4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents.
+        5. Si tu trouves une mention de scorpions, nombre d'espèces collectées, ou toute donnée quantitative, fais-la ressortir."""
+        
         if model_choice == "gpt":
             if not openai_api_key:
                 st.error("OpenAI API key is required to use GPT-3.5 model")
@@ -204,7 +228,12 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 temperature=0.4,
                 model_name="gpt-3.5-turbo",
                 openai_api_key=openai_api_key,
-                max_tokens=512
+                max_tokens=512,
+                model_kwargs={
+                    "messages": [
+                        {"role": "system", "content": standard_system_prompt}
+                    ]
+                }
             )
         elif model_choice == "mistral":
             if not hf_api_key:
@@ -217,21 +246,30 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": standard_system_prompt
+                    }
+                }
             )
         elif model_choice == "phi":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
                 max_new_tokens=512,
-                top_p=0.95
+                top_p=0.95,
+                model_kwargs={
+                    "parameters": {
+                        "system": standard_system_prompt
+                    }
+                }
             )
         else:
             llm = HuggingFaceEndpoint(
@@ -243,7 +281,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 top_p=0.95,
                 model_kwargs={
                     "parameters": {
-                        "system": st.session_state.system_prompt
+                        "system": standard_system_prompt
                     }
                 }
             )
@@ -264,14 +302,18 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
         progress_bar.progress(0.5)
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
+        # Modified query enhancement to focus on thorough searching
         enh_query = f"""
         {query}
         Important : 
-        1. Présente ta réponse de façon claire et bien structurée.
-        2. Utilise le formatage markdown pour mettre en évidence les points importants.
-        3. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
-        4. Commence ta réponse par un court résumé de 1-2 phrases.
-        5. Réponds en français, dans un style professionnel et accessible.
+        1. Recherche ATTENTIVEMENT toutes les mentions de '{query.lower()}' dans les documents.
+        2. Si la question porte sur des chiffres ou des quantités, cherche explicitement ces données.
+        3. Vérifie chaque document fourni avant de conclure à l'absence d'information.
+        4. Présente ta réponse de façon claire et bien structurée.
+        5. Utilise le formatage markdown pour mettre en évidence les points importants.
+        6. Si tu cites des chiffres ou des statistiques, présente-les de manière structurée.
+        7. Commence ta réponse par un court résumé de 1-2 phrases.
+        8. Réponds en français, dans un style professionnel et accessible.
         """
         
         # Generate response
@@ -330,7 +372,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         
         # Split into chunks with progress indication
         status_container.info("Découpage des documents en fragments...")
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        # Use the same chunking parameters as in split_documents function
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
         texts = text_splitter.split_documents(documents)
         
         # Create embeddings with progress indication
@@ -362,7 +405,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         status_container.info("Finalisation...")
         
         vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
-        retriever = vectordb.as_retriever(search_kwargs={'k': 3})
+        # Use the same retrieval parameter k=5 consistently
+        retriever = vectordb.as_retriever(search_kwargs={'k': 5})
         
         # Complete progress
         progress_bar.progress(1.0)
@@ -480,7 +524,8 @@ def input_fields():
                 1. Recherche ATTENTIVEMENT toutes les informations pertinentes dans les documents fournis.
                 2. Pour les questions factuelles (chiffres, dates, quantités), vérifie minutieusement les documents.
                 3. Si la réponse exacte est présente dans les documents, cite-la précisément.
-                4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents."""
+                4. Ne dis JAMAIS qu'une information n'existe pas sans avoir vérifié tous les documents.
+                5. Si tu trouves une mention de scorpions, nombre d'espèces collectées, ou toute donnée quantitative, fais-la ressortir."""
                 
                 st.session_state.system_prompt = default_prompt
             
