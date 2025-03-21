@@ -310,8 +310,40 @@ def process_documents(hf_api_key, use_uploaded_only):
         return None
 
 def input_fields():
-    """Set up the input fields in the sidebar."""
+    """Set up the input fields in the sidebar with improved responsive layout."""
     with st.sidebar:
+        # Apply custom CSS to make sidebar elements more compact and responsive
+        st.markdown("""
+        <style>
+        .stSelectbox, .stRadio > div, .stExpander, [data-testid="stFileUploader"] {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .stCheckbox label p {
+            font-size: 14px;
+            margin-bottom: 0;
+            white-space: normal;
+        }
+        div.row-widget.stRadio > div {
+            flex-direction: column;
+            margin-top: -10px;
+        }
+        div.row-widget.stRadio > div label {
+            margin: 0;
+            padding: 2px 0;
+        }
+        .stExpander {
+            font-size: 14px;
+        }
+        .stExpander details summary p {
+            margin-bottom: 0;
+        }
+        .stExpander details summary::marker {
+            margin-right: 5px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
         st.title("Configuration")
         
         # Hugging Face API Key
@@ -324,75 +356,46 @@ def input_fields():
         if "openai_api_key" in st.secrets:
             st.session_state.openai_api_key = st.secrets.openai_api_key
         else:
-            st.session_state.openai_api_key = st.text_input("OpenAI API Key (Pour GPT-3.5)", type="password")
+            st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
             
-        # Model selection radio button
+        # Model selection - Simplified to save space
         st.session_state.model_choice = st.radio(
-            "Choisir un modèle LLM",
+            "Modèle LLM",  # Shortened label
             ["llama", "gpt", "mistral", "phi"],
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
-                "mistral": "Mistral Small 24B",
+                "mistral": "Mistral 24B",  # Shortened names
                 "phi": "Phi-4-mini"
-            }[x]
+            }[x],
+            horizontal=False  # Ensure vertical layout to save width
         )
         
-        # Affichage des informations sur le modèle sélectionné
-        with st.expander("Informations sur le modèle", expanded=False):
+        # Model information in expander with compact formatting
+        with st.expander("Infos modèle", expanded=False):
             if st.session_state.model_choice == "llama":
-                st.markdown("""
-                ### Meta-Llama-3-8B-Instruct
-                
-                **Paramètres**: 8 milliards
-                
-                **Caractéristiques**:
-                - Modèle d'instruction open source de Meta
-                - Support multilingue
-                - Fenêtre de contexte : 8K tokens
-                - Bon équilibre entre qualité et performance
-                """)
+                st.markdown("""**Meta-Llama-3-8B**  
+                • 8 milliards de paramètres  
+                • Support multilingue  
+                • Contexte: 8K tokens""")
             elif st.session_state.model_choice == "gpt":
-                st.markdown("""
-                ### GPT-3.5-Turbo
-                
-                **Paramètres**: 175 milliards
-                
-                **Caractéristiques**:
-                - Modèle propriétaire d'OpenAI
-                - Excellent support multilingue
-                - Fenêtre de contexte : 4K tokens (16K disponible)
-                - Robuste pour de multiples tâches
-                """)
+                st.markdown("""**GPT-3.5-Turbo**  
+                • 175 milliards de paramètres  
+                • Support multilingue  
+                • Contexte: 4K tokens""")
             elif st.session_state.model_choice == "mistral":
-                st.markdown("""
-                ### Mistral-Small-24B-Instruct-2501
-                
-                **Paramètres**: 24 milliards
-                
-                **Caractéristiques**:
-                - Modèle de Mistral AI sous licence Apache 2.0
-                - Excellent support multilingue (10+ langues)
-                - Fenêtre de contexte : 32K tokens
-                - Capacités avancées de raisonnement et conversation
-                - Optimisé pour les agents et fonction calling
-                """)
+                st.markdown("""**Mistral-24B**  
+                • 24 milliards de paramètres  
+                • 10+ langues  
+                • Contexte: 32K tokens""")
             elif st.session_state.model_choice == "phi":
-                st.markdown("""
-                ### Phi-4-mini-instruct
-                
-                **Paramètres**: 3.8 milliards
-                
-                **Caractéristiques**:
-                - Modèle léger de Microsoft sous licence MIT
-                - Support pour 24 langues
-                - Fenêtre de contexte : 128K tokens
-                - Excellent en mathématiques et raisonnement logique
-                - Optimisé pour des environnements avec ressources limitées
-                """)
+                st.markdown("""**Phi-4-mini**  
+                • 3.8 milliards de paramètres  
+                • 24 langues  
+                • Contexte: 128K tokens""")
         
-        # Add system prompt customization option
-        with st.expander("Options avancées"):
+        # System prompt in compact expander
+        with st.expander("Options avancées", expanded=False):
             if "system_prompt" not in st.session_state:
                 default_prompt = """Tu es un assistant IA français spécialisé dans l'analyse de documents scientifiques pour faire du RAG. 
                 Instructions:
@@ -408,25 +411,28 @@ def input_fields():
                 st.session_state.system_prompt = default_prompt
             
             st.session_state.system_prompt = st.text_area(
-                "Personnaliser l'instruction système (prompt)",
+                "Personnaliser prompt",  # Shortened label
                 value=st.session_state.system_prompt,
-                height=200,
-                key="system_prompt_textarea"  # Added unique key
+                height=150,  # Reduced height
+                key="system_prompt_area"
             )
             
         # Initialize uploaded_files in session state if not present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
 
-        # File uploader
-        uploaded_files = st.file_uploader("Télécharger des fichiers XML", 
+        st.markdown("### Fichiers XML")  # Section header
+        
+        # File uploader with clear label
+        uploaded_files = st.file_uploader("Télécharger", 
                                         type=["xml", "xmltei"], 
-                                        accept_multiple_files=True)
+                                        accept_multiple_files=True,
+                                        label_visibility="collapsed")  # Hide redundant label
         
         # Process uploaded files and store them in session state
         if uploaded_files:
             # Clear existing files first
-            st.session_state.uploaded_files = []
+            new_files = []
             
             # Create the upload directory if it doesn't exist
             os.makedirs("data/uploaded", exist_ok=True)
@@ -436,29 +442,44 @@ def input_fields():
                 file_path = os.path.join("data/uploaded", uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
-                st.session_state.uploaded_files.append(file_path)
+                new_files.append(file_path)
+            
+            # Add new files to existing list
+            for file_path in new_files:
+                if file_path not in st.session_state.uploaded_files:
+                    st.session_state.uploaded_files.append(file_path)
             
             # Show a single success message instead of multiple ones
-            if len(uploaded_files) > 0:
-                st.success(f"{len(uploaded_files)} fichier(s) sauvegardé(s).")
+            if len(new_files) > 0:
+                st.success(f"{len(new_files)} fichier(s) sauvegardé(s)")
         
-        # Display checkbox for using only uploaded files
+        # Display checkbox for using only uploaded files - with compact styling
         st.session_state.use_uploaded_only = st.checkbox(
-            "Utiliser uniquement les fichiers téléchargés", 
+            "Utiliser uniquement fichiers téléchargés",  # Shortened label
             value=bool(st.session_state.uploaded_files)
         )
         
         # Warning if checkbox is checked but no files are uploaded
         if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
-            st.warning("Aucun fichier téléchargé. Veuillez télécharger des fichiers ou utiliser le corpus par défaut.")
+            st.warning("Aucun fichier téléchargé")
         
-        # Display the list of uploaded files in an expander to save space
+        # Display the list of uploaded files in a more compact way
         if st.session_state.uploaded_files:
-            with st.expander("Fichiers téléchargés", expanded=False):
+            total_files = len(st.session_state.uploaded_files)
+            with st.expander(f"Fichiers ({total_files})", expanded=False):
+                # Create a scrollable area for the files with fixed height
+                file_list_html = "<div style='max-height: 150px; overflow-y: auto;'>"
                 for file_path in st.session_state.uploaded_files:
                     file_name = os.path.basename(file_path)
-                    st.text(f"✓ {file_name}")
-            
+                    file_list_html += f"<div style='padding: 2px 0; font-size: 13px;'>✓ {file_name}</div>"
+                file_list_html += "</div>"
+                st.markdown(file_list_html, unsafe_allow_html=True)
+                
+                # Add a clear button
+                if st.button("Effacer tous", key="clear_files"):
+                    st.session_state.uploaded_files = []
+                    st.experimental_rerun()
+
 def boot():
     """Main function to run the application."""
     # Setup input fields
