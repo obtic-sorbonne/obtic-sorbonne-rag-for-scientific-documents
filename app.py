@@ -243,7 +243,7 @@ def load_documents(use_uploaded_only=False):
 
 def split_documents(documents):
     # Increased chunk size to 5000 and overlap to 700 for better context
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=700)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
     texts = text_splitter.split_documents(documents)
     
     return texts
@@ -262,8 +262,11 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     
     vectordb = FAISS.from_documents(texts, embeddings)
     vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix()) # saving vectors during session
+    
     # Increased k from 3 to 5 to retrieve more potentially relevant documents
-    retriever = vectordb.as_retriever(search_kwargs={'k': 3}) 
+    #retriever = vectordb.as_retriever(search_kwargs={'k': 3})
+    retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
+    
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
