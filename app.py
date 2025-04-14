@@ -293,12 +293,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 model_kwargs={
                     "messages": [
                         {"role": "system", "content": SYSTEM_PROMPT}
-                    ],
-                    "headers": {
-                        "HTTP-Referer": "https://your-streamlit-app.com" 
-                    }
+                    ]
+                },
+                default_headers={
+                    "HTTP-Referer": "https://your-streamlit-app.com" 
                 }
             )
+
 
 
         else:
