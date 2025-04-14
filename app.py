@@ -29,7 +29,7 @@ NAMESPACES = {
 
 st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
 st.title("Retrieval Augmented Generation")
-st.image("static/sfp_logo.png", width=150)
+st.image("static/sfp_logo.png", width=100)
 st.markdown("#### Projet préparé par l'équipe ObTIC.")
 
 # Fixed system prompt - not modifiable by users
