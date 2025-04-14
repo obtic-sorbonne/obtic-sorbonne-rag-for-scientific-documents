@@ -214,7 +214,8 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     retriever = vectordb.as_retriever(search_kwargs={'k': 3}) 
     return retriever
 
-def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="llama"):
+def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
+
     """Query the LLM using one of the supported models."""
     
     progress_container = st.empty()
@@ -470,7 +471,8 @@ def input_fields():
             st.session_state.openai_api_key = st.secrets.openai_api_key
         else:
             st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
-        # Open Router    
+            
+        # Open Router 
         if "openrouter_api_key" in st.secrets:
             st.session_state.openrouter_api_key = st.secrets.openrouter_api_key
         else:
@@ -669,6 +671,7 @@ def boot():
                     query, 
                     st.session_state.hf_api_key,
                     st.session_state.openai_api_key,
+                    st.session_state.openrouter_api_key, 
                     st.session_state.model_choice
                 )
                 
