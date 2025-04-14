@@ -14,7 +14,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
-from langchain_openrouter import OpenRouter
 
 
 # Defining paths 
@@ -283,16 +282,23 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 st.error("OpenRouter API key is required to use Llama 4 Maverick model")
                 return None, None
                 
-            llm = OpenRouter(
-                api_key=openrouter_api_key,
-                model="meta-llama/llama-4-maverick:free",
+            # Use ChatOpenAI with OpenRouter base URL
+            llm = ChatOpenAI(
                 temperature=0.4,
+                model_name="meta-llama/llama-4-maverick:free",
+                openai_api_key=openrouter_api_key,
                 max_tokens=50000,
-                max_retries=2,
+                openai_api_base="https://openrouter.ai/api/v1",
                 model_kwargs={
-                    "system": SYSTEM_PROMPT
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT}
+                    ],
+                    "headers": {
+                        "HTTP-Referer": "https://your-streamlit-app.com" 
+                    }
                 }
             )
+
 
         else:
             llm = HuggingFaceEndpoint(
@@ -474,7 +480,7 @@ def input_fields():
             
         # Model selection - Simplified to save space
         st.session_state.model_choice = st.radio(
-            "Modèle LLM",  # Shortened label
+            "Modèle LLM",
             ["llama", "gpt", "mistral", "phi", "openrouter"],
             format_func=lambda x: {
                 "llama": "Llama 3",
@@ -485,6 +491,7 @@ def input_fields():
             }[x],
             horizontal=False
         )
+
 
         
         # Model information with clean markdown formatting
