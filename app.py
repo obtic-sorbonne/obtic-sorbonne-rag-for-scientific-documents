@@ -14,6 +14,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
+from langchain.llms import OpenRouter
 
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
@@ -233,7 +234,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 temperature=0.4,
                 model_name="gpt-3.5-turbo",
                 openai_api_key=openai_api_key,
-                max_tokens=512,
+                max_tokens=1000,
                 model_kwargs={
                     "messages": [
                         {"role": "system", "content": SYSTEM_PROMPT}
@@ -250,7 +251,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
-                max_new_tokens=512,
+                max_new_tokens=1000,
                 top_p=0.95,
                 model_kwargs={
                     "parameters": {
@@ -268,7 +269,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
-                max_new_tokens=512,
+                max_new_tokens=1000,
                 top_p=0.95,
                 model_kwargs={
                     "parameters": {
@@ -276,13 +277,29 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, model_choice="l
                     }
                 }
             )
+        elif model_choice == "openrouter":
+            if not openrouter_api_key:
+                st.error("OpenRouter API key is required to use Llama 4 Maverick model")
+                return None, None
+                
+            llm = OpenRouter(
+                api_key=openrouter_api_key,
+                model="meta-llama/llama-4-maverick:free",
+                temperature=0.4,
+                max_tokens=50000,
+                max_retries=2,
+                model_kwargs={
+                    "system": SYSTEM_PROMPT
+                }
+            )
+
         else:
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
-                max_new_tokens=512,
+                max_new_tokens=1000,
                 top_p=0.95,
                 model_kwargs={
                     "parameters": {
@@ -446,19 +463,28 @@ def input_fields():
             st.session_state.openai_api_key = st.secrets.openai_api_key
         else:
             st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
+        # Open Router    
+        if "openrouter_api_key" in st.secrets:
+            st.session_state.openrouter_api_key = st.secrets.openrouter_api_key
+        else:
+            st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password")
+
+
             
         # Model selection - Simplified to save space
         st.session_state.model_choice = st.radio(
             "Modèle LLM",  # Shortened label
-            ["llama", "gpt", "mistral", "phi"],
+            ["llama", "gpt", "mistral", "phi", "openrouter"],
             format_func=lambda x: {
                 "llama": "Llama 3",
                 "gpt": "GPT-3.5",
                 "mistral": "Mistral 7B",
-                "phi": "Phi-4-mini"
+                "phi": "Phi-4-mini",
+                "openrouter": "Llama 4 Maverick"
             }[x],
             horizontal=False
         )
+
         
         # Model information with clean markdown formatting
         with st.expander("Infos modèle", expanded=False):
@@ -493,6 +519,14 @@ def input_fields():
                 * Rapide pour traitement RAG léger
                 * Bon ratio performance/taille
                 * Précision sur citations textuelles
+                """)
+            elif st.session_state.model_choice == "openrouter":
+                st.markdown("""
+                **Llama 4 Maverick**
+                
+                * Dernière génération de Llama
+                * Performances supérieures
+                * Excellente compréhension du français
                 """)
         
         # Prompt configuration in expander - only query prompt is customizable
