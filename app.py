@@ -39,7 +39,12 @@ CONTEXTE:
 - Tu travailles avec un corpus de documents XML-TEI qui contiennent des informations scientifiques.
 - Tu disposes d'une base de connaissances vectorielle qui permet de retrouver les passages pertinents.
 - Tu reçois une question et plusieurs documents contenant potentiellement les informations pour y répondre.
-- Certains documents sont OCRisés, donc contiennent du bruit. Il faut payer une attention particulière aux chiffres."""
+- Certains documents sont OCRisés, donc contiennent du bruit. 
+ATTENTION PARTICULIÈRE POUR LES NOMBRES:
+- Les chiffres sont souvent mal OCRisés. Par exemple "71 (11" pourrait signifier "71,011".
+- Vérifie la cohérence des nombres en examinant le contexte environnant.
+- Si un nombre semble incohérent, cherche d'autres références numériques dans le texte pour valider.
+- Sois particulièrement attentif aux séparateurs de milliers (espaces, virgules, points) qui sont souvent mal interprétés."""
 
 # Default query prompt - can be modified by users
 DEFAULT_QUERY_PROMPT = """Voici la question de l'utilisateur: 
@@ -190,8 +195,8 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    # Increased chunk size to 2000 and overlap to 300 for better context
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
+    # Increased chunk size to 5000 and overlap to 700 for better context
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=700)
     texts = text_splitter.split_documents(documents)
     
     return texts
@@ -226,6 +231,8 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         # Use the query prompt template from session state
         query_prompt_template = st.session_state.query_prompt
         
+        # GPT-3.5 model code - commented out but preserved
+        """
         if model_choice == "gpt":
             if not openai_api_key:
                 st.error("OpenAI API key is required to use GPT-3.5 model")
@@ -242,7 +249,8 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                     ]
                 }
             )
-        elif model_choice == "mistral":
+        """
+        if model_choice == "mistral":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
@@ -288,7 +296,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 temperature=0.4,
                 model_name="meta-llama/llama-4-maverick:free",
                 openai_api_key=openrouter_api_key,
-                max_tokens=50000,
+                max_tokens=50000,  # Increased to handle larger chunks
                 openai_api_base="https://openrouter.ai/api/v1",
                 model_kwargs={
                     "messages": [
@@ -299,16 +307,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                     "HTTP-Referer": "https://your-streamlit-app.com" 
                 }
             )
-
-
-
         else:
             llm = HuggingFaceEndpoint(
                 endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
                 task="text-generation",
                 temperature=0.4,
-                max_new_tokens=1000,
+                max_new_tokens=2000,  # Increased to handle larger chunks
                 top_p=0.95,
                 model_kwargs={
                     "parameters": {
@@ -377,8 +382,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         
         # Split into chunks with progress indication
         status_container.info("Découpage des documents en fragments...")
-        # Use the same chunking parameters as in split_documents function
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
+        # Updated chunking parameters to match split_documents function
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=700)
         texts = text_splitter.split_documents(documents)
         
         # Create embeddings with progress indication
@@ -467,11 +472,14 @@ def input_fields():
         else:
             st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password")
         
+        # OpenAI API Key - commented out but preserved
+        """
         # OpenAI API Key
         if "openai_api_key" in st.secrets:
             st.session_state.openai_api_key = st.secrets.openai_api_key
         else:
             st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
+        """
             
         # Open Router 
         if "openrouter_api_key" in st.secrets:
@@ -479,22 +487,20 @@ def input_fields():
         else:
             st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password")
 
-
             
-        # Model selection - Simplified to save space
+        # Model selection - Modified to remove GPT option
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "gpt", "mistral", "phi", "openrouter"],
+            ["llama", "mistral", "phi", "openrouter"],  # "gpt" removed
             format_func=lambda x: {
                 "llama": "Llama 3",
-                "gpt": "GPT-3.5",
+                # "gpt": "GPT-3.5",  # commented out
                 "mistral": "Mistral 7B",
                 "phi": "Phi-4-mini",
                 "openrouter": "Llama 4 Maverick"
             }[x],
             horizontal=False
         )
-
 
         
         # Model information with clean markdown formatting
@@ -507,14 +513,17 @@ def input_fields():
                 * Fort en synthèse de documents longs
                 * Précision factuelle solide
                 """)
+            # GPT model info - commented out but preserved
+            """
             elif st.session_state.model_choice == "gpt":
-                st.markdown("""
+                st.markdown(\"""
                 **GPT-3.5-Turbo**
                 
                 * Excellent en analyse contextuelle
                 * Fort en résumé et reformulation
                 * Bonnes capacités multilingues
-                """)
+                \""")
+            """
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
                 **Mistral-7B-Instruct**
@@ -662,16 +671,19 @@ def boot():
         
         with st.spinner("Génération de la réponse..."):
             try:
-                # Check model requirements
+                # Check model requirements - GPT check commented out
+                """
                 if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
                     st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
                     return
+                """
                 
+                # For backward compatibility, still pass openai_api_key even though it's not used
                 answer, source_docs = query_llm(
                     st.session_state.retriever, 
                     query, 
                     st.session_state.hf_api_key,
-                    st.session_state.openai_api_key,
+                    None,  # openai_api_key set to None
                     st.session_state.openrouter_api_key, 
                     st.session_state.model_choice
                 )
