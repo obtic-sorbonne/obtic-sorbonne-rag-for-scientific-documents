@@ -14,7 +14,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
-from langchain.llms import OpenRouter
+from langchain_openrouter import OpenRouter
+
 
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
