@@ -232,24 +232,22 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         query_prompt_template = st.session_state.query_prompt
         
         # GPT-3.5 model code - commented out but preserved
-        """
-        if model_choice == "gpt":
-            if not openai_api_key:
-                st.error("OpenAI API key is required to use GPT-3.5 model")
-                return None, None
-                
-            llm = ChatOpenAI(
-                temperature=0.4,
-                model_name="gpt-3.5-turbo",
-                openai_api_key=openai_api_key,
-                max_tokens=1000,
-                model_kwargs={
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT}
-                    ]
-                }
-            )
-        """
+        # if model_choice == "gpt":
+        #     if not openai_api_key:
+        #         st.error("OpenAI API key is required to use GPT-3.5 model")
+        #         return None, None
+        #         
+        #     llm = ChatOpenAI(
+        #         temperature=0.4,
+        #         model_name="gpt-3.5-turbo",
+        #         openai_api_key=openai_api_key,
+        #         max_tokens=1000,
+        #         model_kwargs={
+        #             "messages": [
+        #                 {"role": "system", "content": SYSTEM_PROMPT}
+        #             ]
+        #         }
+        #     )
         if model_choice == "mistral":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Mistral model")
@@ -473,13 +471,11 @@ def input_fields():
             st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password")
         
         # OpenAI API Key - commented out but preserved
-        """
-        # OpenAI API Key
-        if "openai_api_key" in st.secrets:
-            st.session_state.openai_api_key = st.secrets.openai_api_key
-        else:
-            st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
-        """
+        # # OpenAI API Key
+        # if "openai_api_key" in st.secrets:
+        #     st.session_state.openai_api_key = st.secrets.openai_api_key
+        # else:
+        #     st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
             
         # Open Router 
         if "openrouter_api_key" in st.secrets:
@@ -514,16 +510,14 @@ def input_fields():
                 * Précision factuelle solide
                 """)
             # GPT model info - commented out but preserved
-            """
-            elif st.session_state.model_choice == "gpt":
-                st.markdown(\"""
-                **GPT-3.5-Turbo**
-                
-                * Excellent en analyse contextuelle
-                * Fort en résumé et reformulation
-                * Bonnes capacités multilingues
-                \""")
-            """
+            # elif st.session_state.model_choice == "gpt":
+            #     st.markdown("""
+            #     **GPT-3.5-Turbo**
+            #     
+            #     * Excellent en analyse contextuelle
+            #     * Fort en résumé et reformulation
+            #     * Bonnes capacités multilingues
+            #     """)
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
                 **Mistral-7B-Instruct**
@@ -672,11 +666,9 @@ def boot():
         with st.spinner("Génération de la réponse..."):
             try:
                 # Check model requirements - GPT check commented out
-                """
-                if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
-                    st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
-                    return
-                """
+                # if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
+                #     st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
+                #     return
                 
                 # For backward compatibility, still pass openai_api_key even though it's not used
                 answer, source_docs = query_llm(
