@@ -34,13 +34,45 @@ st.image("static/sfp_logo.png", width=100)
 st.markdown("#### Projet préparé par l'équipe ObTIC.")
 
 # Fixed system prompt - not modifiable by users
-SYSTEM_PROMPT = """Tu es un assistant spécialisé pour l'analyse de documents scientifiques historiques en français.
-CONTEXTE:
-- Tu travailles avec un corpus de documents XML-TEI qui contiennent des informations scientifiques.
-- Tu disposes d'une base de connaissances vectorielle qui permet de retrouver les passages pertinents.
+SYSTEM_PROMPT = """# COSTAR - Prompt Framework
+
+## Contexte (C)
+- Tu travailles avec un corpus de documents scientifiques historiques en français au format XML-TEI.
+- Tu disposes d'une base de connaissances vectorielle qui te permet de retrouver les passages pertinents.
+- Certains documents sont OCRisés et contiennent des erreurs, particulièrement dans les nombres.
 - Tu reçois une question et plusieurs documents contenant potentiellement les informations pour y répondre.
-- Certains documents sont OCRisés, donc contiennent du bruit. 
-ATTENTION PARTICULIÈRE POUR LES NOMBRES:
+
+## Objectif (O)
+- Fournir des réponses précises et factuelles basées UNIQUEMENT sur les documents fournis.
+- Extraire et présenter l'information pertinente de manière claire et structurée.
+- Identifier les problèmes d'OCR, particulièrement dans les données numériques.
+- Ne jamais inventer ou extrapoler des informations qui ne sont pas explicitement présentes.
+
+## Style (S)
+- Clair, structuré et factuel.
+- Utilisation judicieuse du formatage markdown pour organiser la réponse.
+- Séparation claire entre les faits extraits et les éventuelles incertitudes.
+- Citation directe des passages pertinents du texte source.
+
+## Ton (T)
+- Professionnel et académique.
+- Précis sans être technique à l'excès.
+- Objectif et sans opinion personnelle.
+- Transparent sur les limites des documents fournis.
+
+## Audience (A)
+- Chercheurs et historiens travaillant sur des documents scientifiques historiques.
+- Personnes ayant besoin d'extractions précises d'informations sans distorsion.
+- Utilisateurs qui s'attendent à des réponses factuelles avec des citations précises.
+
+## Format de réponse (R)
+- Structure en sections clairement définies avec des titres en gras.
+- Présentation des informations trouvées avec citation exacte de la source.
+- Si aucune information n'est trouvée, indication explicite: "Les documents fournis ne contiennent pas cette information."
+- Pour chaque affirmation, indication du niveau de confiance (Élevé/Moyen/Faible).
+- Présentation structurée des données numériques lorsque c'est pertinent.
+
+## Attention particulière pour les nombres
 - Les chiffres sont souvent mal OCRisés. Par exemple "71 (11" pourrait signifier "71,011".
 - Vérifie la cohérence des nombres en examinant le contexte environnant.
 - Si un nombre semble incohérent, cherche d'autres références numériques dans le texte pour valider.
@@ -50,12 +82,27 @@ ATTENTION PARTICULIÈRE POUR LES NOMBRES:
 DEFAULT_QUERY_PROMPT = """Voici la question de l'utilisateur: 
 {query}
 
-Instructions : 
-1. Recherche ATTENTIVEMENT toutes les informations pertinentes qui porte sur la question de l'utilisateur.
-2. Si la question porte sur des chiffres ou des quantités, cherche explicitement ces données et présente-les de manière structurée.
-3. Vérifie chaque document fourni avant de conclure à l'absence d'information.
-4. Utilise le formatage markdown pour mettre en évidence les points importants.
-5. Réponds en français, dans un style professionnel et accessible."""
+# Instructions pour traiter cette question:
+
+1. Recherche UNIQUEMENT dans les documents fournis les informations qui répondent directement à la question.
+
+2. Pour les questions impliquant des chiffres ou des quantités:
+   - Identifie les valeurs numériques pertinentes
+   - Vérifie s'il y a des erreurs d'OCR possibles (comme "71 (11" qui pourrait être "71,011")
+   - Présente les données numériques dans un format structuré
+
+3. Rédige ta réponse en suivant strictement ce format:
+   - **Question analysée:** [Reformulation concise de la question]
+   - **Informations trouvées:** [Synthèse des informations pertinentes]
+   - **Citations:** [Citations exactes des passages pertinents, entre guillemets]
+   - **Niveau de confiance:** [Élevé/Moyen/Faible]
+   - **Conclusion:** [Réponse directe à la question initiale]
+
+4. Si l'information n'est pas présente dans les documents:
+   - Indique clairement: "Cette information n'est pas présente dans les documents fournis."
+   - Ne fais aucune supposition ou extrapolation.
+
+5. Utilise le formatage markdown pour structurer ta réponse de façon claire et professionnelle."""
 
 def extract_year(date_str):
     """Extract year from a date string."""
@@ -228,8 +275,22 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
     progress_bar = st.progress(0)
     
     try:
-        # Use the query prompt template from session state
-        query_prompt_template = st.session_state.query_prompt
+        # Construct COSTAR-based prompt
+        base_query_template = st.session_state.query_prompt
+        
+        # Enhance the query with COSTAR components
+        costar_query = {
+            "query": query,
+            "context": "Analyse des documents scientifiques historiques en français.",
+            "objective": f"Réponds précisément à la question: {query}",
+            "style": "Factuel, précis et structuré avec formatage markdown.",
+            "tone": "Académique et objectif.",
+            "audience": "Chercheurs et historiens travaillant sur des documents scientifiques.",
+            "response_format": "Structure en sections avec citations exactes et niveau de confiance."
+        }
+        
+        # Format the query using the template
+        query_prompt_template = base_query_template
         
         # GPT-3.5 model code - commented out but preserved
         # if model_choice == "gpt":
@@ -336,8 +397,16 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         progress_bar.progress(0.5)
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
-        # Use the query prompt template from session state
-        enh_query = query_prompt_template.format(query=query)
+        # Use the COSTAR-enhanced query template
+        enh_query = query_prompt_template.format(
+            query=query,
+            context=costar_query["context"],
+            objective=costar_query["objective"],
+            style=costar_query["style"],
+            tone=costar_query["tone"],
+            audience=costar_query["audience"],
+            response_format=costar_query["response_format"]
+        )
         
         # Generate response
         result = qa_chain({"query": enh_query})
@@ -544,17 +613,30 @@ def input_fields():
                 """)
         
         # Prompt configuration in expander - only query prompt is customizable
-        with st.expander("Configuration du prompt", expanded=False):
+        with st.expander("Configuration du prompt (COSTAR)", expanded=False):
             # Initialize query prompt if not present
             if "query_prompt" not in st.session_state:
                 st.session_state.query_prompt = DEFAULT_QUERY_PROMPT
             
+            st.markdown("##### Framework COSTAR")
+            st.markdown("*Méthodologie structurée pour des réponses précises*")
+            
+            # Explain COSTAR
+            st.info("""
+            **COSTAR** est un framework de prompting structuré:
+            - **C**ontexte: Le cadre de l'analyse
+            - **O**bjectif: But précis de la requête
+            - **S**tyle: Format et structure
+            - **T**on: Registre de langage
+            - **A**udience: Destinataires de la réponse
+            - **R**éponse: Format attendu
+            """)
+            
             st.markdown("##### Prompt de requête")
-            st.markdown("*Instructions pour traiter les questions*")
             st.session_state.query_prompt = st.text_area(
                 "Query prompt",
                 value=st.session_state.query_prompt,
-                height=200,
+                height=300,
                 key="query_prompt_area",
                 label_visibility="collapsed"
             )
