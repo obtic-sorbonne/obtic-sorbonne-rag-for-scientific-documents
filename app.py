@@ -215,7 +215,8 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     model_kwargs = {"token": hf_api_key}
     
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        #model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        model_name="sentence-transformers/all-MiniLM-L6-v2",  # Alternative smaller model
         model_kwargs=model_kwargs
     )
     
