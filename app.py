@@ -15,10 +15,6 @@ from langchain.docstore.document import Document
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 
-from sentence_transformers import SentenceTransformer
-model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-
-
 # Defining paths 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
