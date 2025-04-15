@@ -220,8 +220,8 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     
     embeddings = HuggingFaceEmbeddings(
         #model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        #model_name="sentence-transformers/all-MiniLM-L6-v2",  # Alternative smaller model
-        model_name="Salesforce/SFR-Embedding-Mistral",  
+        model_name="sentence-transformers/all-MiniLM-L6-v2",  # Alternative smaller model
+        #model_name="Salesforce/SFR-Embedding-Mistral",  
         model_kwargs=model_kwargs
     )
     
@@ -436,8 +436,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         
         embeddings = HuggingFaceEmbeddings(
             #model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-            #model_name="sentence-transformers/all-MiniLM-L6-v2",
-            model_name="Salesforce/SFR-Embedding-Mistral",  
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            #model_name="Salesforce/SFR-Embedding-Mistral",  
 
             model_kwargs=model_kwargs
         )
