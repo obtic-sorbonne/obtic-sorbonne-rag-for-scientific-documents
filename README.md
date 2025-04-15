@@ -1,11 +1,11 @@
 # SimpleRAG - Application de Retrieval Augmented Generation
 
-Cette application Streamlit implémente un système de Retrieval Augmented Generation (RAG) permettant d'interroger des documents scientifiques au format XML-TEI. L'application utilise au choix plusieurs LLMs via l'API Hugging Face ou GPT-3.5 via l'API OpenAI pour générer des réponses précises à partir de votre corpus de documents.
+Cette application Streamlit implémente un système de Retrieval Augmented Generation (RAG) permettant d'interroger des documents scientifiques au format XML-TEI. L'application utilise au choix plusieurs LLMs via l'API Hugging Face, l'API OpenAI ou l'API de OpenRouter.
 
 ## 🌟 Fonctionnalités
 
 - **Interface conversationnelle** pour poser des questions sur vos documents
-- **Support de multiples LLMs** : choix entre Llama 3, GPT-3.5, Mistral Small 24B et Phi-4-mini
+- **Support de multiples LLMs** 
 - **Traitement de corpus personnalisé** via l'upload de fichiers XML-TEI
 - **Affichage des sources** pour chaque réponse avec métadonnées détaillées
 - **Personnalisation avancée** du prompt système pour ajuster les réponses
@@ -15,7 +15,8 @@ Cette application Streamlit implémente un système de Retrieval Augmented Gener
 
 - Compte Streamlit (même gratuit)
 - Compte Hugging Face (pour l'API key)
-- Compte OpenAI (optionnel, pour utiliser GPT-3.5 avec l'API key)
+- Compte OpenAI (optionnel)
+- Compte OpenRouter (optionnel)
 
 ## 🚀 Lancement de l'application
 
@@ -55,8 +56,9 @@ Pour ajuster le style ou le comportement des réponses, utilisez l'option "Optio
 ## 🧠 Spécifications techniques
 
 ### LLMs utilisés
-- **Llama 3** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
-- **GPT-3.5** : gpt-3.5-turbo via l'API OpenAI
+- **Llama 1** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
+- **Llama 4 Maverick** :  via l'API OpenRouter
+- **GPT-4o-mini** : via l'API OpenRouter
 - **Mistral Small** : Mistral-Small-24B-Instruct-2501 via l'API Hugging Face  
 - **Phi-4-mini** : Phi-4-mini-instruct via l'API Hugging Face
 - **Température** : 0.4 
