@@ -16,6 +16,10 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 
 # Defining paths 
+
+os.environ["TRANSFORMERS_OFFLINE"] = "0"  # Make sure offline mode is disabled
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"  # Use HF mirror
+
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
 
@@ -430,7 +434,8 @@ def process_documents(hf_api_key, use_uploaded_only):
         model_kwargs = {"token": hf_api_key}
         
         embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            #model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
             model_kwargs=model_kwargs
         )
         
