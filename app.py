@@ -236,8 +236,12 @@ def load_precomputed_embeddings():
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
         
-        # Load the vector store
-        vectordb = FAISS.load_local(embeddings_path.as_posix(), embeddings)
+        # Load the vector store with allow_dangerous_deserialization=True
+        vectordb = FAISS.load_local(
+            embeddings_path.as_posix(), 
+            embeddings, 
+            allow_dangerous_deserialization=True
+        )
         
         # Use MMR retrieval for diversity in results
         retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
@@ -247,6 +251,7 @@ def load_precomputed_embeddings():
     except Exception as e:
         st.error(f"Error loading pre-computed embeddings: {str(e)}")
         return None
+
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS."""
