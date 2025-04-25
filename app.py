@@ -6,12 +6,12 @@ from pathlib import Path
 import pickle
 
 import streamlit as st
-from langchain_core.chains import RetrievalQA
+from langchain.chains import RetrievalQA  # Keep this original import
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import HuggingFaceHub
 from langchain_community.document_loaders import DirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter  # Reverting to original
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
@@ -251,21 +251,37 @@ def load_precomputed_embeddings():
         
         # Try to load the FAISS index
         try:
-            # Import from langchain_community instead
-            from langchain_community.vectorstores import FAISS as LC_FAISS
+            # Import from langchain_community
+            from langchain_community.vectorstores import FAISS
             
-            # Load the FAISS index directly without pickle.load which is causing issues
-            vectordb = LC_FAISS.load_local(
-                embeddings_path.as_posix(), 
-                embeddings,
-                allow_dangerous_deserialization=True
-            )
-            
-            retriever = vectordb.as_retriever(
-                search_type="mmr", 
-                search_kwargs={'k': 5, 'fetch_k': 10}
-            )
-            return retriever
+            # Load the FAISS index directly
+            try:
+                vectordb = FAISS.load_local(
+                    embeddings_path.as_posix(), 
+                    embeddings
+                )
+                
+                retriever = vectordb.as_retriever(
+                    search_type="mmr", 
+                    search_kwargs={'k': 5, 'fetch_k': 10}
+                )
+                return retriever
+            except TypeError as te:
+                # If there's a type error, it might be due to the allow_dangerous_deserialization parameter
+                if "allow_dangerous_deserialization" in str(te):
+                    vectordb = FAISS.load_local(
+                        embeddings_path.as_posix(),
+                        embeddings,
+                        allow_dangerous_deserialization=True
+                    )
+                    
+                    retriever = vectordb.as_retriever(
+                        search_type="mmr", 
+                        search_kwargs={'k': 5, 'fetch_k': 10}
+                    )
+                    return retriever
+                else:
+                    raise te
             
         except Exception as e:
             st.error(f"Error loading FAISS index: {str(e)}")
@@ -277,6 +293,8 @@ def load_precomputed_embeddings():
                     stored_data = pickle.load(f)
                 
                 # Create a retriever from the loaded data
+                from langchain_community.vectorstores.faiss import FAISS as LC_FAISS
+                
                 vectordb = LC_FAISS(
                     embedding=embeddings,
                     index=None,
@@ -302,7 +320,7 @@ def load_precomputed_embeddings():
     except Exception as e:
         st.error(f"Error in embeddings initialization: {str(e)}")
         return None
-
+        
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS."""
     import os
@@ -364,8 +382,6 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 return None, None
                 
             # Use ChatOpenAI with OpenRouter base URL
-            from langchain_openai import ChatOpenAI
-            
             llm = ChatOpenAI(
                 temperature=0.4,
                 model_name="meta-llama/llama-4-maverick:free",
@@ -425,9 +441,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         progress_bar.progress(0.3)
         progress_container.info("Création de la chaîne de traitement...")
         
-        # Updated import for RetrievalQA
-        from langchain.chains import RetrievalQA
-        
+        # Use the original import
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
