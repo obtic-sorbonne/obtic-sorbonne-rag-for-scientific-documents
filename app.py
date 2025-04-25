@@ -249,70 +249,73 @@ def load_precomputed_embeddings():
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
         
-        # Try to load the FAISS index
+        # Primary loading method with allow_dangerous_deserialization
         try:
-            # Import from langchain_community
             from langchain_community.vectorstores import FAISS
             
-            # Load the FAISS index directly
-            try:
-                vectordb = FAISS.load_local(
-                    embeddings_path.as_posix(), 
-                    embeddings
-                )
-                
-                retriever = vectordb.as_retriever(
-                    search_type="mmr", 
-                    search_kwargs={'k': 5, 'fetch_k': 10}
-                )
-                return retriever
-            except TypeError as te:
-                # If there's a type error, it might be due to the allow_dangerous_deserialization parameter
-                if "allow_dangerous_deserialization" in str(te):
-                    vectordb = FAISS.load_local(
-                        embeddings_path.as_posix(),
-                        embeddings,
-                        allow_dangerous_deserialization=True
-                    )
-                    
-                    retriever = vectordb.as_retriever(
-                        search_type="mmr", 
-                        search_kwargs={'k': 5, 'fetch_k': 10}
-                    )
-                    return retriever
-                else:
-                    raise te
+            vectordb = FAISS.load_local(
+                embeddings_path.as_posix(), 
+                embeddings,
+                allow_dangerous_deserialization=True  # Enable this since these are our own files
+            )
+            
+            retriever = vectordb.as_retriever(
+                search_type="mmr", 
+                search_kwargs={'k': 5, 'fetch_k': 10}
+            )
+            return retriever
             
         except Exception as e:
             st.error(f"Error loading FAISS index: {str(e)}")
             
-            # If the first method fails, try the manual approach
+            # Try an alternative approach using the direct FAISS methods
             try:
-                # Load the index pickle manually
-                with open(embeddings_path / "index.pkl", "rb") as f:
-                    stored_data = pickle.load(f)
-                
-                # Create a retriever from the loaded data
-                from langchain_community.vectorstores.faiss import FAISS as LC_FAISS
-                
-                vectordb = LC_FAISS(
-                    embedding=embeddings,
-                    index=None,
-                    docstore=stored_data["docstore"],
-                    index_to_docstore_id=stored_data["index_to_docstore_id"]
-                )
-                
-                # Load the FAISS index file separately
                 import faiss
-                vectordb.index = faiss.read_index(str(embeddings_path / "index.faiss"))
+                
+                # Load the index file
+                index = faiss.read_index(str(embeddings_path / "index.faiss"))
+                
+                # Load the pickle file, but be careful with the structure
+                with open(embeddings_path / "index.pkl", "rb") as f:
+                    pickle_data = pickle.load(f)
+                
+                # Create a new FAISS instance manually
+                from langchain_community.vectorstores import FAISS as LangchainFAISS
+                
+                # Check the structure of pickle_data to handle different formats
+                if isinstance(pickle_data, dict):
+                    # Newer format with dict
+                    docstore = pickle_data.get("docstore")
+                    index_to_docstore_id = pickle_data.get("index_to_docstore_id")
+                    
+                    if docstore is None or index_to_docstore_id is None:
+                        st.error("Pickle file is missing required keys")
+                        return None
+                        
+                elif isinstance(pickle_data, tuple) and len(pickle_data) >= 2:
+                    # Older format with tuple
+                    docstore = pickle_data[0]
+                    index_to_docstore_id = pickle_data[1]
+                else:
+                    st.error(f"Unexpected pickle data format: {type(pickle_data)}")
+                    return None
+                
+                # Create vectordb with the components
+                vectordb = LangchainFAISS(
+                    embedding=embeddings,
+                    index=index,
+                    docstore=docstore,
+                    index_to_docstore_id=index_to_docstore_id
+                )
                 
                 retriever = vectordb.as_retriever(
                     search_type="mmr", 
                     search_kwargs={'k': 5, 'fetch_k': 10}
                 )
                 return retriever
+                
             except Exception as e2:
-                st.error(f"Error with fallback loading method: {str(e2)}")
+                st.error(f"Error with alternative loading method: {str(e2)}")
                 st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
                 st.info("Alternatively, check that your embeddings were properly committed to GitHub and are in the correct format.")
                 return None
