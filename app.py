@@ -3,25 +3,27 @@ import re
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
+import pickle
 
 import streamlit as st
 from langchain.chains import RetrievalQA
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEndpoint
-from langchain_community.document_loaders import DirectoryLoader
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.llms import HuggingFaceHub
+from langchain.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document  
-from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import ChatOpenAI
 
 # Defining paths 
 
 os.environ["TRANSFORMERS_OFFLINE"] = "0"  # Make sure offline mode is disabled
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"  # Use HF mirror
 
-TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
-LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
+TMP_DIR = Path(__file__).resolve().parent.joinpath('tmp')
+LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('vector_store')
+EMBEDDINGS_DIR = Path(__file__).resolve().parent.joinpath('embeddings')
+
 
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,7 +49,7 @@ DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :
 
 # Instructions COSTAR pour traiter cette requête :
 
-[C] **Corpus** : Documents scientifiques historiques en français, au format XML-TEI. Corpus vectorisé disponible. Présence fréquente d’erreurs OCR, notamment sur les chiffres. Entrée = question + documents pertinents.
+[C] **Corpus** : Documents scientifiques historiques en français, au format XML-TEI. Corpus vectorisé disponible. Présence fréquente d'erreurs OCR, notamment sur les chiffres. Entrée = question + documents pertinents.
 
 [O] **Objectif** : Fournir des réponses factuelles et précises, exclusivement basées sur les documents fournis. L'extraction doit être claire, structurée, et signaler toute erreur OCR détectée. Ne rien inventer.
 
@@ -55,17 +57,17 @@ DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :
 
 [T] **Ton** : Professionnel et académique. Précis, neutre, et transparent quant aux limites des réponses.
 
-[A] **Audience** : Chercheurs et historien·ne·s, en quête d’informations fiables, vérifiables et bien sourcées.
+[A] **Audience** : Chercheurs et historien·ne·s, en quête d'informations fiables, vérifiables et bien sourcées.
 
 [R] **Règles de restitution** :  
 - Titres en **gras**  
 - Informations citées textuellement depuis les documents  
-- En l'absence d'information : écrire _“Les documents fournis ne contiennent pas cette information.”_  
+- En l'absence d'information : écrire _"Les documents fournis ne contiennent pas cette information."_  
 - Chaque information doit comporter un **niveau de confiance** : Élevé / Moyen / Faible  
 - Chiffres présentés de manière claire et lisible  
 - Mettre en **gras** les informations importantes
 
-⚠️ **Attention aux chiffres** : les erreurs OCR sont fréquentes (ex : “71 (11” peut signifier “71 011”). Vérifier la cohérence à partir du contexte. Être prudent sur les séparateurs utilisés (espaces, virgules, points)."""
+⚠️ **Attention aux chiffres** : les erreurs OCR sont fréquentes (ex : "71 (11" peut signifier "71 011"). Vérifier la cohérence à partir du contexte. Être prudent sur les séparateurs utilisés (espaces, virgules, points)."""
 
 def extract_year(date_str):
     """Extract year from a date string."""
@@ -211,6 +213,41 @@ def split_documents(documents):
     
     return texts
 
+def load_precomputed_embeddings():
+    """Load precomputed embeddings from the embeddings directory."""
+    embeddings_path = EMBEDDINGS_DIR / "faiss_index"
+    metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
+    
+    if not embeddings_path.exists():
+        st.error(f"Pre-computed embeddings not found at {embeddings_path}")
+        return None
+    
+    try:
+        # Load metadata for information display
+        if metadata_path.exists():
+            with open(metadata_path, "rb") as f:
+                metadata = pickle.load(f)
+                st.success(f"Loaded pre-computed embeddings with {metadata['chunk_count']} chunks from {metadata['document_count']} documents")
+                st.info(f"Embedding model: {metadata.get('model_name', 'Unknown')}")
+        
+        # Create a basic embeddings object to initialize the vectorstore
+        # We don't actually need a valid API key here since we're just loading the index
+        embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        )
+        
+        # Load the vector store
+        vectordb = FAISS.load_local(embeddings_path.as_posix(), embeddings)
+        
+        # Use MMR retrieval for diversity in results
+        retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
+        
+        return retriever
+    
+    except Exception as e:
+        st.error(f"Error loading pre-computed embeddings: {str(e)}")
+        return None
+
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS."""
     import os
@@ -282,17 +319,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
                 
-            llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2",
+            llm = HuggingFaceHub(
+                repo_id="mistralai/Mistral-7B-Instruct-v0.2",
                 huggingfacehub_api_token=hf_api_key,
-                task="text-generation",
-                temperature=0.4,
-                max_new_tokens=1000,
-                top_p=0.95,
                 model_kwargs={
-                    "parameters": {
-                        "system": SYSTEM_PROMPT
-                    }
+                    "temperature": 0.4,
+                    "max_new_tokens": 1000,
+                    "top_p": 0.95
                 }
             )
         elif model_choice == "phi":
@@ -300,17 +333,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 st.error("Hugging Face API key is required to use Phi model")
                 return None, None
                 
-            llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/microsoft/Phi-4-mini-instruct",
+            llm = HuggingFaceHub(
+                repo_id="microsoft/Phi-4-mini-instruct",
                 huggingfacehub_api_token=hf_api_key,
-                task="text-generation",
-                temperature=0.4,
-                max_new_tokens=1000,
-                top_p=0.95,
                 model_kwargs={
-                    "parameters": {
-                        "system": SYSTEM_PROMPT
-                    }
+                    "temperature": 0.4,
+                    "max_new_tokens": 1000,
+                    "top_p": 0.95
                 }
             )
         elif model_choice == "openrouter":
@@ -335,17 +364,13 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 }
             )
         else:
-            llm = HuggingFaceEndpoint(
-                endpoint_url="https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct",
+            llm = HuggingFaceHub(
+                repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
-                task="text-generation",
-                temperature=0.4,
-                max_new_tokens=2000,  # Increased to handle larger chunks
-                top_p=0.95,
                 model_kwargs={
-                    "parameters": {
-                        "system": SYSTEM_PROMPT
-                    }
+                    "temperature": 0.4,
+                    "max_new_tokens": 2000,  # Increased to handle larger chunks
+                    "top_p": 0.95
                 }
             )
         
@@ -418,7 +443,7 @@ def process_documents(hf_api_key, use_uploaded_only):
         # Split into chunks with progress indication
         status_container.info("Découpage des documents en fragments...")
         # Updated chunking parameters to match split_documents function
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=700)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
         texts = text_splitter.split_documents(documents)
         
         # Create embeddings with progress indication
@@ -429,32 +454,11 @@ def process_documents(hf_api_key, use_uploaded_only):
         progress_bar.progress(0.2)
         
         # Create embeddings
-        import os
-        os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
-        
-        model_kwargs = {"token": hf_api_key}
-        
-        embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-            #model_name="sentence-transformers/all-MiniLM-L6-v2",
-            #model_name="Salesforce/SFR-Embedding-Mistral",  
-
-            model_kwargs=model_kwargs
-        )
-        
-        # Update progress
-        progress_bar.progress(0.5)
-        status_container.info("Construction de la base de données vectorielle...")
-        
-        vectordb = FAISS.from_documents(texts, embeddings)
+        retriever = embeddings_on_local_vectordb(texts, hf_api_key)
         
         # Update progress
         progress_bar.progress(0.8)
         status_container.info("Finalisation...")
-        
-        vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
-        # Use the same retrieval parameter k=3 consistently
-        retriever = vectordb.as_retriever(search_kwargs={'k': 3})
         
         # Complete progress
         progress_bar.progress(1.0)
@@ -522,7 +526,28 @@ def input_fields():
             st.session_state.openrouter_api_key = st.secrets.openrouter_api_key
         else:
             st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password")
-
+            
+        # Add option to use pre-computed embeddings
+        embeddings_path = EMBEDDINGS_DIR / "faiss_index"
+        embeddings_available = embeddings_path.exists()
+        
+        st.session_state.use_precomputed = st.checkbox(
+            "Utiliser embeddings pré-calculés",
+            value=embeddings_available,
+            disabled=not embeddings_available
+        )
+        
+        if embeddings_available and st.session_state.use_precomputed:
+            metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
+            if metadata_path.exists():
+                try:
+                    with open(metadata_path, "rb") as f:
+                        metadata = pickle.load(f)
+                        st.info(f"Modèle: {metadata.get('model_name', 'Unknown')}")
+                except:
+                    pass
+            
+            st.markdown("---")
             
         # Model selection - Modified to remove GPT option
         st.session_state.model_choice = st.radio(
@@ -679,7 +704,6 @@ def input_fields():
                 if st.button("Effacer tous", key="clear_files"):
                     st.session_state.uploaded_files = []
                     st.experimental_rerun()
-
 def boot():
     """Main function to run the application."""
     # Initialize query prompt if not present
@@ -696,12 +720,24 @@ def boot():
     if "retriever" not in st.session_state:
         st.session_state.retriever = None
     
-    # Submit documents button
-    if st.button("Traiter les documents"):
-        st.session_state.retriever = process_documents(
-            st.session_state.hf_api_key, 
-            st.session_state.use_uploaded_only
-        )
+    # Add buttons for different processing methods
+    col1, col2 = st.columns(2)
+    
+    # Button for pre-computed embeddings
+    if st.session_state.use_precomputed:
+        with col1:
+            if st.button("Charger embeddings pré-calculés", use_container_width=True):
+                with st.spinner("Chargement des embeddings pré-calculés..."):
+                    st.session_state.retriever = load_precomputed_embeddings()
+    
+    # Button for processing documents
+    if not st.session_state.use_precomputed:
+        with col1:
+            if st.button("Traiter les documents", use_container_width=True):
+                st.session_state.retriever = process_documents(
+                    st.session_state.hf_api_key, 
+                    st.session_state.use_uploaded_only
+                )
     
     # Display chat history
     for message in st.session_state.messages:
@@ -711,7 +747,7 @@ def boot():
     # Chat input
     if query := st.chat_input("Posez votre question..."):
         if not st.session_state.retriever:
-            st.error("Veuillez d'abord traiter les documents.")
+            st.error("Veuillez d'abord charger les embeddings ou traiter les documents.")
             return
         
         st.chat_message("human").write(query)
