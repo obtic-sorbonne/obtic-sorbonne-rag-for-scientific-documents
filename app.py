@@ -6,14 +6,14 @@ from pathlib import Path
 import pickle
 
 import streamlit as st
-from langchain.chains import RetrievalQA
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.llms import HuggingFaceHub
-from langchain.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.docstore.document import Document  
-from langchain.chat_models import ChatOpenAI
+from langchain_core.chains import RetrievalQA
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.llms import HuggingFaceHub
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
+from langchain_openai import ChatOpenAI
 
 # Defining paths 
 
@@ -243,46 +243,65 @@ def load_precomputed_embeddings():
     
     try:
         # Initialize the embeddings model
+        from langchain_community.embeddings import HuggingFaceEmbeddings
+        
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
         
         # Try to load the FAISS index
         try:
-            # For Streamlit Cloud, let's try with explicit file paths
-            from langchain.vectorstores.faiss import FAISS as LC_FAISS
+            # Import from langchain_community instead
+            from langchain_community.vectorstores import FAISS as LC_FAISS
             
-            # Load the index pickle manually first
-            with open(embeddings_path / "index.pkl", "rb") as f:
-                stored_data = pickle.load(f, allow_pickle=True)
-            
-            # Create a retriever from the loaded data
-            vectordb = LC_FAISS(
-                embedding=embeddings,
-                index=None,  # We'll initialize this differently
-                docstore=stored_data["docstore"],
-                index_to_docstore_id=stored_data["index_to_docstore_id"]
+            # Load the FAISS index directly without pickle.load which is causing issues
+            vectordb = LC_FAISS.load_local(
+                embeddings_path.as_posix(), 
+                embeddings,
+                allow_dangerous_deserialization=True
             )
             
-            # Load the FAISS index file separately
-            import faiss
-            vectordb.index = faiss.read_index(str(embeddings_path / "index.faiss"))
-            
-            retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
+            retriever = vectordb.as_retriever(
+                search_type="mmr", 
+                search_kwargs={'k': 5, 'fetch_k': 10}
+            )
             return retriever
             
         except Exception as e:
             st.error(f"Error loading FAISS index: {str(e)}")
             
-            # Fallback: if loading fails, give detailed information
-            st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
-            st.info("Alternatively, check that your embeddings were properly committed to GitHub and are in the correct format.")
-            return None
+            # If the first method fails, try the manual approach
+            try:
+                # Load the index pickle manually
+                with open(embeddings_path / "index.pkl", "rb") as f:
+                    stored_data = pickle.load(f)
+                
+                # Create a retriever from the loaded data
+                vectordb = LC_FAISS(
+                    embedding=embeddings,
+                    index=None,
+                    docstore=stored_data["docstore"],
+                    index_to_docstore_id=stored_data["index_to_docstore_id"]
+                )
+                
+                # Load the FAISS index file separately
+                import faiss
+                vectordb.index = faiss.read_index(str(embeddings_path / "index.faiss"))
+                
+                retriever = vectordb.as_retriever(
+                    search_type="mmr", 
+                    search_kwargs={'k': 5, 'fetch_k': 10}
+                )
+                return retriever
+            except Exception as e2:
+                st.error(f"Error with fallback loading method: {str(e2)}")
+                st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
+                st.info("Alternatively, check that your embeddings were properly committed to GitHub and are in the correct format.")
+                return None
     
     except Exception as e:
         st.error(f"Error in embeddings initialization: {str(e)}")
         return None
-
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS."""
@@ -293,22 +312,27 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        #model_name="sentence-transformers/all-MiniLM-L6-v2",  # Alternative smaller model
-        #model_name="Salesforce/SFR-Embedding-Mistral",  
         model_kwargs=model_kwargs
     )
     
+    # Create and save the vector database
     vectordb = FAISS.from_documents(texts, embeddings)
-    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix()) # saving vectors during session
     
-    # Increased k from 3 to 5 to retrieve more potentially relevant documents
-    #retriever = vectordb.as_retriever(search_kwargs={'k': 3})
-    retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
+    # Make sure the directory exists
+    LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Save with explicit disabling of pickle protocol version
+    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
+    
+    # Create retriever with MMR search
+    retriever = vectordb.as_retriever(
+        search_type="mmr", 
+        search_kwargs={'k': 5, 'fetch_k': 10}
+    )
     
     return retriever
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
-
     """Query the LLM using one of the supported models."""
     
     progress_container = st.empty()
@@ -333,24 +357,31 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         # Format the query using the template
         query_prompt_template = base_query_template
         
-        # GPT-3.5 model code - commented out but preserved
-        # if model_choice == "gpt":
-        #     if not openai_api_key:
-        #         st.error("OpenAI API key is required to use GPT-3.5 model")
-        #         return None, None
-        #         
-        #     llm = ChatOpenAI(
-        #         temperature=0.4,
-        #         model_name="gpt-3.5-turbo",
-        #         openai_api_key=openai_api_key,
-        #         max_tokens=1000,
-        #         model_kwargs={
-        #             "messages": [
-        #                 {"role": "system", "content": SYSTEM_PROMPT}
-        #             ]
-        #         }
-        #     )
-        if model_choice == "mistral":
+        # For OpenAI model
+        if model_choice == "openrouter":
+            if not openrouter_api_key:
+                st.error("OpenRouter API key is required to use Llama 4 Maverick model")
+                return None, None
+                
+            # Use ChatOpenAI with OpenRouter base URL
+            from langchain_openai import ChatOpenAI
+            
+            llm = ChatOpenAI(
+                temperature=0.4,
+                model_name="meta-llama/llama-4-maverick:free",
+                openai_api_key=openrouter_api_key,
+                max_tokens=50000,
+                openai_api_base="https://openrouter.ai/api/v1",
+                model_kwargs={
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT}
+                    ]
+                },
+                default_headers={
+                    "HTTP-Referer": "https://your-streamlit-app.com" 
+                }
+            )
+        elif model_choice == "mistral":
             if not hf_api_key:
                 st.error("Hugging Face API key is required to use Mistral model")
                 return None, None
@@ -378,34 +409,14 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                     "top_p": 0.95
                 }
             )
-        elif model_choice == "openrouter":
-            if not openrouter_api_key:
-                st.error("OpenRouter API key is required to use Llama 4 Maverick model")
-                return None, None
-                
-            # Use ChatOpenAI with OpenRouter base URL
-            llm = ChatOpenAI(
-                temperature=0.4,
-                model_name="meta-llama/llama-4-maverick:free",
-                openai_api_key=openrouter_api_key,
-                max_tokens=50000,  # Increased to handle larger chunks
-                openai_api_base="https://openrouter.ai/api/v1",
-                model_kwargs={
-                    "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT}
-                    ]
-                },
-                default_headers={
-                    "HTTP-Referer": "https://your-streamlit-app.com" 
-                }
-            )
         else:
+            # Default Llama model
             llm = HuggingFaceHub(
                 repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
                 model_kwargs={
                     "temperature": 0.4,
-                    "max_new_tokens": 2000,  # Increased to handle larger chunks
+                    "max_new_tokens": 2000,
                     "top_p": 0.95
                 }
             )
@@ -413,6 +424,9 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         # Update progress
         progress_bar.progress(0.3)
         progress_container.info("Création de la chaîne de traitement...")
+        
+        # Updated import for RetrievalQA
+        from langchain.chains import RetrievalQA
         
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
