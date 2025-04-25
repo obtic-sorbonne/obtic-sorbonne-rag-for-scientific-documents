@@ -56,7 +56,7 @@ Pour ajuster le style ou le comportement des réponses, utilisez l'option "Optio
 ## 🧠 Spécifications techniques
 
 ### LLMs utilisés
-- **Llama 1** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
+- **Llama** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
 - **Llama 4 Maverick** :  via l'API OpenRouter
 - **GPT-4o-mini** : via l'API OpenRouter
 - **Mistral Small** : Mistral-Small-24B-Instruct-2501 via l'API Hugging Face  
