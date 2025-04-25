@@ -218,7 +218,20 @@ def load_precomputed_embeddings():
     embeddings_path = EMBEDDINGS_DIR / "faiss_index"
     metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
     
-    # Load metadata for information display
+    # First check if paths exist
+    if not embeddings_path.exists():
+        st.error(f"Pre-computed embeddings folder not found at {embeddings_path}")
+        return None
+        
+    if not (embeddings_path / "index.faiss").exists():
+        st.error(f"FAISS index file not found at {embeddings_path}/index.faiss")
+        return None
+        
+    if not (embeddings_path / "index.pkl").exists():
+        st.error(f"Index pickle file not found at {embeddings_path}/index.pkl")
+        return None
+    
+    # Load metadata for display
     if metadata_path.exists():
         try:
             with open(metadata_path, "rb") as f:
@@ -226,77 +239,50 @@ def load_precomputed_embeddings():
                 st.success(f"Loaded pre-computed embeddings with {metadata['chunk_count']} chunks from {metadata['document_count']} documents")
                 st.info(f"Embedding model: {metadata.get('model_name', 'Unknown')}")
         except Exception as e:
-            st.error(f"Error loading metadata: {str(e)}")
+            st.warning(f"Error loading metadata: {str(e)}")
     
-    # Try multiple alternative approaches to load the FAISS index
     try:
-        # Create embeddings
+        # Initialize the embeddings model
         embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         )
         
-        # Approach 1: Standard loading
+        # Try to load the FAISS index
         try:
-            vectordb = FAISS.load_local(
-                embeddings_path.as_posix(), 
-                embeddings, 
-                allow_dangerous_deserialization=True
+            # For Streamlit Cloud, let's try with explicit file paths
+            from langchain.vectorstores.faiss import FAISS as LC_FAISS
+            
+            # Load the index pickle manually first
+            with open(embeddings_path / "index.pkl", "rb") as f:
+                stored_data = pickle.load(f, allow_pickle=True)
+            
+            # Create a retriever from the loaded data
+            vectordb = LC_FAISS(
+                embedding=embeddings,
+                index=None,  # We'll initialize this differently
+                docstore=stored_data["docstore"],
+                index_to_docstore_id=stored_data["index_to_docstore_id"]
             )
-            retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
-            return retriever
-        except Exception as e1:
-            st.warning(f"Standard loading failed: {str(e1)}")
-        
-        # Approach 2: Try loading with absolute path
-        try:
-            abs_path = os.path.abspath(embeddings_path)
-            vectordb = FAISS.load_local(
-                abs_path, 
-                embeddings, 
-                allow_dangerous_deserialization=True
-            )
-            retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
-            return retriever
-        except Exception as e2:
-            st.warning(f"Absolute path loading failed: {str(e2)}")
-        
-        # Approach 3: Try recreating FAISS index from the pickle directly
-        try:
+            
+            # Load the FAISS index file separately
             import faiss
-            import pickle
-            import numpy as np
-            
-            with open(os.path.join(embeddings_path, "index.pkl"), "rb") as f:
-                data = pickle.load(f, encoding="latin1")
-            
-            ids = data.get("ids", [])
-            texts = data.get("texts", [])
-            metadatas = data.get("metadatas", [])
-            
-            # Create a new FAISS index
-            dimension = 1024  # Use the known dimension from your model
-            index = faiss.IndexFlatL2(dimension)
-            
-            # Convert embeddings to the correct format and add to index
-            if "embeddings" in data:
-                embeddings_data = np.array(data["embeddings"]).astype(np.float32)
-                if len(embeddings_data) > 0:
-                    index.add(embeddings_data)
-            
-            # Create a new vectordb
-            from langchain.vectorstores import FAISS as LC_FAISS
-            vectordb = LC_FAISS(embeddings, index, texts, metadatas)
+            vectordb.index = faiss.read_index(str(embeddings_path / "index.faiss"))
             
             retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={'k': 5, 'fetch_k': 10})
             return retriever
-        except Exception as e3:
-            st.error(f"All loading approaches failed. Last error: {str(e3)}")
-        
-        return None
-        
+            
+        except Exception as e:
+            st.error(f"Error loading FAISS index: {str(e)}")
+            
+            # Fallback: if loading fails, give detailed information
+            st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
+            st.info("Alternatively, check that your embeddings were properly committed to GitHub and are in the correct format.")
+            return None
+    
     except Exception as e:
-        st.error(f"Error loading pre-computed embeddings: {str(e)}")
+        st.error(f"Error in embeddings initialization: {str(e)}")
         return None
+
 
 def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS."""
