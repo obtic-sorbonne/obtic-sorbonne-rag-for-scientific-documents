@@ -231,127 +231,149 @@ def load_precomputed_embeddings():
         st.error(f"Index pickle file not found at {embeddings_path}/index.pkl")
         return None
     
-    # Load metadata for display
+    # Load metadata to get model information
+    embedding_model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # Default model
+    
     if metadata_path.exists():
         try:
             with open(metadata_path, "rb") as f:
                 metadata = pickle.load(f)
                 st.success(f"Loaded pre-computed embeddings with {metadata['chunk_count']} chunks from {metadata['document_count']} documents")
-                st.info(f"Embedding model: {metadata.get('model_name', 'Unknown')}")
+                
+                # Get the model name from metadata if available
+                if 'model_name' in metadata:
+                    embedding_model = metadata['model_name']
+                    st.info(f"Embedding model: {embedding_model}")
+                else:
+                    st.warning("Model information not found in metadata, using default model")
         except Exception as e:
             st.warning(f"Error loading metadata: {str(e)}")
+            st.warning("Using default embedding model")
+    else:
+        st.warning("Metadata file not found. Using default embedding model.")
     
     try:
-        # Initialize the embeddings model
+        # Initialize the embeddings model using the model from metadata
         from langchain_community.embeddings import HuggingFaceEmbeddings
         
+        # Use the same model that created the embeddings
         embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+            model_name=embedding_model,
         )
         
-        # Primary loading method with allow_dangerous_deserialization
+        # Try to load the FAISS index
         try:
             from langchain_community.vectorstores import FAISS
             
+            # Load with allow_dangerous_deserialization
+            st.info(f"Loading FAISS index with model: {embedding_model}")
             vectordb = FAISS.load_local(
                 embeddings_path.as_posix(), 
                 embeddings,
-                allow_dangerous_deserialization=True  # Enable this since these are our own files
+                allow_dangerous_deserialization=True
             )
             
+            # Create retriever
             retriever = vectordb.as_retriever(
                 search_type="mmr", 
                 search_kwargs={'k': 5, 'fetch_k': 10}
             )
+            
+            st.success("FAISS index loaded successfully!")
             return retriever
             
         except Exception as e:
             st.error(f"Error loading FAISS index: {str(e)}")
-            
-            # Try an alternative approach using the direct FAISS methods
-            try:
-                import faiss
-                
-                # Load the index file
-                index = faiss.read_index(str(embeddings_path / "index.faiss"))
-                
-                # Load the pickle file, but be careful with the structure
-                with open(embeddings_path / "index.pkl", "rb") as f:
-                    pickle_data = pickle.load(f)
-                
-                # Create a new FAISS instance manually
-                from langchain_community.vectorstores import FAISS as LangchainFAISS
-                
-                # Check the structure of pickle_data to handle different formats
-                if isinstance(pickle_data, dict):
-                    # Newer format with dict
-                    docstore = pickle_data.get("docstore")
-                    index_to_docstore_id = pickle_data.get("index_to_docstore_id")
-                    
-                    if docstore is None or index_to_docstore_id is None:
-                        st.error("Pickle file is missing required keys")
-                        return None
-                        
-                elif isinstance(pickle_data, tuple) and len(pickle_data) >= 2:
-                    # Older format with tuple
-                    docstore = pickle_data[0]
-                    index_to_docstore_id = pickle_data[1]
-                else:
-                    st.error(f"Unexpected pickle data format: {type(pickle_data)}")
-                    return None
-                
-                # Create vectordb with the components
-                vectordb = LangchainFAISS(
-                    embedding=embeddings,
-                    index=index,
-                    docstore=docstore,
-                    index_to_docstore_id=index_to_docstore_id
-                )
-                
-                retriever = vectordb.as_retriever(
-                    search_type="mmr", 
-                    search_kwargs={'k': 5, 'fetch_k': 10}
-                )
-                return retriever
-                
-            except Exception as e2:
-                st.error(f"Error with alternative loading method: {str(e2)}")
-                st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
-                st.info("Alternatively, check that your embeddings were properly committed to GitHub and are in the correct format.")
-                return None
+            st.error("Unable to load pre-computed embeddings. You'll need to process documents instead.")
+            return None
     
     except Exception as e:
         st.error(f"Error in embeddings initialization: {str(e)}")
         return None
-        
+
+
 def embeddings_on_local_vectordb(texts, hf_api_key):
-    """Create embeddings and store in a local vector database using FAISS."""
+    """Create embeddings and store in a local vector database using FAISS.
+    This function always uses the paraphrase-multilingual-MiniLM-L12-v2 model for real-time embedding.
+    """
     import os
     os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
     
     model_kwargs = {"token": hf_api_key}
     
+    # Always use this model for real-time processing
+    model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        model_name=model_name,
         model_kwargs=model_kwargs
     )
     
-    # Create and save the vector database
-    vectordb = FAISS.from_documents(texts, embeddings)
-    
-    # Make sure the directory exists
-    LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Save with explicit disabling of pickle protocol version
-    vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
-    
-    # Create retriever with MMR search
-    retriever = vectordb.as_retriever(
-        search_type="mmr", 
-        search_kwargs={'k': 5, 'fetch_k': 10}
-    )
-    
-    return retriever
+    # Create vector database
+    try:
+        vectordb = FAISS.from_documents(texts, embeddings)
+        
+        # Make sure directory exists
+        LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Save vector database
+        vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
+        
+        # Also save model information
+        with open(LOCAL_VECTOR_STORE_DIR / "model_info.pkl", "wb") as f:
+            pickle.dump({
+                "model_name": model_name,
+                "chunk_count": len(texts)
+            }, f)
+        
+        # Create retriever
+        retriever = vectordb.as_retriever(
+            search_type="mmr", 
+            search_kwargs={'k': 5, 'fetch_k': 10}
+        )
+        
+        return retriever
+        
+    except Exception as e:
+        st.error(f"Error creating embeddings: {str(e)}")
+        
+        # Try batching approach if regular approach fails
+        try:
+            st.info("Trying batch processing approach...")
+            
+            # Process in batches
+            batch_size = 50
+            batches = [texts[i:i + batch_size] for i in range(0, len(texts), batch_size)]
+            
+            # Initialize with first batch
+            vectordb = FAISS.from_documents(batches[0], embeddings)
+            
+            # Add remaining batches
+            for i, batch in enumerate(batches[1:], 1):
+                st.info(f"Processing batch {i+1}/{len(batches)}...")
+                vectordb.add_documents(batch)
+            
+            # Save results
+            vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
+            
+            # Save model information
+            with open(LOCAL_VECTOR_STORE_DIR / "model_info.pkl", "wb") as f:
+                pickle.dump({
+                    "model_name": model_name,
+                    "chunk_count": len(texts)
+                }, f)
+            
+            # Create retriever
+            retriever = vectordb.as_retriever(
+                search_type="mmr", 
+                search_kwargs={'k': 5, 'fetch_k': 10}
+            )
+            
+            return retriever
+            
+        except Exception as batch_e:
+            st.error(f"Error with batch processing: {str(batch_e)}")
+            return None
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
