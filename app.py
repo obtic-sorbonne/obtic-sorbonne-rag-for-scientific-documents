@@ -218,6 +218,19 @@ def load_precomputed_embeddings():
     embeddings_path = EMBEDDINGS_DIR / "faiss_index"
     metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
     
+    st.write(f"Looking for embeddings at: {embeddings_path}")
+    st.write(f"Looking for metadata at: {metadata_path}")
+    
+    # Check if paths exist
+    st.write(f"Embeddings path exists: {embeddings_path.exists()}")
+    st.write(f"Metadata path exists: {metadata_path.exists()}")
+    
+    # List directory contents for debugging
+    try:
+        st.write(f"Embeddings directory contents: {os.listdir(embeddings_path)}")
+    except Exception as e:
+        st.write(f"Could not list directory: {str(e)}")
+    
     if not embeddings_path.exists():
         st.error(f"Pre-computed embeddings not found at {embeddings_path}")
         return None
