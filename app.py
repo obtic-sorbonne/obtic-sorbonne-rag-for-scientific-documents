@@ -147,7 +147,7 @@ def parse_xmltei_document(file_path):
         return None
 
 def load_documents(use_uploaded_only=False):
-    """Default execution - using files from ./data/ 
+    """Load XML-TEI documents
     
     Args:
         use_uploaded_only: If True, only use uploaded files and ignore default corpus
@@ -157,12 +157,19 @@ def load_documents(use_uploaded_only=False):
     
     xml_files = []
     
+    # Debug message to verify the value of use_uploaded_only
+    st.write(f"Using uploaded files only: {use_uploaded_only}")
+    
     if use_uploaded_only:
+        # Only process uploaded files when the flag is True
         if "uploaded_files" in st.session_state and st.session_state.uploaded_files:
+            st.write(f"Found {len(st.session_state.uploaded_files)} uploaded files")
             for file_path in st.session_state.uploaded_files:
                 if os.path.exists(file_path) and (file_path.endswith(".xml") or file_path.endswith(".xmltei")):
                     xml_files.append(file_path)
+                    st.write(f"Added uploaded file: {file_path}")
     else:
+        # Process files from default directories
         for path in [".", "data"]:
             if os.path.exists(path):
                 for file in os.listdir(path):
