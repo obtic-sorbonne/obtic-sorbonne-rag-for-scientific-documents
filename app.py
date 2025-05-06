@@ -866,9 +866,9 @@ def boot():
                 with st.spinner("Chargement des embeddings pré-calculés..."):
                     st.session_state.retriever = load_precomputed_embeddings()
     
-    # Button for processing documents
-    if not st.session_state.use_precomputed:
-        with col1:
+    # Button for processing documents - Always show this button when there are uploaded files
+    if not st.session_state.use_precomputed or st.session_state.uploaded_files:
+        with col2:  # Changed to col2 so both buttons can appear simultaneously
             if st.button("Traiter les documents", use_container_width=True):
                 st.session_state.retriever = process_documents(
                     st.session_state.hf_api_key, 
