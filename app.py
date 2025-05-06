@@ -857,19 +857,19 @@ def boot():
         st.session_state.retriever = None
     
     # Add buttons for different processing methods
-    col1, col2, col3 = st.columns([1, 2, 1]) 
+    left_col, center_col, right_col = st.columns(3)
 
     # Button for pre-computed embeddings
     if st.session_state.use_precomputed:
-        with col2:  # Use the middle column for centering
-            if st.button("Charger embeddings pré-calculés", use_container_width=False):
+        with center_col:  # Place button in center column
+            if st.button("Charger embeddings pré-calculés"):
                 with st.spinner("Chargement des embeddings pré-calculés..."):
                     st.session_state.retriever = load_precomputed_embeddings()
     
     # Button for processing documents
     if not st.session_state.use_precomputed or st.session_state.uploaded_files:
-        with col2:  # Use the middle column for centering
-            if st.button("Traiter les documents", use_container_width=False):
+        with center_col:  # Place button in center column
+            if st.button("Traiter les documents"):
                 st.session_state.retriever = process_documents(
                     st.session_state.hf_api_key, 
                     st.session_state.use_uploaded_only
