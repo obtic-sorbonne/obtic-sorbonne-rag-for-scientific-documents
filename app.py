@@ -857,23 +857,24 @@ def boot():
         st.session_state.retriever = None
     
     # Add buttons for different processing methods
-    left_col, center_col, right_col = st.columns(3)
+    col1, col2 = st.columns(2)
 
     # Button for pre-computed embeddings
     if st.session_state.use_precomputed:
-        with center_col:  # Place button in center column
-            if st.button("Charger embeddings pré-calculés"):
+        with col1:
+            if st.button("Charger embeddings pré-calculés", use_container_width=True):
                 with st.spinner("Chargement des embeddings pré-calculés..."):
                     st.session_state.retriever = load_precomputed_embeddings()
     
-    # Button for processing documents
+    # Button for processing documents - Always show when there are uploaded files
     if not st.session_state.use_precomputed or st.session_state.uploaded_files:
-        with center_col:  # Place button in center column
-            if st.button("Traiter les documents"):
+        with col1:  # Keep it in the left column
+            if st.button("Traiter les documents", use_container_width=True):
                 st.session_state.retriever = process_documents(
                     st.session_state.hf_api_key, 
                     st.session_state.use_uploaded_only
                 )
+
 
     
     # Display chat history
