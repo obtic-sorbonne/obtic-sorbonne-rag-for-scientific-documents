@@ -1,0 +1,2191 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" n="31">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title xml:lang="fr">Bulletin de la Société Française de Parasitologie - Année 1999 - Tome 17 - Numéro Unique</title>
+                <author>Société Française de Parasitologie</author>
+                <respStmt>
+                    <resp>Transcrit/Encodé par</resp>
+                    <name>ObTIC</name>
+                </respStmt>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Société Française de Parasitologie</publisher>
+                <availability>
+                    <licence target="https://creativecommons.org/licenses/by/4.0/">CC-BY</licence>
+                </availability>
+            </publicationStmt>
+            <sourceDesc>
+                <p><date>1999</date></p>
+                <p>Numéro Unique</p>
+                <p>Tome 17</p>
+                <p>Nombre de pages : 84</p>
+                <p>Document imprimé</p>
+                <p>Tampon : "UR 1282 - L.A.S.P.<lb/> BAT 213 Documentation<lb/> I.N.R.A. - Centre de
+                    Tours<lb/> 37380 Nouzilly"</p>
+                <p>Date du tampon : 18/10/2006</p>
+            </sourceDesc>
+        </fileDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="fr"/>
+                <language ident="en"/>
+            </langUsage>
+        </profileDesc>
+        <revisionDesc>
+            <change who="fchiffol" when-iso="2025-02-07">Encodage du texte</change>
+        </revisionDesc>
+    </teiHeader>
+    <text>
+        <body>
+            <div type="text">
+                <p>ñ : DE LA SOCIÉTÉ FRANÇAISE DE PARASITOLOGIE f ANNÉE 1999 - TOME 17 - NUMÉRO
+                    UNIQUE BULLETIN DE LA SOCIÉTÉ FRANÇAISE DE PARASITOLOGIE Rédacteur : J.J.
+                    ROUSSET Laboratoire de Parasitologie-Mycologie, Hôpital Avicenne, 125 route de
+                    Stalingrad, 93009 Bobigny cedex.</p>
+                <p>Comité de lecture : Membres étrangers : A. AESCHLIMANN (Neuchâtel, Suisse) - R.
+                    BERGQUIST (O.M.S., Genève, Suisse) - CARVALHO VARELA (Lisbonne, Portugal) - A.
+                    FAIN (Bruxelles, Belgique) - K.E. HYLAND (Rhode Island, U.S.A.) - M. LECLERCQ
+                    (Beyne-Heusay, Belgique) - H.</p>
+                <p>MELHORN (Bochum, Allemagne) - W. PETERS (Londres, Grande-Bretagne) - E. POZIO
+                    (Rome, Italie) - M. PRINCIPATO (Perugia, Italie) - G. UILENBERG (Maisons-Alfort)
+                    - J.</p>
+                <p>VAVRA (Prague, République Tchèque).</p>
+                <p>Membres français : J.C. BEAUCOURNU (Rennes) - J. BUSSIERAS (Maisons-Alfort) - J.
+                    CABARET (Nouzilly) - À. CHABAUD (Paris) - J.P. COULAUD (Paris) - S. DEBLOCK
+                    (Lille) - JM. DOBY (Rennes) - J. EUZEBY (Lyon) - J.P. GARIN (Lyon) - P. GAYRAL
+                    (Châtenay-Malabry) - R.</p>
+                <p>HOUIN (Créteil) - M. KREMER (Strasbourg) - N. LEGER (Reims) - G. LUFFAU (Jouy-en-
+                    Josas) - D. MAZIER (Paris) - J.A. RIOUX (Montpellier) - J. SCHREVEL (Paris) -
+                    J.</p>
+                <p>THEODORIDES (Paris).</p>
+                <p>Pour juger de certaines demandes de publications, dont le sujet sort du domaine
+                    des compétences des lecteurs permanents, le rédacteur peut faire appel à
+                    d’autres lecteurs spécialisés.</p>
+                <p>Les articles paraissant dans ce bulletin sont analysés dans : Helminthological
+                    Abstracts, Protozoological Abstracts, Review of Applied Entomology, Bulletin
+                    analytique du C.N.R.S. et Banque de données PASCAL, Tropical Diseases Bulletin,
+                    Revues analytiques de l’Institut d’Information Scientifique de l’Académie des
+                    Sciences de Russie et Chemical Abstracts.</p>
+                <p>BULLETIN DE LA SOCIÉTÉ FRANÇAISE DE PARASITOLOGIE ANNÉE 1999 - TOME 17 NUMÉRO
+                    UNIQUE SOCIÉTÉ FRANÇAISE DE PARASITOLOGIE Président Honoraire: J.A. RIOUX (
+                    Montpellier ) Président: R. HOUIN (Créteil) Secrétaire général : G. LUFFAU (
+                    Jouy-en-Josas ) Secrétaire Général Adjoint: J. PROD'HON (Marseille) Trésorier :
+                    P. DORCHIES ( Toulouse ) Conseil : AMBROISE-THOMAS, CABARET, CAMUS, CHABASSE,
+                    CHABAUD, DORCHIES, DUPOUY-CAMET, DURETTE-DESSET, FRANC, GEVREY, HOUIN, LUFFAU,
+                    MILON, PESSON, PROD'HON, RAIBAUT, RIOUX, ROUSSET.</p>
+                <p>Siège de la Société : Laboratoire de Zoologie (Vers), Muséum National d'Histoire
+                    naturelle, 61 rue Buffon, 75231 PARIS CEDEX 05.</p>
+                <p>L'impression de ce Bulletin a été assurée financièrement par : - les abonnement
+                    souscrits par les membres de la Société - les abonnements d'Instituts,
+                    laboratoires, bibliothèques français et étrangers.</p>
+                <p>- le soutien financier de la S.F.P.</p>
+                <p>[ae] Bulletin de la Société Française de Parasitologie 1999, Tome 17, numéro
+                    unique LA SOCIÉTÉ FRANCAISE DE PARASITOLOGIE et le TROISIÈME MILLÉNAIRE La
+                    Société française de Parasitologie, bien décidée à vivre avec son temps, salue
+                    le nouveau millénaire en offrant à son Bulletin l'expression du futur.</p>
+                <p>Voilà bientôt vingt ans qu'elle publie ce Bulletin, grâce au dévouement de ses
+                    rédacteurs successifs: P. AMBROISE-THOMAS, qui la créé, puis J.M. DOBY, qui en a
+                    été l’âme pendant plus de dix ans. Ce fascicule sera le dernier à paraître sous
+                    forme imprimée, et le Conseil de la SFP a souhaité qu'y soit rendu, sous la
+                    plume de J.-J. ROUSSET, un hommage exceptionnel au Professeur Doby, qui nous a
+                    quittés récemment. Le premier fascicule de l’an 2000 sera immatériel, supporté
+                    par le Web de la SFP (qui fonctionne déjà à l'adresse
+                    http://www.tours.inra.fr/sfpar/accueil.htm). C’est donc une sorte d’adieu au
+                    papier que reçoivent non seulement les abonnés à ce Bulletin, mais aussi tous
+                    les membres de la Société.</p>
+                <p>Rappelons en effet que le Conseil n’a jamais voulu contraindre les membres de la
+                    S.F.P. à s'abonner au Bulletin, ce qui se fait dans nombre de Sociétés en
+                    incluant le prix de la publication dans la cotisation. Les raisons en ont été
+                    multiples, tenant notamment au souhait de maintenir la cotisation au niveau le
+                    plus bas possible, au bénéfice en particulier des plus jeunes des sociétaires.
+                    Il a été admis dès le début qu’un abonnement pouvait suffire à un laboratoire,
+                    tandis que tous ses membres devaient être inscrits à la S.F.P.... ce qui n’est
+                    hélas pas le cas. Mais, au moment d’un changement majeur, il est nécessaire que
+                    tous sachent ce que devient le Bulletin, ce que sont les nouveaux services
+                    proposés. Ce fascicule, et cet éditorial qui y est inclus, sont diffusés à cet
+                    effet.</p>
+                <p>Initialement destiné à publier des travaux qui ne pouvaient être proposés à des
+                    revues internationales, mais présentaient un réel intérêt (en particulier des
+                    articles préliminaires ou concernant des thèmes un peu secondaires), le Bulletin
+                    a vu sa place se réduire tout doucement, au fur et à mesure des changements qui
+                    ont modifié l’image des publications au cours des vingt dernières années. Si, au
+                    début de cette période, il importait autant que maintenant de faire connaître
+                    son travail, la notoriété de la revue avait beaucoup moins d'importance dès
+                    l’instant où elle était lue par les Parasitologistes français, ce qui était le
+                    cas, et il était tout à fait acceptable de confier au Bulletin ce qui était
+                    présenté lors des séances de la Société, quitte à le publier aussi ailleurs,
+                    dans une revue plus prestigieuse. Actuellement, cette pratique n’est plus de
+                    mise, car une publication dans le Bulletin, revue référencée, entraîne un rejet
+                    de l’article qui traite du même sujet, et ceci même si la forme a été
+                    complètement remaniée.</p>
+                <p>Par ailleurs, les comptes pointilleux de toutes les instances chargées d’évaluer
+                    les candidatures aux nominations ou aux promotions font que tous imaginent
+                    perdre leur temps en donnant le fruit de leur réflexion au Bulletin, car il ne
+                    figure pas à l'index des citations et n’est pratiquement lu que dans l'Hexagone,
+                    contrairement aux revues majeures, qu’elles soient anglo-sixonnes ou qu’il
+                    s’agisse de Parasite, qui défend vaillamment sa position.</p>
+                <p>Laisser cette évolution aller à son terme était signer la mort d’un Bulletin
+                    pourtant repris avec enthousiasme par J.J. ROUSSET et J.C.</p>
+                <p>PETITHORY il y a trois ans. Mais, pendant ce temps, l’informatique a progressé à
+                    pas de géant, et l’un de ses enfants, Internet, a commencé à révolutionner
+                    l’édition. De plus en plus de journaux proposent des éditions sur le Web, en
+                    plus de leur édition papier. Quelques-uns ont même coupé le cordon ombilical, et
+                    ne proposent plus que l’édition internet. Les avantages sont grands, même si
+                    cela exige de s’être familiarisé avec ce qui devient l’outil quotidien,
+                    l’ordinateur. Qui dit abandon du papier dit en effet une réduction considérable
+                    des coûts et une grande souplesse de publication, même si persistent des
+                    impératifs réglementaires dès l’instant où l’on veut conserver la forme d’une
+                    revue, et sa signification en tant que moyen d’expression scientifiquement
+                    reconnu.</p>
+                <p>Tel est précisément le cas: le Bulletin restera une revue officiellement
+                    référencée. Ceci veut dire que persistera l’incompatibilité avec une publication
+                    ultérieure dans une revue sourcilleuse; inversement, un article publié dans le
+                    Bulletin pourra être cité. Pour ceux qui souhaitent faire connaître leurs
+                    travaux aux membres de la S.F.P. sans que cela porte à conséquence, mais sans
+                    possibilité de citation, la S.F.P propose la diffusion d’un texte ou d’un résumé
+                    par courrier joint à un e-mail adressé à ses seuls membres, alors que le
+                    Bulletin est ouvert au Monde entier sur son site Internet. À nous d’assurer sa
+                    promotion! De toute façon, le côté « confidentiel » qu’impliquait la diffusion
+                    du Bulletin aux seuls (et trop peu nombreux) abonnés disparaît ainsi.</p>
+                <p>Toute une équipe se met en place pour ce nouveau mode de diffusion, mais J.J.
+                    ROUSSET demeure le pivot chargé de réunir les manuscrits (un terme peut-être
+                    suranné, mais n’y revient-on pas avec les logiciels de reconnaissance
+                    d’écriture?). J. CABARET qui a la lourde charge du serveur de la Société, est
+                    bien entendu également concerné. D’autres volontaires seront les bienvenus. La
+                    Société espère en effet que cette opération permettra de mettre à la disposition
+                    de tous ses membres un bulletin vivant et riche, fidèle reflet de sa vie, et
+                    notamment de ce qui se dit et se fait dans ses réunions. Le tout devra pourtant
+                    rester d’un coût modéré, même si au besoin, une légère augmentation de la
+                    cotisation à la S.F.P. (très modique mais parfois difficile à recouvrer!) sera
+                    décidée pour offrir ce nouveau service à tous.</p>
+                <p>Après Parasite que la Société a relancé il y a cinq ans, outil de diffusion
+                    internationale de la Parasitologie française (pas toujours assez exploité!),
+                    voici le Bulletin de la S.F.P. version internet. Souhaitons-lui tout le succès
+                    possible, un succès qui repose sur l’adhésion et la participation de tous les
+                    membres de la Société.</p>
+                <p>René HOUIN Président de la Société française de Parasitologie Bulletin de la
+                    Société Française de Parasitologie 1999, Tome 17, numéro unique ÉTUDE
+                    PALÉOPARASITOLOGIQUE DU SITE AVEN DE LA BOUCLE DE CORCONNE (GARD, FRANCE) A.
+                    CABANNES (1), G. CLIQUET @) et H. DUDAY () (@) Laboratoire Immunologie -
+                    Parasitologie, UFR Pharmacie, 146 Rue Léo Saignat 33076 Bordeaux II.</p>
+                <p>@) Laboratoire d'Anthropologie, Bordeaux I.</p>
+                <p>RÉSUMÉ : Le site néolithique de l'Aven de la Boucle, de Corconne (Gard, France)
+                    est une sépulture collective regroupant environ soixante-dix sujets.</p>
+                <p>L'examen paléoparasitologique de ses sédiments révèle la présence d'un œuf de
+                    Trichuris trichiura dont la contemporanéité est discutée.</p>
+                <p>MOTS-CLÉS : Paléoparasitologie, Néolithique. Gard, Trichuris trichiura .</p>
+                <p>TITLE : PALEOPARASITOLOGICAL STUDY AVEN DE LA BOUCLE SITE OF CORCONNE ( GARD,
+                    FRANCE) SUMMARY : The neolithic site of Aven de la Boucle, Corconne (Gard,
+                    France) was collecte sepulture about seventy people. The paleoparasitological
+                    study of the sediment showed Trichuris trichiura egg which dating is
+                    discussed.</p>
+                <p>KEY-WORDS : Paleoparasitology, Neolithic, Gard, Trichuris trichiura .</p>
+                <p>INTRODUCTION Le gisement de l'Aven de la Boucle se situe sur la commune de
+                    Corconne, dans le département du Gard, entre les villes de Montpellier et Nîmes.
+                    II se présente sous forme d'une grotte d'une superficie de quarante mètres
+                    carrés.</p>
+                <p>L'accès originel se trouve au niveau de la diaclase extérieure (Figure 1); il y
+                    apparaît une structure de condamnation réalisée sur les aménagements de l'entrée
+                    dont_le Caractère exceptionnel est son architecture mégalithique (COURS, DHPAY
+                    ét JA. Ê T 1997). Cette grotte abrite une sépulture collective de la on PAT anne
+                    5 Uuie Ébud L Lomme mare msi dou ii doenen en ou = 6 période de transition entre
+                    le Néolithique moyen (Chasséen) et le Néolithique final que l'on peut assimiler
+                    au groupe de l'Avencas (GUTHERZ et COSTE, 1974). Ce site représente la sépulture
+                    d'environ soixante-dix sujets ce qui explique l'intérêt de l'étude
+                    parasitologique de ses sédiments, attendu qu'à ce jour aucun coprolithe n'a été
+                    retrouvé .</p>
+                <p>MATÉRIEL Les éléments parasitaires que nous recherchons dans ce site sont les
+                    œufs (Plathelminthes, Nématodes) qui, grâce à la structure de leur paroi, se
+                    conservent sur une longue période en subissant une fossilisation. La
+                    localisation de ces parasites, le plus souvent digestifs, conduit habituellement
+                    à une recherche préférentielle au niveau de l'emplacement de l'abdomen et entre
+                    les os du bassin (ROUSSET, HERON et METROT, 1996). Cependant, pour le site
+                    étudié, le faible pourcentage de connexions anatomiques ne permet pas
+                    systématiquement un prélèvement dans les zones citées précédemment et conduit
+                    parfois à recueillir des sédiments au hasard dans des zones riches en restes
+                    osseux.</p>
+                <p>Les prélèvements pour cette étude sont issus de l'unité C4b où des restes humains
+                    ont déjà été identifiés. Il s'agit d'un sédiment de couleur jaune composé de
+                    Terre de Sommières dont l'origine est extérieure à la grotte. Sa richesse en
+                    phosphates indique qu'il a été en contact étroit avec des corps en décomposition
+                    (BROCHIER, 1987). Le choix s'est porté sur le carré F10 où le sédiment jaune
+                    occupe la totalité de la surface (Figures 1 et 2 ) où déjà une série de tessons
+                    et des ossements humains parfaitement conservés ont été identifiés (COURS et
+                    GUTHERZ, 1984).</p>
+                <p>En Avril 1997, le décapage de la zone sud-ouest du carré F10 a donné trois
+                    échantillons : - BC 97 F10 SW (1) 650 g; - SW (2)953 8; - SW(3)354 g.</p>
+                <p>En Mars 1998, trois échantillons sont prélevés dans la zone nord-ouest du carré
+                    F10 : - BC 98 FIO NW (1) 101 g; - NW (2) 297 8; - NW (3)230 g.</p>
+                <p>Au total, 2585 grammes de sédiments sont soumis à analyse.</p>
+                <p>MÉTHODES Étant donné que nous cherchons à mettre en évidence des œufs au niveau
+                    de sédiments, nous avons testé deux techniques de concentration, l'une
+                    diphasique, l'autre par flottation (BAILENGER, 1982). Nous n'avons pas retenu la
+                    technique diphasique de Baïlenger car elle conduit dans ce cas de figure à un
+                    culot trop abondant et riche en débris. Par contre, la technique de flottation
+                    donne un surnageant de lecture aisée et se montre de plus tout à fait adaptée au
+                    type et à la quantité du sédiment qui nous est proposé. Le choix du réactif de
+                    flottation s'est imposé après essai; il s'agit du sulfate de zinc à la densité
+                    1,180 qui conduit dans nos analyses à un résultat aussi satisfaisant que le
+                    réactif de Janeckso pour sa part excellent mais plus coûteux et allergisant.</p>
+                <p>Après tamisage suivi de centrifugation (60 secondes à 2300 tours-min), le film
+                    superficiel est immédiatement prélevé et examiné au microscope.</p>
+                <p>Les œufs et éventuellement des éléments intéressants comme des restes
+                    d'Arthropodes sont photographiés au photomicroscope Leitz Aristoplan.</p>
+                <p>RÉSULTATS Les œufs que nous avons mis en évidence appartiennent à l'embranchement
+                    des Nématodes, classe des Aphasmidiens.</p>
+                <p>- En effet, au niveau du prélèvement BC97F10SW(2) nous identifions (Photo 1) un
+                    œuf de Trichuris trichiura ou Trichocéphale par ses dimensions : 55x25 pm et son
+                    aspect caractéristique dit en "citron" de par la présence de deux bouchons
+                    polaires proéminenis. Quant à sa couleur typiquement brun-orangé elle a, dans ce
+                    cas, pratiquement disparu; l'œuf au contraire apparaît de teinte beige clair,
+                    voire décoloré. Le contenu de cet œuf est apparemment segmenté; enfin, sous le
+                    microscope, sa coque apparaît lisse.</p>
+                <p>- Au niveau du prélèvement BC97F10SW(3) nous mettons en évidence (Photo 2) un œuf
+                    de la famille des Trichuridae, mesurant 47x30 um, segmenté, à paroi lisse et en
+                    bon état notamment pour sa couleur brun-orangé ce qui laisse penser qu'il est
+                    relativement récent.</p>
+                <p>DISCUSSION La découverte d'œufs de parasite se limite à deux espèces de la
+                    famille des Trichuridae dont l'une a été reconnue comme appartenant au genre
+                    7richuris espèce” frichiura. Malgré quelques altérations, ses caractéristiques
+                    sont suffisäntes pour le différencier du genre Capillaria, notamment en ce qui
+                    concerne ses dimensions et la structure de sa paroi. Cet œuf, spécifique de
+                    l'Homme, attesterait donc de la présence de Trichocéphalose dans la population
+                    des inhumés de la sépulture. En France, pour la même période Néolithique, cette
+                    parasitose est connue sur le site de Chalain dans le Jura (BOUCHET, PETREQUIN,
+                    PAICHELER et DOMMELIER, 1995). Plus tardivement, entre le deuxième siècle avant
+                    J.C. et premier siècle après J.C. on l'identifie à Bobigny (ROUSSET, HERON et
+                    METROT, 1996) et pour la période allant du onzième au seizième siècle sur les
+                    sites parisiens de la rue de Lutèce (BOUCHET et coll.</p>
+                <p>1989) et du Grand Louvre (BOUCHET, 1995). Cette parasitose est due à l'absorption
+                    d'œufs embryonnés en même temps que des crudités, divers légumes et fruits
+                    souillés de terre en contact avec des matières fécales. Sa diffusion et sa
+                    persistance pourraient avoir suivi le développement de l'agriculture et les
+                    techniques de fumage des sols.</p>
+                <p>Le point de la discussion qui apparaît est la contemporanéité de cet œuf avec les
+                    restes humains de la grotte. Son aspect décoloré plaide pour une certaine
+                    ancienneté mais seule une datation permettrait d'établir son âge, ce qui à
+                    l'heure actuelle n'est pas encore techniquement possible. Il n'empêche que
+                    l'entrée du site obturé efficacement par la population néolithique avait rendu
+                    cette grotte inaccessible jusqu'à la perforation naturelle du toit. Dès lors,
+                    l'accès devenu possible mais sous forme d'un puits de huit mètres a limité les
+                    passages humains dans ce site. Quant à la gestion de cette sépulture collective,
+                    deux hypothèses sont avancées : soit le sujet porteur de Trichocéphalose a été
+                    déposé dans la grotte à l'état de cadavre sur de la Terre de Sommières, soit
+                    après décomposition sur cette terre à l'extérieur du site, ses restes ont été
+                    placés secondairement dans la grotte, terre incluse; dans ces conditions, il est
+                    possible de retrouver des œufs dans les sédiments.</p>
+                <p>Enfin, la faible abondance des oeufs sur le site de Corconne peut s'expliquer par
+                    l'action d'agents taphonomiques (eau, microrganismes) qui auraient détruit ces
+                    parasites mais aussi par leur éparpillement lors des déplacements des restes
+                    osseux humains. De plus, l'analyse des sédiments a 9 révélé la présence d'une
+                    microfaune (acariens, insectes) à l'état de reliquats (extrémités de pattes,
+                    chélicères) mais aussi vivants, ayant contribué au cours des ans au mélange des
+                    œufs avec le sédiment. D'ailleurs, le second œuf de la famille des Trichuridae,
+                    en bon état et apparemment récent est probablement le témoin d'une faune de
+                    rongeurs sauvages fréquentant cette grotte.</p>
+                <p>BIBLIOGRAPHIE 1) Cours S., Duday H. et Jallet F. 1997. L'Aven de la Boucle à
+                    Corconne.</p>
+                <p>Rapport triennal de fouilles programmées, Université Bordeaux I, 1-156.</p>
+                <p>2) Gutherz X. et Coste A. 1974. Les vases de la grotte de l'Avencas, Brissac
+                    (Hérault) et le Néolithique récent dans le midi de la France. Bull. Soc.
+                    Préhist.</p>
+                <p>Franç., 71,535-542.</p>
+                <p>3) Rousset J-J., Héron C. et Métrot P. 1996. Helminthoses humaines chez les
+                    Gaulois. Hist. Sc. Méd., 30, 1-6.</p>
+                <p>4) Brochier J. 1987 . Le sédiment jaune de l'Aven de la Boucle à Corconne (Gard).
+                    Anthrop. Phys. Archéol., Edition du CNRS.105-108.</p>
+                <p>5) Cours S. et Gutherz X. 1984. Céramique à décor en relief du Néolithique final
+                    de l'Aven de la Boucle (Corconne, Gard). Bull. Soc. Préhist. Franç., 81, 28-
+                    32.</p>
+                <p>6) Bailenger J. 1982. Coprologie parasitaire et fonctionnelle. Baïlenger
+                    éditeur.</p>
+                <p>52 rue d'Arcachon 33000 Bordeaux, 4èME édition, 1-324 .</p>
+                <p>7) Bouchet F., Pétrequin P., Paicheler JC. et Dommelier S. 1995. Première
+                    approche paléoparasitologique du site néolithique de Chalain (Jura, France).
+                    Bull.</p>
+                <p>Soc. Path. Ex., 88, 265-268.</p>
+                <p>8) Bouchet F., Audoin F. Léger N., Marchais R., Baucheron F. et Munoz La Casta J.
+                    1989. Etude parasitologique des coprolithes et des sédiments de trois ensembles
+                    clos médiévaux de la rue de Lutèce (Ile de la Cité) à Paris. Rev.</p>
+                <p>Archéom., 13 ,13-21.</p>
+                <p>9) Bouchet F. 1995. Recovery of helminth eggs from archeological excavations
+                    ofthe Grand Louvre (Paris, France). J. Parasitol., 81, 785-787.</p>
+                <p>{;"_ Diaclase a extérieure SN GT.</p>
+                <p>Figure 1 : Plan de la cavité de l'Aven de la Boucle Zone NW Zone N Deuxième série
+                    de prélèvements Première série de prélèvements Zone SW Zone SE Figure 2 : Zone
+                    de prélèvement du carré F10 12 Photo 1 - Oeuf de 7richuris trichiura S5x25u1m
+                    (Gx50) Absence de pigmentation Bouchons clairs et proéminents Prélèvement
+                    BC97F10SW2 13 Photo 2 - Oeuf Famille Trichuridae 47x30u1m (Gx40) Brun-orangé
+                    Prélèvement BC97F10SW3 Bulletin de la Société Française de Parasitolegie 1999,
+                    Tome 17, numéro unique UN PARASITOLOGISTE ALSACIEN MÉCONNU JEAN KUHN (1802-1868)
+                    JEAN THÉODORIDÈS Directeur de Recherche Honoraire CNRS ; 16 Square Port Royal -
+                    75013 PARIS RÉSUMÉ : Jean Kuhn né à Gunstett (Bas-Rhin) en 1802 effectua ses
+                    études médicales à Strasbourg où 1l obtint son doctorat en 1827. Il se rendit
+                    ensuite à Paris où il travailla dans le laboratoire de Gilbert Breschet et
+                    publia de 1829 à 1833 divers travaux d'helminthologie sur les Cestodes (mémoire
+                    sur les acéphalocystes, formes stériles de kystes hydatiques d'Echinococcus
+                    granulosus), les Monogènes (découverte de Kuhnia scombri du maquereau nommé en
+                    son honneur, description d'Octostoma (= Mazocraes) alosae de l'alose et de
+                    Polystoma (= Hexabothrium) appendiculatum de la roussette (Scy/liorhinus) chez
+                    laquelle il observa aussi le Trématode Ptychogonimus megastomus. Il étudia
+                    également trois Nématodes Metastrongyloidea parasites du marsouin (Phocaena)
+                    dont les noms actuels sont : Pseudalius inflexus, Stenurus minor et Pharurus
+                    convolutus.</p>
+                <p>En 1831 Kuhn regagna l'Alsace, se fixant à Niederbronn station thermale du
+                    Bas-Rhin à laquelle il consacra trois ouvrages (1835, 1854, 1860) et où il
+                    décéda en 1868. En 1834, il avait été élu correspondant de l'Académie de
+                    Médecine.</p>
+                <p>MOTS CLÉS : Jean Kuhn, Cestodes, Monogènes, Trématode, Nématodes.</p>
+                <p>TITLE : AN UNRECOGNIZED ALSATIAN PARASITOLOGIST : JEAN KUHN (1802-1868) SUMMARY :
+                    Jean Kuhn born in Gunstett (Bas-Rhin) in 1802 performed his medical studies in
+                    Strasbourg where he obtained his doctorate in 1827. He then went to Paris where
+                    he worked in Gilbert Breschet's laboratory and published from 1829 to 1833
+                    various helminthological contributions on Cestodes (monograph on acephalocysts,
+                    sterile forms of hydatids of ÆEchinococcus granulosus), Monogena (discovery of
+                    Kuhnia scombri of the mackerel, named after him, description of Octostoma
+                    (=Mazocraes) alosae of the alose and of Polystoma (=Hexabothrium) appendiculatum
+                    of the dogfish (Scy/liorhinus) in which he also observed the Trematode
+                    Prchogonimus megastomus. He also studied three Nematodes Metastrongyloidea
+                    parasitic in the porpoise (Phocaena) presently known as Pseudalius inflexus,
+                    Stenurus minor and Pharurus convolutus.</p>
+                <p>In 1831, Kuhn returned to Alsace and set himself in Niederbronn. (Bas- Rhin) a
+                    thermal station on which he wrote three books (1835, 1854, 1860) and where he
+                    died in 1868. In 1834, he had been elected corresponding member of the Académie
+                    de Médecine.</p>
+                <p>KEY-WORDS : Jean Kuhn - Cestodes - Monogena - Trematode - Nematodes.</p>
+                <p>Il y a déjà quarante ans, j'avais publié avec le Professeur Pierre HUARD une
+                    plaquette consacrée à cinq parasitologistes français méconnus : Réaumur,
+                    Draparnaud, Laennec, Raspail et Dujardin (1). Un sixième sera évoqué ici : Jean
+                    Kuhn auteur de plusieurs travaux d'helminthologie.</p>
+                <p>1. BIOGRAPHIE (2) Jean Kuhn est né à Gunstett (Bas-Rhin) le 10 vendémiaire an XI
+                    (2 octobre 1802), fils de François-Xavier Kuhn, Officier de Santé, et de Marie
+                    Bernhard. De 1813 à 1821, il fit ses premières études au lycée de Strasbourg. En
+                    1815-1816, il avait accompagné son père requis pour le service des hôpitaux
+                    militaires de Haguenau, ce qui, suivant son gendre et son futur biographe, Oscar
+                    de Langenhagen décida de sa vocation.</p>
+                <p>Il fit ses études médicales à la Faculté de Strasbourg de 1822 à 1826 et soutint
+                    en 1825 sa thèse consacrée aux colchicacées (3) qui lui vaudra plus tard une
+                    médaille d'or à l'Athénée de Médecine de Paris, ville où il se rendit en
+                    1828.</p>
+                <p>Il s'y lia avec divers médecins et naturalistes tels que G. Breschet, Delafosse,
+                    Guillemin, Lesson, Carnot, J. Guérin, Ad. Brongniart, Saigey et F.V.</p>
+                <p>Raspail (dont il sera question plus loin).</p>
+                <p>C'est à cette époque de sa vie qu'il s'occupa de parasitologie et plus
+                    spécialement d'helmintholog'e, publiant plusieurs travaux concernant les
+                    Cestodes, Monogènes, Trématodes et Nématodes provenant tous (à l'exception des
+                    hydatides) de vertébrés marins (poissons et cétacés).</p>
+                <p>Ces recherches furent effectuées dans le laboratoire de Gilbert Breschet
+                    (1784-1845) alors Professeur d'anatomie à la Faculté de Médecine de Paris qui
+                    mentionne explicitement Kuhn dans une lettre à Rayer (4).</p>
+                <p>La plupart des publications parasitologiques de Kuhn parurent en 1829 et 1830
+                    dans le Bulletin des Sciences naturelles du baron de Férussac dont il était
+                    rédacteur adjoint avec Guillemin et Delafosse.</p>
+                <p>En 1831, il retourna en Alsace et se fixa à Niederbronn, station thermale
+                    toujours en activité aujourd'hui. Il y épousa en 1833 Sophie Schlumberger dont
+                    il eut deux enfants : Valérie (née en 1835) et Camille (Né en 1836) futur
+                    médecin.</p>
+                <p>Le 17 juin 1834, il avait été élu correspondant national de l'Académie de
+                    Médecine pour la division de médecine, sur le rapport de Husson.</p>
+                <p>16 Il s'occupa désormais d'hydrologie et de thermalisme publiant trois ouvrages
+                    sur les eaux de Niederbronn (5) et assurant les fonctions de médecin cantonal,
+                    inspecteur des eaux, suppléant du juge de paix et conseiller municipal.</p>
+                <p>Suivant la notice de M.O. Stempfer il avait été nommé, en 1863, chevalier de la
+                    Légion d'Honneur où son dossier n'a cependant pas été retrouvé (6).</p>
+                <p>De santé fragile, il décéda le 8 juin 1868, dans sa soixante-sixième année et est
+                    enterré au cimetière de Niederbronn où nous avons vu sa tombe.</p>
+                <p>2. L'OEUVRE PARASITOLOGIQUE DE J. KUHN Kyste hydatique C'est aux hydatides
+                    (larves du cestode Æchinococcus granulosus) désignées alors sous le nom d'«
+                    acéphalocystes », terme créé par Laennec (1804) (7) que Kuhn s'intéressa dès
+                    1830, publiant trois mémoires sur ces parasites (8).</p>
+                <p>Deux des trois versions du mémoire sont rigoureusement identiques et dépourvues
+                    de toute illustration : ce sont celles parues dans la Gazette médicale de Paris
+                    (1832) et les Annales des Sciences Naturelles (1833).</p>
+                <p>La première version parue dans les Mémoires de la Société d'Histoire Naturelle de
+                    Strasbourg (1830) date en fait de 1831 car le nom de Kuhn est suivi, dans le
+                    titre du mémoire, de l'indication « médecin à Niederbronn ».</p>
+                <p>C'est la plus complète des trois car elle comporte une planche hors texte (Figure
+                    1) représentant des hydatides provenant d'un poumon de bœuf, indication non
+                    explicitement donnée dans le texte. On trouve également dans cette version
+                    (op.cit.p.15-16) la critique du travail d'un auteur anglais du nom de Baron qui
+                    aurait confondu les kystes hydatiques avec des lésions tuberculeuses (9).</p>
+                <p>Le mémoire débute par un rappel historique où sont cités Rudolphi, Blumenbach,
+                    Olfers, Laennec, Bremser, Cruveilhier, de Blainville, Leuckart et divers auteurs
+                    beaucoup moins connus.</p>
+                <p>Kuhn définit les acéphalocystes comme : «des vésicules transparentes,
+                    sphéroïdales, remplies d'un liquide parfaitement clair et contenues dans une
+                    poche fibreuse particulière avec laquelle elles n'ont point la moindre adhérence
+                    ».</p>
+                <p>Il distingue ceux observés chez l'homme où l'on note plusieurs générations
+                    successives (ce sont les hydatides-filles dans la terminologie actuelle) et ceux
+                    du bœuf et du mouton où on ne trouve pas un tel emboîtement, ce qui est une
+                    affirmation exacte.</p>
+                <p>Il décrit bien la morphologie en notant la présence de la membrane constituant la
+                    paroi du kyste, puis des lamelles (membrane proligère) entre lesquelles se
+                    développent les « gemmes » (vésicules proligères) baignant dans le liquide
+                    hydatique « presque toujours aussi clair et limpide que l'eau la plus pure
+                    ».</p>
+                <p>Il n'a pas observé de «mouvement spontané» chez les «hydatides Acéphalocystes »
+                    alors que pourtant le « frémissement hydatique » avait été observé quelques
+                    années avant (10).</p>
+                <p>Bien qu'il ait nié l'emboîtement des générations d'hydatides chez le bœuf, Kuhn a
+                    observé des vésicules filles chez cet animal et conclut : «Il y a donc là tous
+                    les caractères d'une véritable reproduction ».</p>
+                <p>Il distingue deux espèces : Acephalocystis exogena (poumon et foie du bœuf et du
+                    mouton) et 4. endogena (viscères humains), la première « produisant des gemmes
+                    qui se détachent au dehors » et la seconde «qui se détachent dedans ».</p>
+                <p>Il est en effet aujourd'hui reconnu (cf. E. Brumpt, Précis de Parasitologie,
+                    Paris, Masson 1949, I, p.755-756) que les vésicules endogènes fréquentes dans
+                    les kystes hydatiques humains sont rares chez les animaux (porc, mouton, bœuf)
+                    où l’on observe surtout des vésicules exogènes bien figurées par Kuhn (cf.</p>
+                <p>Figure I).</p>
+                <p>De même, J. Euzéby dans son ouvrage : Les maladies vermineuses des animaux
+                    domestiques, Paris, Vigot 1966, II, P. 549, rappelle qu' «il est fréquent que
+                    les hydatides soient stériles surtout lorsqu'elles se développent chez le bœuf
+                    ».</p>
+                <p>Néanmoins, Kuhn est dans l'erreur en distinguant deux espèces et en prétendant
+                    que la première est la cause de la pommelière, maladie bovine qui est en fait la
+                    tuberculose bovine.</p>
+                <p>La question de savoir si les acéphalocystes appartenaient à une seule ou à
+                    plusieurs espèces suivant leurs hôtes (homme, bœuf, mouton) a fait l'objet de
+                    nombreux travaux dus principalement aux parasitologistes d'outre-Rhin, dans la
+                    première moitié du siècle dernier et qui sont rappelés par D.I. Grove (4 History
+                    of human Helminthology, C.A.B. International, Wallingford 1990, p. 325-326 et
+                    331-335).</p>
+                <p>Nous en résumerons brièvement l'essentiel : avant Laennec J.G.H. Zeder (1800,
+                    1803) non cité par Kuhn avait appelé le kyste hydatique Polycephalus hominis,
+                    puis P. echinococcus tandis que Rudolphi (1801) avait créé le genre Echinococcus
+                    avec trois esnèces : Æ. hominis, E. simiae, E. veterinorum hébergées
+                    respectivement par l'homme, les primates et le bétail (mouton, bœuf).</p>
+                <p>D'autres auteurs tels que Bremser (1819) et Diesing (1849-1851) n'admettaient
+                    qu'une espèce unique nommée par ce dernier Æ. polymorphus.</p>
+                <p>On persistait cependant à distinguer Æ. hominis, parasite humain possédant des
+                    scolex avec une seule rangée de crochets et Æ. veterinorum des animaux en
+                    possédant deux rangées.</p>
+                <p>Une telle façon de voir fut critiquée par Küchenmeister (1855) car l'espèce des
+                    animaux pouvait se rencontrer chez l'homme et vice-versa.</p>
+                <p>Et ce n'est qu'en 1863 que B. Naunyn reconnut qu'il n'y avait qu'une seule espèce
+                    : E. granulosus.</p>
+                <p>L'argument concernant le nombre de crochets aux scolex s'avéra infondé car
+                    celui-ci est en fait très variable et dépend de leur stade de développement.</p>
+                <p>Entre temps K. von Siebold (1852) avait obtenu le cycle complet d'E. granulosus
+                    en faisant absorber des kystes hydatiques provenant de moutons à des chiens chez
+                    lesquels il trouva quelques semaines plus tard le ténia adulte.</p>
+                <p>Mais après cette courte digression, il nous faut revenir à Kuhn. Il ne sait où
+                    classer les acéphalocystes qu'il place «parmi ces êtres ambigus qu'on a
+                    ballottés d'un règne organique à l'autre », mais il admet qu'ils doivent
+                    appartenir au règne animal « par leur composition chimique » et les compare avec
+                    raison aux cysticerques et hydatides lorsqu'il écrit : «on voit souvent que des
+                    échinocoques ont été prises (sic) pour des Acéphalocystes ». Il note également
+                    que Bremser les avait placés avec les échinocoques dans un seul et même genre,
+                    mais que les acéphalocystes ne représentent jamais comme les cysticerques de
+                    couronnes de crochets à leur extrémité antérieure déjà vus et figurés par
+                    Laennec (1804).</p>
+                <p>Kuhn discute ensuite la question de savoir si l'acéphalocyste produit par
+                    sécrétion la poche membraneuse dans laquelle il est enfermé ou s'il s'agit d'une
+                    réaction de l'hôte, sans se prononcer de manière nette.</p>
+                <p>La première version du mémoire comporte (op.cit.p.15-16) la critique d'un ouvrage
+                    anglais de John Baron : /{lustrations of the Inquiry respecting tuberculous
+                    diseases, Londres 1822 traduit en français en 1825 sous le titre : Recherches,
+                    observations et expériences sur le développement naturel et artificiel des
+                    maladies tuberculeuses etc. (nous abrégeons intentionnellement) par une certaine
+                    Madame Boivin.</p>
+                <p>Cet auteur, qui était anatomo-pathologiste, avait observé la coexistence
+                    d'hydatides et de lésions tuberculeuses chez certains animaux et prétendu que
+                    les premières seraient responsables des secondes, hypothèse que Kuhn réfute
+                    formellement en affirmant : «les recherches les plus minutieuses n'ont abouti
+                    qu'à me convaincre qu'il n'y avait aucun rapport de cause à effet entre les
+                    différents vers vésiculaires connus sous le nom collectif d'hydatides et la
+                    phtisie pulmonaire ».</p>
+                <p>Néanmoins, selon Kuhn, les acéphalocystes pourraient « déterminer la production
+                    d'un genre de tubercules tout particulier ». Ceux-ci auraient une couleur jaune
+                    et un aspect plissé et différeraient totalement des tubercules phtisiques (Cf.
+                    Figure 1).</p>
+                <p>En terminant son mémoire, Kuhn affirme « que les acéphalocystes en leur qualité
+                    de parasites sont sujettes (sic) à dépérir par suite de la réaction de
+                    l'organisme », ce qui est exact car les hydatides âgées finissent par
+                    dégénérer.</p>
+                <p>Malgré les imperfections et la médiocrité de ses illustrations, le mémoire de
+                    Kuhn fut cité par d'illustres parasitologistes du siècle dernier tels Davaine
+                    (11) qui lui reconnaît le mérite d'avoir différencié les kystes hydatiques des
+                    lésions pulmonaires tuberculeuses. C'est d'ailleurs Davaine qui nous a mis sur
+                    la piste de Kuhn par les passages assez longs qu'il lui consacre.</p>
+                <p>19 De même, KR. Blanchard (12) le cite à propos de l'échinococcose en rappelant
+                    que la synonymie entre Acephalocystis et Echinococcus ne fut définitivement
+                    prouvée par un élève de Rayer (E. Livois) qu'en 1843 (13).</p>
+                <p>Monogènes C'est sur des représentants de cette classe de Plathelminthes que Kuhn
+                    fit ses observations les plus originales. Elles concernent des parasites de
+                    poissons marins que G. Breschet recevait dans son laboratoire.</p>
+                <p>Dans un premier mémoire publié en 1829 (14), il décrivait sous le nom d'Octostoma
+                    scombri un Monogène parasite commun des branchies du maquereau (Scomber
+                    scombrus) qui s'appelle aujourd'hui Kuhnia scombri (Kuhn), le nom du genre lui
+                    ayant été dédié par l'helminthologiste britannique Nora Sproston (15).</p>
+                <p>Ce parasite appartient à la famille des Mazocraeidae de la sous-classe des
+                    Polyopisthocotylea et est figuré dans le Traité de Zoologie de P. Grassé
+                    (16).</p>
+                <p>Dans le même mémoire est décrit Octostoma alosae des branchies de l'alose (4/osa
+                    alosa) dont le nom actuel est Mazocraes alosae Hermann 1782 (17).</p>
+                <p>Dans les figures qu'il donne de ces parasites (cf. Figure IT), Kuhn les
+                    représente inversés, la partie postérieure en haut et la partie antérieure en
+                    bas.</p>
+                <p>Il exprime cependant un doute à ce sujet lorsqu'il écrit (op.cit.p.362) : « J'ai
+                    toujours désigné ici, sous le nom de tête, l'extrémité de l'helminthe qui est
+                    pourvue de huit pores (18), quoique rien ne justifie d'ailleurs cette manière de
+                    voir ; en ceci, je n'ai fait que suivre l'exemple des auteurs en général...
+                    Cependant, il serait fort possible que cette manière de voir ne fût pas juste,
+                    et j'ai quelque penchant à le croire depuis que j'ai vu en vie des Polystoma que
+                    j'ai trouvés sur le Squalus catulus et dont je donnerai prochainement la
+                    description » (il s'agit d'Hexabothrium appendiculata).</p>
+                <p>«Ces Polysioma exécutsnt des mouvements en tout analogues à ceux de la sangsue :
+                    fixés d'un côté à l'aide de leurs six pores et d'une manière très solide sur les
+                    lames branchiales, ils se meuvent en tous sens avec l'autre extrémité (qui est
+                    supposée être la queue) ».</p>
+                <p>Toujours dans ce même mémoire sont décrits et figurés trois Nématodes parasites
+                    du marsouin (Phocaena) sur lesquels nous reviendrons plus loin.</p>
+                <p>Dans un autre article paru également en 1829 (19), Kuhn décrivit un autre
+                    Monogène parasite des branchies de la petite roussette (le Sélacien
+                    Scylliorhinus canicula) qu'il appelait Polystoma appendiculatum.</p>
+                <p>Il s'agit dans la nomenclature actuelle d'Hexabothrium appendiculatum (Kuhn 1820)
+                    Nordmann 1840, genre appartenant à la même sous-classe que Kuhnia scombri cité
+                    plus haut.</p>
+                <p>On notera que, cette fois, Kuhn a correctement orienté la figure de ce Monogène,
+                    le hapteur portant les six ventouses étant représenté à la partie postérieure
+                    (Figure [1) (20).</p>
+                <p>Chez le même hôte, Kuhn signale avoir trouvé dans le tube digestif un Trématode
+                    digénétique désigné sous le nom de Distoma megastomum. I s'agit dans la
+                    nomenclature actuelle de Prychogonimus megastomus appartenant à la superfamille
+                    des Hemiuroidea et à la famille des Ptychogonimidae Dollfus.</p>
+                <p>A la fin de l'article, Kuhn consacre une demi-page à un parasite du péritoine du
+                    lapin qu'il nomme Monostoma leporis. D'après la figure qu'il en donne, il s'agit
+                    en fait du cysticerque de Taenia pisiformis.</p>
+                <p>Un résumé de ce travail fut publié l'année suivante (1830) dans une autre revue
+                    (21).</p>
+                <p>Nématodes En 1829, Kuhn publia la description de Nématodes parasites du marsouin
+                    (Phocaena) tout d'abord dans une note préliminaire (21) puis dans le mémoire
+                    plus complet examiné précédemment (14).</p>
+                <p>Dans la première note, il décrit sous le nom de Strongylus minor un parasite
+                    localisé aux bronches et aux vaisseaux pulmonaires de l'hôte qu'il distingue de
+                    S. inflexus précédemment décrit par Rudolphi dans les mêmes organes du
+                    marsouin.</p>
+                <p>Ces recherches de Kuhn s'inscrivent dans le cadre de celles entreprises par
+                    Gilbert Breschet sur le «réseau admirable thoracique », réseau artériel présent
+                    chez tous les cétacés et particulièrement important chez le marsouin
+                    (Phocaena).</p>
+                <p>Breschet ne les publiera que plus tard sous le titre : « Histoire anatomique et
+                    physiologique d'un organe de nature vasculaire découvert chez les cétacés »
+                    (Paris, 1836).</p>
+                <p>De son côté, Kuhn consacra une courte étude aux glandes mammaires du marsouin
+                    (22).</p>
+                <p>Pour en revenir aux Nématodes de cet hôte, dans son mémoire plus complet (14),
+                    Kuhn en décrit une seconde espèce qu'il nomme Strongylus convolutus et donne
+                    dans un tableau (op.cit.p.367) les caractères distinctifs des trois espèces : S.
+                    inflexus, S. minor, S. convoluius.</p>
+                <p>On sait aujourd'hui qu'il s'agit de Metastrongyloidea de la sous-famille des
+                    Pseudaliinae Railliet &amp; Henry 1909 répartis en trois genres : Pseudalius
+                    inflexus, Stenurus minor et Pharurus convolutus (23).</p>
+                <p>Il est intéressant de noter que parallèlement à Kuhn, François-Vincent Raspail
+                    qui travaillait également dans le laboratoire de G. Breschet décrivit de son
+                    côté, la même année que Kuhn les mêmes nématodes (S. inflexus et S. minor) en
+                    donnant des figures bien supérieures en qualité à celles de Kuhn (24).</p>
+                <p>CONCLUSION En terminant, que faut-il retenir de l'œuvre parasitologique et plus
+                    spécialement helminthologique de J. Kuhn ? Pour ce qui est des kystes hydatiques
+                    (acéphalocystes) pulmonaires du bœuf, il ne pouvait, à son époque, comprendre
+                    leur nature exacte mais les a différenciés des lésions tuberculeuses tout en
+                    croyant qu'Acephalocystis exogena pouvait provoquer la pommelière.</p>
+                <p>C'est surtout par ses observations sur les Monogènes que le nom de Kuhn restera
+                    en parasitologie avec le genre KXuhnia parasite du maquereau, Hexabothrium
+                    appendiculatum qu'il a découvert chez un sélacien (Scy/liorhinus) et Mazocraes
+                    alosae qu'il a revu après Hermann (1782). Kuhn a enfin différencié les trois
+                    Nématodes Metastrongyloidea parasites du marsouin (Phocaena). Teis furent les
+                    apports à la parasitologie de ce savant alsacien devenu par la suite médecin
+                    thermal et cantonal (25).</p>
+                <p>BIBLIOGRAPHIE ET NOTES 1) Huard P. &amp; Théodoridès J. 1959. Cinq
+                    parasitologistes méconnus. Biol.</p>
+                <p>Méd., 48, n° hors série : 91 pp., 35 fig.</p>
+                <p>2) Luroth S. 1868. Nécrologie : le docteur Kuhn de Niederbronn. Gaz. méd.</p>
+                <p>Strasbourg, n°12, 141. Langenhagen (O. de) 1868. Notice nécrologique sur M. le
+                    docteur J. Kuhn de Niederbronn. L'Union médicale, 3°" série, 6, 11-12.</p>
+                <p>Stempfer M.O. 1994. Kuhn Jean. Nouveau Dictionnaire de Biographie alsacienne,
+                    n°22, 2147.</p>
+                <p>3) Kuhn J. 1827. Sur les propriétés médicales des Colchicacées, Thèse méd.</p>
+                <p>Strasbourg, in 4°, 40 pp. 1 pl.</p>
+                <p>4) Théodoridès J. 1997. Rayer et son influence en parasitologie (avec des
+                    documents inédits). Hist. Sci. méd., 31, 67-78. (cf. pp. 71-72).</p>
+                <p>5) Kuhn J. 1835. Description de Niederbronn et de ses eaux minérales. Paris et
+                    Strasbourg. Levrault- 1854, 1860. Les eaux laxatives de Niederbronn, Paris,
+                    Masson.</p>
+                <p>6) Lettre de Mademoiselle CI. Jacir documentaliste au Musée de la Légion
+                    d'Honneur du 14 août 1997 que je remercie d’avoir fait cette recherche.</p>
+                <p>7) Huard P. &amp; Théodoridès J. 1959. Laennec parasitologiste. Op. cit. note 1
+                    supra, XLVI-LX, 9 fig.</p>
+                <p>8) Kuhn J. 1830 (paru en 1831). Recherches sur les Acéphalocystes et sur la
+                    manière dont ces productions parasites peuvent donner lieu à des tubercules.</p>
+                <p>Mém. Soc. Hist. nat. Strasbourg. 18 p. 1 pl. ht. - 1832, même titre. Gaz.
+                    Méd.</p>
+                <p>Paris, 3, 887-893. — 1833. Annales Scinat. 29, 273-300. Selon O. de Langenhagen
+                    (op. cit. note 2 supra) Kuhn aurait rédigé un quatrième mémoire consacré aux
+                    lésions tuberculeuses chez l’homme et illustré de planches dont le manuscrit
+                    confié à G. Breschet fut égaré par celui-ci. Il y est fait brièvement allusion
+                    dans une discussion sur la tuberculose à l’Académie de Médecine (intervention de
+                    Jules Guérin qui rappelle également le mémoire de Kuhn sur les acéphalocystes).
+                    Cf. 1868, Bull. Acad. Imp. Méd., XXXHHL, 511-512.</p>
+                <p>[ne] [] 9) C’est en effectuant ses recherches anatomo-pathologiques sur la
+                    tuberculose que Laennec fut amené à s'intéresser aux kystes hydatiques qu’il
+                    observait parfois dans les poumons des « phtisiques ».</p>
+                <p>10) Briançon P.A. 1828. Essai sur le diagnostic et le traitement des
+                    acéphalocystes. Thèse Doct. Méd. Paris, n°216, 24 pp.</p>
+                <p>11) Davaine C. 1860. Traité des Entozoaires, Paris, Baillière ( p. 370. 1878.
+                    Même ouvrage, même éditeur (2° édition) p.378.</p>
+                <p>12) Blanchard R. 1889. Traité de Zoologie médicale, Yome I. Baillière, Paris.</p>
+                <p>p. 424.</p>
+                <p>13) Livois E. 1843. Recherches sur les échinocoques chez l'homme et chez les
+                    animaux, Thèse Doct. Méd. Paris .</p>
+                <p>14) Kuhn J. 1829. Description d’un nouveau genre de l’ordre des douves et de deux
+                    espèces de strongles. Mém. Mus. nat. Hist. Nat. 18, 357-368, 1 plht.</p>
+                <p>15) Sproston N.G. 1946. À synopsis of the Monogenetic Trematodes. Trans.</p>
+                <p>zool. Soc. London, 25, 185-600.</p>
+                <p>16) Baer J.G. &amp; Euzet L. 1961. Classe des Monogènes in : Traité de Zoologie,
+                    IV. fasc. 1. Paris Masson, 243-325 (cf. p.245 et p. 320). Ce parasite est
+                    également figuré par H. Reichenbach Klinke &amp; E. Elkan. 1965. The principal
+                    diseases of lower Vertebrates, Academic Press, London &amp; New-Vork (fig.
+                    65.</p>
+                <p>p. 77).</p>
+                <p>17) Le genre Mazocraes Hermann1782 se distingue de Kuhnia Sproston 1945 par la
+                    présence d’un vagin (renseignement communiqué par le professeur Louis Euzet) 18)
+                    Il s’agit en fait des ventouses portées par le hapteur qui sert d'organe de
+                    fixation sur les branchies de l'hôte.</p>
+                <p>19) Kuhn J. 1829. Description d’un nouvel épizoaire du genre des Polystoma qui se
+                    trouve sur les branchies de la petite roussette (Squalus catulus) : suivie de
+                    quelques observations sur le Distoma megastomum et le Cysticercus leporis
+                    variabilis de Bremser. Ann. Sci. Observ.. I, 460-465, pl. 11 (résumé en 1830
+                    dans Bull. Sci. Nat. (Férussac), 20. 185-187).</p>
+                <p>20) II y a en réalité huit ventouses. L. Euzet &amp; A. Raïibaut ayant montré
+                    (1960) que les deux ventouses inermes situées à l'extrémité de l’appendice
+                    postérieur des Hexabothriidae avaient la même valeur ontogénique que les six
+                    armées (renseignement communiqué par le professeur Louis Euzet).</p>
+                <p>21) Kuhn J. 1829. Description d’une nouvelle espèce de Strongle trouvée dans le
+                    marsouin. Bull. Sci. Nat. (Férussac). 7/7, 150-153.</p>
+                <p>22) Kuhn J. 1830. Description de l'appareil mammaire du marsouin (Delphinus
+                    phocena), ibidem, 22, 322-323.</p>
+                <p>23) Chabaud A.G. 1965. Systématique des Nématodes. Ordre des Strongylida.</p>
+                <p>Superfamille des Metastrongyloidea, in : Traité de Zoologie, IV. fasc. 3.
+                    Paris.</p>
+                <p>Masson, 928-930.</p>
+                <p>1° édition), 24) Raspail F.V. 1829. Anatomie comparée de deux espèces de
+                    Strongylus qui vivent dans le Delphinus phocena. Ann. Sci. Observat., 11,
+                    244-254, pl. h. t. 7 et 8.</p>
+                <p>25) Au terme de ce travail, c’est pour moi un agréable devoir de remercier mon
+                    ami de longue date, le docteur Théodore Vetter (Strasbourg) parfait connaisseur
+                    de l’histoire de la médecine alsacienne pour ses précieux encouragements et les
+                    utiles informations sur J. Kuhn rassemblées lors de nos séjours à Niederbronn.
+                    Je tiens également à exprimer toute ma reconnaissance à mon collègue et ami le
+                    professeur Louis Euzet (Sète) pour les précisions sur la nomenclature actuelle
+                    des Monogènes décrits par Kuhn. Il me faut enfin remercier Monsieur Jean-Marie
+                    Klipfel (Gunstett) pour les précisions biographiques sur Kuhn et Monsieur Pierre
+                    Petitdemange qui m'a procuré par la Bibliothèque du Muséum national d'Histoire
+                    naturelle une photographie de la planche reproduite à la figure IT.</p>
+                <p>LÉGENDES DES FIGURES I. Planche illustrant le mémoire de Kuhn: Recherches sur les
+                    Acéphalocystes... (1830-1831) (titre cité note 8) : fig.1- morceau d’un poumon
+                    de bœuf présentant plusieurs kystes hydatiques (a à f).</p>
+                <p>fig. 2- kyste hydatique ouvert montrant les «gemmes» (vésicules filles) fig. 3-
+                    trois kystes hydatiques à divers stades de développement. (On notera avec
+                    curiosité l’existence d’un bourgeonnement exogène, alors que, par définition,
+                    les acéphalocystes sont des formes stériles de ces kystes).</p>
+                <p>fig. 4- morceau de kyste vu par sa face interne présentant des stries jaunes.</p>
+                <p>fig. 5 à 9- coupes d’acéphalocystes (5 et 6: poumon du bœuf; 7: rate du bœuf ; 8
+                    : acéphalocystes groupés : foie de bœuf : 9 : tubercule produit par un
+                    acéphalocyste ayant dégénéré).</p>
+                <p>IH. Planche composite illustrant le mémoire de Kuhn: Description d'un nouveau
+                    genre de l’ordre des douves et de deux espèces de strongles (1829) (titre cité
+                    note 14).</p>
+                <p>fig. 1 à 3- Octostoma alosae (-Mazocraes alosae Herman 1782) (Monogène
+                    Polyopisthocotylea, Mazocraeidae).</p>
+                <p>fig. 4 &amp; 5- Octostoma scombri (-Kuhnia scombri) (même famille).</p>
+                <p>fig. 6 à 9- Strongylus (-Pharurus) convolutus.</p>
+                <p>fig. 10 à 13- Srrongylus (=-Stenurus) minor.</p>
+                <p>fig. 14 à 17- Srrongylus (=Pseudalius) inflexus (Nématodes Metastron- gyloidea,
+                    Metastrongylidae Pseudaliinae).</p>
+                <p>IT. Planche composite illustrant l’article de Kuhn: Description d'un nouvel
+                    épizoaire du genre Polystoma.….(titre cité note 19).</p>
+                <p>fig. 1- Polystoma appendiculatum (-Hexabothrium appendiculatum), grandeur
+                    naturelle.</p>
+                <p>fig. 2- le même fortement grossi ; a : bouche ; bbbb : tube digestif divisé ; c :
+                    ovaire (milieu) ; dd : ses extrémités ; eee : ventouses ; f: appendice en forme
+                    de queue (—hapteur) ; gg : ventouses inermes.</p>
+                <p>fig. 3- le même vu de profil; a: bouche; b: corps; ccc: trois des six ventouses ;
+                    d : appendice caudal (hapteur).</p>
+                <p>fig. 4- Distoma megastomum (=Ptychogonimus megastomus), grandeur naturelle.</p>
+                <p>fig. 5- le même grossi ; a : bouche ; b : anus ; c : ventouse ; d : ovaire.</p>
+                <p>fig. 6 &amp; 7- Taenia pisiformis : cysticerque.</p>
+                <p>FIGURE I L L'ilhegraphie de 0 Livrautr 26 FIGURE II FIGURE III pa. des Jecenc.
+                    d'obr. Zom.. IT. Pl 2.</p>
+                <p>CA à 4 | æ j LE | x 3 : # Le | / 2 | | D ; e | = ouf TT TE ee C É ——— d | | Auhn,
+                    del, _ LP re.</p>
+                <p>2 2,3 Po lyvtoma app endcidatiuon - à, Rirtoma PRE AS VOTRAUIR, 6,7 Monostome
+                    Leports.</p>
+                <p>28 Bulletin de la Société Française de Parasitologie 1999, Tome 17, numéro unique
+                    COLORATION DES CRISTALLOÏDES DES KYSTES D'AMIBES PAR LA METHODE DE P. SARGEAUNT
+                    AU VERT MALACHITE J.C. PETITHORY, F. ARDOIN Qualité en Parasitologie et Biologie
+                    - Laboratoire - Centre Hospitalier — 25 rue Pierre de Theilley - 95500 Gonesse
+                    RÉSUMÉ : P. Sargeaunt a décrit une méthode de coloration employant le vert
+                    malachite colorant les cristalloïdes des kystes d'Entamoeba sp. p. d'amibes. La
+                    technique est simple, la conservation de la solution colorante est longue. Elle
+                    nécessite cependant le contact préalable du kyste avec l'éther. Les
+                    cristalloïdes en "aiguille" d'Entamoeba coli, quand ils sont présents, sont
+                    ainsi bien différenciés de ceux en "saucisse" d'Entamoeba histolytical Entamoeba
+                    dispar, d'Entamoeba polecki et d'Entamoeba hartmanni.</p>
+                <p>MOTS CLÉS : Entamoeba sp. p.. coloration, cristalloïdes, kyste.</p>
+                <p>TITLE : P. SARGEAUNTS STAINING OF AMOEBIC CYST CHROMATOIDS WITH MALACHITE
+                    GREEN.</p>
+                <p>SUMMARY : P. Sargeaunt has described a malachite green wet stain for confirmation
+                    of amoebic cyst chromatoids. It is a simple method, the staining solution is
+                    stored at room temperature. However, this wet stain does not work directly, the
+                    preliminary action of ether seems to be necessary. When present, the chromatoids
+                    of Entamoeba coli have a "needle" shape, whereas those of Entamoeba
+                    histolytica!/Entamoeba dispar, Entamoeba polecki, Entamoeba harmanni have a
+                    "saussage" shape.</p>
+                <p>KEY-WORDS : Entamoeba sp. p., staining, chromatoids, cysts.</p>
+                <p>INTRODUCTION P. Sargeaunt a décrit en 1962 une technique pour la coloration par
+                    le vert malachite des corps cristalloïdes = chromatoïdes — corps sidérophiles
+                    des kystes d'Entamoeba histolytica après concentration des selles par une
+                    méthode diphasique à l'éther. Elle revêt un important intérêt étant donné les
+                    trop fréquentes erreurs de diagnostic des kystes d'entamibes, en particulier
+                    dans la différenciation des kystes d'Entamoeba coli d'avec ceux d'Entamoeba
+                    histolytica.</p>
+                <p>MATÉRIEL ET MÉTHODES MALADES à Les selles examinées ont été conservées dans une
+                    solution aqueuse à 0.9 % de CINa contenant 5 % de formol.</p>
+                <p>COLORANT Vert malachite 0,2 g Acide acétique glacial 3 ml Alcool éthylique à 95%
+                    3 ml Eau distillée QSP 100 ml Dissoudre le vert malachite dans l'alcool, ajouter
+                    l'acide acétique et compléter à 100 ml avec de l'eau distillée.</p>
+                <p>Ce colorant se conserve bien à la température du laboratoire.</p>
+                <p>Le vert malachite basique correspond au point de vue chimique à du chlorure de
+                    diamidotriphénylcarbinol.</p>
+                <p>TECHNIQUE : mélanger une goutte du culot de concentration à une goutte de
+                    colorant sur une lame porte-objet, recouvrir d'une lamelle.</p>
+                <p>RÉSULTATS Le contour des kystes est facile à repérer, les membranes nucléaires et
+                    les centrosomes se détachent assez nettement sur la couleur vert pâle du kyste,
+                    les cristalloïdes se colorent en vert foncé.</p>
+                <p>Les cristalloïdes d'E. histolyticalE. dispar mais aussi ceux d'E. hartmanni, d'E.
+                    polecki et d'Ent. coli se colorent très bien par cette méthode. Dans les kystes
+                    d'Ent. coli, lorsqu'ils sont présents, ils apparaissent très fins "en aiguille",
+                    parfois en réseau, ce qui constitue un excellent critère de différenciation
+                    d'avec E. histolyticalE. dispar qui pour ces derniers se présentent allongés, à
+                    bouts ronds, en "saucisse". Ces cristalloïdes ont le même aspect général, aux
+                    extrémités arrondies, dans les kystes d'Æ. polecki et d'E. hartmanni. Dans les
+                    kystes 30 d'E. polecki ils ont la particularité d'être très nombreux. Ils sont
+                    également nombreux dans les kystes jeunes à 1 ou 2 noyaux d'E. histolytica/E.
+                    dispar et deviennent rares dans les kystes mûrs à 4 noyaux.</p>
+                <p>DISCUSSION Les cristalloïdes s'observent surtout dans les kystes jeunes à 1 ou 2
+                    noyaux dont le diagnostic d'espèce est souvent difficile. Par exemple. lors du
+                    test de Novembre 1997 du Contrôle National de Qualité en Parasitologie avaient
+                    été envoyés des kystes de type Æ. histolytica/E. dispar, qu'il n'est pas
+                    possible de différencier morphologiquement l'un de l'autre. A notre surprise, le
+                    premier diagnostic donné fut celui d'Entamoeba coli avec 38,2 % des réponses,
+                    alors qu'E. histolyticalE. dispar n'obtint que 29,3 %. Cette selle contenait
+                    surtout des kystes immatures, à | ou 2 noyaux, riches en cristalloïdes en forme
+                    de saucisse, bien visibles après coloration au vert malachite.</p>
+                <p>La coloration des cristalloïdes permet d'éviter cette erreur. L'hématoxyline
+                    ferrique, les colore bien en noir, mais cette technique de coloration est longue
+                    et complexe, et donc peu pratiquée.</p>
+                <p>La méthode de coloration au vert malachite ne peut cependant pas être employée
+                    directement sur les selles fraîches, ni après l'emploi de n'importe quelle
+                    méthode de concentration, celle de Faust par exemple qui ne permet pas la
+                    coloration des cristalloïdes. Par contre peuvent être utilisées les méthodes
+                    diphasiques à l'éther telles que celles de Ridley, Ritchie, Bailenger.</p>
+                <p>L'action préliminaire de l'éther semble indispensable pour permettre la
+                    pénétration du colorant dans les kystes. Dans quelques essais préliminaires nous
+                    avons réussi à colorer les cristalloïdes de kystes conservés dans une solution
+                    formolée à 5 % à condition de faire un mélange préalable de cette solution avec
+                    de l'éther suivi d'une sédimentation, cela sans réaliser de concentration.</p>
+                <p>BIBLIOGRAPHIE 1. Sargeaunt P. 1962. Confirmation of amoebic cyst chromatoids by
+                    wet stain after Ridley's faecal concentration. Trans. Roy. Soc. Trop. Med. Hyg.,
+                    56 : 12.</p>
+                <p>2. Paugam A., Tourte-Schaefer C. 1997. Entamoeba histolytica/Entamoeba dispar.
+                    Annales du Contrôle National de Qualité, 15 : 26-29.</p>
+                <p>3. Langeron M. 1942. Précis de Microscopie. Édition Masson et Cie.</p>
+                <p>Bulletin de la Société Française de Parasitologie 1999, Tome 17, numéro unique
+                    BIODIVERSITÉ DES TRYPANOSOMES PATHOGÈNES POUR LE BÉTAIL ET IMPORTANCE EN
+                    ÉPIDÉMIOLOGIE SOLANO P."”, DE LA ROCQUE S.°, REIFENBERG J.M.', CUISANCE D.",
+                    DUVALLET G." (Centre de coopération internationale en recherche agronomique pour
+                    le développement, département élevage et médecine vétérinaire (Cirad-emvt),
+                    Campus de Baillarguet, B.P. 5035, 34032 Montpellier Cedex 1 ® Centre
+                    international de Recherche-Développement sur l’Élevage en zone subhumide
+                    (CIRDES), 01 B.P. 454, Bobo-Dioulasso 01, Burkina Faso.</p>
+                <p>RÉSUMÉ : Les trypanosomes pathogènes pour le bétail en Afrique sont identifiés
+                    par les techniques parasitologiques classiques comme appartenant aux espèces
+                    7rypanosoma brucei, T. evansi, T. equiperdum, T. congolense, T. simiae et T.
+                    vivax. Les espèces T: brucei, T. evansi et T. equiperdum d’une part et T
+                    congolense et Tsimiae d’autre part ne sont pas reconnaissables morphologiquement
+                    sur lame. Ces trypanosomes sont identifiés par des caractères de pathogénicité
+                    et épidémiologiques. Les outils apportés par la biologie moléculaire permettent
+                    maintenant d’envisager une caractérisation précise des parasites à la fois chez
+                    le vecteur et chez l’hôte. L’amplification en chaîne par polymérase ou PCR
+                    permet de distinguer 7: congolense de T. simiae et de caractériser 5 ‘taxons’
+                    nouveaux au sein de l’espèce 7. congolense. Les études épidémiologiques menées
+                    au Burkina Faso, associant la caractérisation des parasites chez les bovins et
+                    chez les glossines, l’origine des repas sanguins chez les vecteurs, la
+                    localisation précise des captures, donnent une image plus complète et plus fine
+                    de la transmission de ces parasites. Ces études sont indispensables à la mise en
+                    place de méthodes de lutte plus efficaces.</p>
+                <p>MOTS-CLÉS : Trypanosomes, biodiversité, trypanosomose animale africaine,
+                    épidémiologie, amplification en chaîne par polymérase, épidémiologie
+                    moléculaire.</p>
+                <p>TITLE : BIODIVERSITY OF PATHOGENIC TRYPANOSOMES FOR CATTLE AND EPIDEMIOLOGICAL
+                    IMPORTANCE.</p>
+                <p>* Adresse actuelle : IRD, BP 5045, 34032 Montpellier cedex 1, France. Mel :
+                    &lt;solano@mpl.ird.fr&gt; SUMMARY : The pathogenic trypanosomes for the cattle
+                    in Africa are identified by the traditional parasitological techniques as
+                    7rypanosoma brucei T evansi, T. equiperdum, T. congolense, T. simiae and T:
+                    vivax. The species T. brucei, T. evansi and T. eguiperdum on the one hand and T.
+                    congolense and T. simiae on the other hand are not distinguishable with their
+                    morphology in a thin film. These trypanosomes are distinguished by characters of
+                    pathogenicity and epidemiology. The new tools brought by molecular biology now
+                    make it possible to characterise these parasites at the same time in the vectors
+                    and the hosts. The Polymerase chain reaction (PCR) allows to separate 7!
+                    congolense from T. simiae and to characterise five different ‘taxa’ within the
+                    species T7.</p>
+                <p>congolense. The epidemiological studies undertaken in Burkina Faso, associating
+                    the characterisation of the parasites in the cattle and the tsetse flies, the
+                    identification of the origin of the blood meals in the vectors, the precise
+                    localisation of the captures, give a more complex image of the transmission of
+                    these parasites. These studies are essential for the design of more effective
+                    methods of control.</p>
+                <p>KEY-WORDS : Trypanosomes, Biodiversity, African Animal Trypanosomosis,
+                    Epidemiology, PCR, Molecular epidemiology.</p>
+                <p>INTRODUCTION Les trypanosomoses sont une contrainte majeure au développement de
+                    l'élevage dans de nombreuses régions. En Afrique subsaharienne par exemple, en
+                    plus des pertes directes énormes, plus de 20 millions de dollars américains sont
+                    dépensés par an en produits trypanocides, représentant 44% des dépenses en
+                    médicaments vétérinaires (1). Les trypanosomoses animales, transmises par
+                    vecteurs où par voie vénérienne dans le cas de la dourine, ont une répartition
+                    cosmopolite. Chez l’hôte vertébré, les examens microscopiques permettent de
+                    reconnaître les grands groupes (sous-genres) de trypanosomes grâce à leur
+                    morphologie. On peut ainsi aisément distinguer 7. brucei s.1 (sous-genre
+                    Trypanozoon) de T. vivax (sous-genre Duttonella) et de T congolense (sous- genre
+                    Nannomonas). Chez la glossine vectrice en Afrique, la morphologie n'est plus
+                    d’aucun secours. Les différents trypanosomes prennent des formes similaires
+                    pendant leur cycle chez l’insecte. Classiquement, seule la localisation précise
+                    des parasites chez l’insecte permet une éventuelle identification. Les trois
+                    sous-genres cités ci-dessus présentent en effet des cycles différents. Si les
+                    parasites ne sont découverts que dans le proboscis de l’insecte, les
+                    trypanosomes sont dits appartenir au sous-genre Duttonella; s'ils sont
+                    découverts dans l'intestin moyen et le proboscis, ils sont dits appartenir au
+                    sous-genre Nannomonas ; et si en plus ils sont découverts dans les glandes
+                    salivaires, ils sont dits appartenir au sous-genre 7rypanozoon. Lorsque
+                    l'intestin moyen seul est infecté, on ne peut conclure et l’on rapporte une
+                    infection immature (2) ou une infection due à une autre espèce de trypanosomes
+                    (T° grayi ou T. varani).</p>
+                <p>Les outils de la biologie moléculaire, et en particulier l’amplification en
+                    chaîne par polymérase ou PCR, ont apporté une sensibilité exceptionnelle et
+                    surtout la possibilité d’une caractérisation au niveau spécifique ou
+                    infraspécifique, impossible auparavant.</p>
+                <p>Cet article rapporte les résultats acquis récemment grâce à ces outils dans le
+                    domaine de l’épidémiologie moléculaire des trypanosomoses animales en Afrique de
+                    l’Ouest.</p>
+                <p>MATÉRIELS ET MÉTHODES 1. Infections expérimentales. Les glossines ténérales
+                    (individus avant leur premier repas) sont nourries sur lapins ou souris
+                    préalablement infectés. Le repas infectant est unique et dure environ 10
+                    minutes. Ensuite, les mouches gorgées sont séparées des non gorgées qui sont
+                    éliminées. Les glossines retenues sont nourries 5 jours sur 7 sur un lapin sain.
+                    Lorsque le cycle évolutif du trypanosome est achevé (en moyenne 14 jours pour
+                    TZ: congolense, 10 jours pour 7. vivax), les glossines sont euthanasiées et
+                    disséquées selon la méthode classique.</p>
+                <p>2. Dissection des glossines. Les glossines élevées en insectarium à Montpellier
+                    (Cirad-IRD) ou capturées sur le terrain en Afrique dans le cadre des études
+                    menées au CIRDES, ont été disséquées en séparant les différents organes. Les
+                    instruments de dissection sont nettoyés entre chaque organe et chaque glossine
+                    (eau distillée puis eau de Javel puis eau distillée) pour éviter les
+                    contaminations.</p>
+                <p>Après observation microscopique en contraste de phase pour localiser et
+                    répertorier les infections, les organes sont suspendus séparément en tubes
+                    Eppendorf contenant 50 ul d’eau distillée stérile, et congelés à —20°C jusqu'à
+                    réalisation de la PCR au laboratoire.</p>
+                <p>3. Prélèvements de sang sur bovins. Les prélèvements de sang ont été effectués à
+                    la veine jugulaire. La technique parasitologique la plus utilisée est la
+                    centrifugation en tubes capillaires (3) qui donne à la fois la valeur de
+                    l’hématocrite et permet l’examen de la couche leucocytaire (‘buffy coat’) entre
+                    lame et lamelle. La technique PCR est appliquée directement sur cette couche
+                    leucocytaire suspendue dans l’eau distillée. La concentration des trypanosomes
+                    dans la strate leucocytaire augmente la sensibilité de détection de l’examen
+                    direct et permet d’éliminer une grande partie des hématies, limitant ainsi les
+                    risques d’inhibition de la Taq polymérase. Afin d’éliminer les effets
+                    inhibiteurs résiduels, la suspension est purifiée en utilisant une résine
+                    commerciale (4).</p>
+                <p>4) PCR. L'application de la technique PCR sur les pièces buccales et les glandes
+                    salivaires des glossines n’impose pas de purification préalable des
+                    échantillons.</p>
+                <p>Les organes sont simplement suspendus dans l’eau stérile, dont une fraction est
+                    prélevée pour la recherche des trypanosomes. Les suspensions intestinales de
+                    glossines sont traitées comme les échantillons de sang (4). Les amorces
+                    utilisées pour l’amplification sont indiquées dans le tableau 1.</p>
+                <p>Tableau 1 : Amorces utilisées et taille des produits d'amplification attendus
+                    Espèces/taxons Séquences oligonucléotidiques Taille de l'amplification
+                    Références Gb) T. congolense ILO344:S'CGAGCGAGAACGGGCAC 3' 320 (5) "savane"
+                    ILO345:S'GGGACAAACAAATCCCGC3' T. congolense TCKI:5'GTGCCCAAATTTGAAGTGAT3' 294
+                    (6) "Kilifi" TCK2:5'ACTCAAAATCGTGCACCTCG3' T. congolense
+                    TCFTI:S'GGACACGCCAGAAGGTACTT3' 350 (6) "forêt" TCF2:5S'GTTCTCGCACCAAATCCAAC3" T.
+                    congolense ILO892:5S'CGAGCATGCAGGATGGCCG3' 400 (7) "Tsavo"
+                    ILO893:5'GTCCTGCCACCGAGTATGC3' T. simiae TSMI:S'CGGTCAAAAACGCATT3" 437 (5)
+                    TSM2:S'AGTCGCCCGGAGTCGAT3" T. brucei TBRI:S'GAATATTAAACAATGCGCAG3" 177 (8)
+                    TBR2:S'CCATTTATTAGCTTTGTTGC3' T. vivax TVWI:S'CTGAGTGCTCCATGTGCCAC3" 150 (6)
+                    Afrique de l'Ouest 1VW2:S'CCACCAGAACACCAACCTGA3" 5. Système d’information
+                    géographique. Un système d’information géographique (SIG) a été mis en place sur
+                    la zone de Sidéradougou (9). Il associe des enquêtes au sol à des données
+                    satellitales à haute résolution (images SPOT).</p>
+                <p>Ce SIG permet de combiner les différentes couches d’informations recueillies,
+                    toutes géoréférencées, qui concernent l’entomologie (3600 glossines capturées, 1
+                    piège posé tous les 100 m sur 120 km de réseau hydrographique), la parasitologie
+                    (diagnostics microscopiques et PCR), le bétail (animaux sentinelles), le milieu
+                    naturel (70 paramètres caractérisant principalement les formations végétales, le
+                    cours d’eau et sa fréquentation, les paysages de vallées), l’occupation du sol
+                    et sa dynamique (parcellaire agricole), la distribution du bétail (recensement
+                    exhaustif, typologie de producteurs) et les différents modes de pratiques
+                    pastorales (ancienneté, sédentarisation, points d’abreuvement). Le croisement de
+                    toutes ces couches d’informations permet une classification des biotopes
+                    favorables aux glossines et la mise en évidence des sites de transmission des
+                    parasites.</p>
+                <p>35 RÉSULTATS 1) Capacité vectorielle des glossines.</p>
+                <p>Quatre espèces ou sous-espèces de glossines ont été infectées expérimentalement à
+                    l’aide de clones de 7: congolense identifiés par PCR (10).</p>
+                <p>Le clone Dinderesso/80/CRTA/3 appartenait au type ‘forêt riveraine d’Afrique de
+                    l'Ouest” et le clone E 325 au type ‘savane’. En étudiant le taux d’infection des
+                    intestins moyens, du labre et de l’hypopharynx de Glossina morsitans morsitans,
+                    G. m. submorsitans, G. palpalis gambiensis et G. tachinoides, les Capacités
+                    Vectorielles Intrinsèques (CVI) (11) de chacune de ces espèces ont pu être
+                    comparées pour chacun des clones. Les résultats montrent que G. m.</p>
+                <p>submorsitans est potentiellement le meilleur vecteur de 7. congolense ‘forme de
+                    savane” (CVI = 0.809) suivi de G. m. m. (CVI = 0.411) puis G. r. (CVI = 0.204)
+                    et enfin G. p. g. (CVI = 0.082). Pour T. congolense ‘forme de forêt’, les CVI
+                    calculées sont beaucoup plus faibles : 0.125 pour G. m. s., 0.047 pour G. {.,
+                    0.040 pour G. p. g. et 0.027 pour G. m. m.</p>
+                <p>2) Comparaison Parasitologie — PCR.</p>
+                <p>2.1. Dans une étude portant sur 139 G. longipalpis capturées en Côte d'Ivoire
+                    (12), 50 glossines ont été trouvées parasitées sur le terrain et soumises à la
+                    PCR. Le tableau 2 résume les résultats.</p>
+                <p>Tableau 2 : Comparaison des résultats de la parasitologie sur le terrain et de la
+                    PCR au laboratoire PCR (nb de glossines) Trypanozoon Nannomonas Duttonella
+                    Négative Parasito logie Trypanozoon 1 O 0 0 Nannomonas 20 O0 16 1 3 Duttonella
+                    17 O0 3 3 11 Immature 12 O0 3 0 2.2. Dans une étude portant sur 298 glossines
+                    infectées (177 G.</p>
+                <p>tachinoides et 121 G. p. gambiensis) capturées dans la zone d’accueil pastoral de
+                    Sidéradougou au Burkina Faso (13), les observations suivantes ont été effectuées
+                    (tableau 3).</p>
+                <p>36 Tableau 3 : Comparaison des résultats de la parasitologie sur le terrain et de
+                    la PCR au laboratoire PCR (en %) Trypanozoon Nannomonas Duttonella Négative
+                    Parasito logie Nannomonas 3 54,5* 18,2 27,3 Duttonella 0 3 86 11 Immature 4 14,5
+                    (0) 84,2 e dont 21,2% d’infections mixtes 2.3. Dans la réserve de gibier de
+                    Nazinga à l’est du Burkina Faso, l’étude a porté sur 166 glossines infectées
+                    (110 G. m. submorsitans et 56 G. tachinoïdes).</p>
+                <p>Les résultats sont résumés dans le tableau 4 (14).</p>
+                <p>Tableau 4 : Comparaison des résultats de la parasitologie sur le terrain et de la
+                    PCR au laboratoire PCR (en %L) Trypanozoon Nannomonas Duttonella Négative
+                    Parasito logie Nannomonas (0) 62,5* 17,5 20 Duttonella (0) 18,5 13 68,5 Immature
+                    2,8 31,9 4,2 66,7 * dont 7,5% d'infections mixtes Nous avons noté également au
+                    cours de cette étude que la PCR a donné 9,7% de résultats positifs pour des
+                    proboscis négatifs à la microscopie, 14,8% de résultats positifs pour des
+                    intestins moyens négatifs et 1 infection positive des glandes salivaires sur les
+                    166 négatives à la microscopie.</p>
+                <p>3. Comparaison Bovins — Glossines.</p>
+                <p>Au cours d’une enquête entomologique et parasitologique réalisée dans la 37 zone
+                    pastorale de Yalé à l’est du Burkina Faso, G. fachinoides a été reconnu comme le
+                    vecteur principal de la trypanosomose bovine dans cette région (15).</p>
+                <p>La composition taxonomique des infections intestinales de 50 individus infectés
+                    de cette espèce a été caractérisée par PCR. Les résultats sont comparés à
+                    lPanalyse par PCR de 44 échantillons de sang prélevés sur des bovins infectés
+                    dans la même zone (tableau 5). T. congolense ‘forme de savane” est le parasite
+                    le plus fréquemment reconnu chez les hôtes et les vecteurs. Aucune infection à
+                    T° brucei n’a été observée au cours de cette étude, ni chez les bovins, ni chez
+                    les glossines.</p>
+                <p>Tableau 5 : Comparaison des résultats de la PCR chez les glossines et les bovins
+                    dans la zone de Yalé PCR (en %) G. tachinoides Bovins n = 50 n = 44 46 52** T.
+                    congolense ‘savane’ T. congolense ‘forêt' 8 T. simiae 24 T. congolense ‘savane’
+                    + ‘forêt 8 T. vivax 6 16 T. congolense 'savane' + T. simiae 4 T. simiae + T.
+                    vivax 4 T. congolense non identifié * 9 T. vivax non identifié 23 * = non
+                    caractérisé par les amorces disponibles ** — dont 1 fois en association avec 1
+                    T. vivax non identifié 4) SIG Le SIG mis en place dans la zone de Sidéradougou a
+                    permis de révéler les facteurs discriminants permettant de comprendre la
+                    répartition et les densités de deux glossines du groupe palpalis (G. tachinoides
+                    et G. palpalis gambiensis) le long du principal réseau hydrographique (9). Les
+                    cartes de répartition actuelle ont été comparées à celles obtenues quinze années
+                    plus tôt. L’impact des activités humaines s’est traduit localement, selon les
+                    taxons, par l’augmentation, la diminution voire la disparition de ces glossines
+                    ripicoles. Des facteurs, notamment édaphiques, peuvent limiter l’extension
+                    agricole à proximité des galeries forestières, et favoriser le maintien ou
+                    l’accroissement des populations de vecteurs (biotope et biocénose préservés).
+                    Cette situation fut particulièrement intéressante à observer, puisqu'elle va à
+                    l’encontre du postulat généralement admis, à savoir que les glossines se
+                    raréfient dans les Zones qui subissent de fortes pressions humaines. Les images
+                    satellitales à haute résolution ont montré leur intérêt pour réaliser une
+                    classification de l’espace naturel et humain, orientée essentiellement sur les
+                    paysages des bas-fonds. Certaines unités de paysages apparaissent alors
+                    nettement plus favorables aux glossines. Ces résultats demandent à être validés
+                    dans des zones bioclimatiques comparables. Le facteur «densité de glossines »
+                    est un élément important pour l’évaluation du risque de transmission
+                    parasitaire. Cependant, d’une part les vecteurs ne présentent pas partout la
+                    même ‘dangerosité’ et les analyses de biologie moléculaire ont montré que les
+                    glossines n’hébergent pas les mêmes trypanosomes selon leur localisation le long
+                    du réseau (espèces pathogènes/non pathogènes) et, d’autre part, la transmission
+                    des trypanosomes aux bovins dépend essentiellement des interfaces assurés entre
+                    les vecteurs et les hôtes. En particulier, interviennent ici les systèmes
+                    d’élevage et les parcours des animaux.</p>
+                <p>DISCUSSION La parasitologie classique reconnaît 6 espèces différentes de
+                    trypanosomes pathogènes pour l’homme ou le bétail en Afrique. L’examen
+                    microscopique permet de différencier par la morphologie T. brucei, T. congolense
+                    et T. vivax.</p>
+                <p>Des indications nosologiques et épidémiologiques permettent de séparer T. brucei
+                    brucei, T. b. gambiense, T. b. rhodesiense, T. evansi et T. equiperdum au sein
+                    du groupe ‘hrucei’, et T. congolense et T. simiae au sein du groupe
+                    ‘congolense”. Ces distinctions ne sont possibles que chez l’hôte vertébré.</p>
+                <p>Les outils apportés par la biologie moléculaire permettent maintenant d'envisager
+                    une caractérisation précise des parasites à la fois chez le vecteur et chez
+                    l’hôte vertébré. L’amplification en chaîne par polymérase ou PCR permet de
+                    distinguer au sein du groupe ‘congolense' 6 entités différentes : T. congolense
+                    ‘forme de savane’, T. congolense ‘forme de forêt galerie d'Afrique de l'Ouest’,
+                    T. congolense ‘forme Kilifi”, T congolense ‘forme Tsavo’, T. simiae et enfin T.
+                    godfreyi (non étudié dans cet article).</p>
+                <p>La place taxinomique de ces formes n’est pas encore bien définie, dans un groupe
+                    de parasites où l’on ne connaît pas l’importance dans la nature de la
+                    reproduction sexuée par rapport à la division clonale. Cependant des
+                    observations biologiques ont pu déjà être faites pour comparer certaines de ces
+                    formes entre elles. Par exemple, la capacité vectorielle intrinsèque de G.
+                    morsitans submorsitans est de 0.809 pour T. congolense ‘forme de savane’ alors
+                    qu’elle est de 0.125 pour 7. congolense ‘forme de forêt’. De même des études
+                    sont en cours concernant les différences de pathogénicité de ces formes (Z.
+                    Bengaly, comm.</p>
+                <p>personnelle).</p>
+                <p>La possibilité de caractériser les parasites par PCR nous a permis de Comparer,
+                    dans des situations épidémiologiques différentes, les résultats de la
+                    parasitologie classique avec ceux de la PCR.</p>
+                <p>Dans le cas de l'étude sur G. longipalpis en Côte d'Ivoire, 34% d'infections à T°
+                    vivax (s.g. Duttonella) avaient été identifiées sur le terrain en 39
+                    microscopie. La technique PCR n’en a confirmé que 6%, auxquelles il faut ajouter
+                    2% identifiées comme Nannomonas sur le terrain ; 22% correspondent à des
+                    trypanosomes ayant la morphologie de T. vivax mais non reconnus par les amorces
+                    disponibles ; 6% enfin sont identifiés comme Nannomonas. Sur le terrain, 40% des
+                    infections avaient été rapportées au sous-genre Nannomonas ; la PCR en reconnaît
+                    46%. Enfin l’infection d’une glande salivaire par Trypanozoon observée sur le
+                    terrain se révèle en fait être une infection à Nannomonas, confirmant ainsi les
+                    possibilités de contamination des différents organes lors de la dissection
+                    classique sur le terrain.</p>
+                <p>Au total, la parasitologie classique semble surévaluer de manière importante les
+                    infections à Duttonella et légèrement sous-évaluer les infections à Nannomonas
+                    par rapport à la PCR. Cette technique met en évidence aussi 46% d'infections non
+                    identifiées par les amorces disponibles, dont 22% de trypanosomes que l’on
+                    pourrait qualifier de *T. vivax-like”.</p>
+                <p>Des études similaires ont été réalisées dans la zone pastorale de Sidéradougou,
+                    où les bovins domestiques sont les plus abondants, et dans la réserve de faune
+                    sauvage de Nazinga. À Sidéradougou, 86% des infections à Duttonella sont
+                    confirmées par PCR, montrant ainsi l'importance des infections à T. vivax du
+                    bétail domestique. À Nazinga, seulement 13% des infections à Duttonella sont
+                    confirmées par PCR ; 68.5% sont négatives et correspondent à des trypanosomes 7.
+                    vivax-like de la faune sauvage.</p>
+                <p>Ces études ont permis aussi de mettre en évidence l’importance des infections
+                    mixtes, expliquant des totaux supérieurs à 100% dans les lignes des tableaux 3
+                    et 4. De même ont été confirmées les grandes sensibilité et spécificité de la
+                    PCR.</p>
+                <p>Dans la zone pastorale de Yalé, la variété des trypanosomes identifiés par PCR a
+                    pu être comparée entre bovins et glossines. La plupart des taxons ou formes
+                    identifiables par PCR ont été rencontrés chez G. tachinoïdes, vecteur principal.
+                    T. congolense ‘forme savane’ avec 46% et T simiae avec 24% sont les plus
+                    abondants. Chez les bovins, seuls sont identifiés 7. congolense ‘forme savane’
+                    (52%) et T. vivax (16%). On note en particulier chez les bovins l’absence de T.
+                    simiae, pourtant fréquent chez le vecteur, et l’absence de 7. congolense ‘forme
+                    forêt’.</p>
+                <p>Le développement d’un SIG pour la zone de Sidéradougou a permis d’appréhender un
+                    risque pathologique à travers une vision globale comprenant non seulement le
+                    schéma classique ‘parasites-vecteurs-hôtes”, mais également les facteurs
+                    environnementaux (composantes botaniques, hydriques, faunistiques) ou
+                    anthropiques. Ceci a permis de mieux comprendre ce système épidémiologique
+                    complexe.</p>
+                <p>40 CONCLUSION Les outils de la biologie moléculaire ont montré que T: congolense,
+                    et sans doute les autres ‘espèces’ classiques de trypanosomes pathogènes,
+                    étaient en réalité des complexes d'espèces. L'utilisation de ces outils sur le
+                    terrain dans des situations épidémiologiques déjà connues permet de mieux
+                    appréhender la complexité du système pathogène ‘parasite-vecteur-hôte’. Une
+                    nouvelle épidémiologie moléculaire des trypanosomoses est ainsi en train de se
+                    dessiner.</p>
+                <p>L'intégration de ces nouvelles données à toutes les données environnementales et
+                    socio-économiques dans un système d’information géographique doit aboutir à une
+                    meilleure définition à la fois des zones épidémiologiquement dangereuses, et
+                    aussi des zones prioritaires où les fonds disponibles devraient être utilisés
+                    pour lutter efficacement contre l’endémie.</p>
+                <p>BIBLIOGRAPHIE 1) Thomières C. 1996. Le marché des trypanocides. Zn 1” Symposium
+                    SANOFI sur le Contrôle des Trypanosomoses, 2-3 juillet 1996, Bordeaux,
+                    France.</p>
+                <p>2) Itard J. 1981. Les trypanosomoses animales africaines. /n Troncy P.M. Itard
+                    J.. Morel P.C., Précis de Parasitologie vétérinaire tropicale. Ministère de la
+                    Coopération et du Développement, IEMVT, Paris, France.</p>
+                <p>3) Murray M., Murray P.K., Melntyre W.IM. 1977. An improved parasitological
+                    technique for the diagnosis of African trypanosomiasis. Trans. R.</p>
+                <p>Soc. Trop. Med. Hyg., 71, 325-326.</p>
+                <p>4) Penchenier L., Dumas V., Grebaut P., Reifenberg J.M., Cuny G., 1996.</p>
+                <p>Improvement of blood and fly gut processing for PCR diagnosis of trypanosomosis.
+                    Parasite, 4 : 387-389.</p>
+                <p>5) Majiwa P.A.O., Otieno L.H., 1990. Recombinant DNA probes reveal simultaneous
+                    infection of tsetse flies with different trypanosomes. Mol. Biochem.</p>
+                <p>Parasitol., 40 : 245-254, 6) Masiga D.K., Smyth A.J., Hayes P., Bromidge T.J.,
+                    Gibson W.C., 1992.</p>
+                <p>Sensitive detection of trypanosomes in tsetse flies by DNA amplification. Int.
+                    J.</p>
+                <p>Parasitol., 22 : 909-918.</p>
+                <p>7) Majiwa P.A.O., Maina M., Waitumbi J.N., Mihok S., Zweygart E., 1993.</p>
+                <p>Trypanosoma (Nannomonas) congolense : molecular characterization of a new
+                    genotype from Tsavo, Kenya. Parasitology, 106 : 151-162.</p>
+                <p>8) Moser D.R., Cook G.A., Diane E.O., Cheryl P.B., Melissa R.M., Donelson
+                    J.E.,1989. Detection of Trypanosoma congolense and Trypanosoma brucei subspecies
+                    by DNA amplification using the polymerase chain reaction.</p>
+                <p>Parasitology, 99 : 57-66.</p>
+                <p>9) La Rocque de Séverac S. de, 1997. Identification des facteurs discriminants
+                    majeurs de la présence des glossines dans une zone agro-pastorale du Burkina 41
+                    Faso. Intérêt pour la prévention du risque trypanosomien. Thèse de doctorat,
+                    Université Montpellier IL, 213 pp.</p>
+                <p>10) Reïifenberg J.M., 1996. Etude des relations parasites-hôtes dans
+                    l’épidémiologie moléculaire des trypanosomoses bovines au Burkina Faso. Thèse de
+                    doctorat, Université Montpellier II, 171 pp.</p>
+                <p>11) Le Ray D., 1989. Vector susceptibility to African trypanosomes. Ann. Soc.</p>
+                <p>belge Méd. trop., 69 : 165-171.</p>
+                <p>12) Solano P., Argiro L., Reifenberg J.M., Yao Y., Duvallet G., 1995. Field
+                    application of the polymerase chain reaction (PCR) to the detection and
+                    characterization of trypanosomes in Glossina longipalpis (Diptera: Glossinidae)
+                    in Côte d'Ivoire. Mol. Ecol., 4 : 781-785.</p>
+                <p>13) Lefrancois T., Solano P., de La Roque S., Bengaly Z., Reifenberg J.M., Kabore
+                    I., Cuisance D., 1998. New epidemiological features on animal trypanosomosis by
+                    molecular analysis in the pastoral zone of Sideradougou, Burkina Faso. Mol.
+                    Ecol., 7 : 897-904.</p>
+                <p>14) Lefrancois T., Solano P., Bauer B., Kabore I., Toure S.M., Cuny G., Duvallet
+                    G., 1999. Polymerase chain reaction characterization of trypanosomes in Glossina
+                    morsitans submorsitans and G. tachinoides collected on the game ranch of
+                    Nazinga, Burkina Faso. Acta Tropica, 72 : 65-77.</p>
+                <p>15) Reifenberg J.M., Solano P., Bauer B., Kabore I., Cuny G., Duvallet G.,
+                    Cuisance D., 1997. Apport de la technique PCR pour une meilleure compréhension
+                    de l’épizootiologie des trypanosomoses bovines : exemples de la zone
+                    d'aménagement pastoral de Yalé au Burkina Faso. Revue Élev. Méd. vét.</p>
+                <p>Pays trop., 50 : 14-22.</p>
+                <p>42 Bulletin de la Société Française de Parasitologie 1999, Tome 17. numéro unique
+                    LES PERTURBATIONS DU RYTHME CIRCADIEN LORS DES ÉMISSIONS CERCARIENNES DE
+                    Schistosoma haematobium À PARTIR DE Planorbarius metidjensis SOUMISES À UN
+                    ASSÈCHEMENT ET UNE RÉ-IMMERSION DU MILIEU DE VIE YACOUBI B.”, ZEKHNINI A.°,
+                    DREYFUSS G.°.</p>
+                <p>RONDELAUD D.°, MOUKRIM A." ( Département Eaux et Environnement. Faculté des
+                    Sciences. B.P. 28/S. 80.000 Agadir, Maroc.</p>
+                <p>® Laboratoire de Parasitologie, Faculté de Pharmacie, et % Laboratoire
+                    d'Histopathologie Parasitaire, Faculté de Médecine, 2, rue du
+                    Docteur-Raymond-Marcland, 87025 Limoges Cedex.</p>
+                <p>RÉSUMÉ : L'objectif de cette étude est de déterminer si un assèchement
+                    expérimental de l'habitat où vit Planorbarius metidjensis, suivi de sa
+                    ré-immersion, provoquent des changements dans l'émergence des cercaires de
+                    Schistosoma haematobium en fonction des tranches horaires de la journée. Des
+                    juvéniles de P.</p>
+                <p>metidjensis ont été soumis, dans ce but, à des expositions bimiracidiennes
+                    individuelles avant d'être élevés à 24°-26° C jusqu'à la sortie des premières
+                    cercaires. À ce moment-là, les survivants subissent un assèchement expérimental
+                    de 10 jours et sont remis dans l'eau à 7 h, à 16 h ou à 20 h. Au premier jour
+                    post- immersion, les résultats varient selon les groupes. Dans le lot 7 h, le
+                    pic d'émission est plus précoce que celui de témoins infestés, non soumis à un
+                    dessèchement (10/11 heures au lieu de 12/13 heures). Dans le groupe 16 h, le pic
+                    d'émission s'observe le lendemain, entre 8 et 9 heures. Dans le lot 20 h,
+                    quelques cercaires sont émises à partir de 22 heures mais le pic se produit
+                    également le lendemain, entre 11 et 12 heures. Un retour à la normale s'effectue
+                    par la suite à partir du dixième jour qui suit la remise des planorbes infestées
+                    dans l'eau. Les perturbations constatées dans le rythme circadien des émissions
+                    après la ré-immersion d'un milieu asséché peuvent s'expliquer, en partie, par la
+                    baisse de la productivité cercarienne des sporocystes de S. haematobium lors de
+                    la période d'assèchement et par les "cercaires en attente" qui sortent en masse
+                    lors de la ré-immersion du milieu.</p>
+                <p>MOTS CLÉS : Schistosoma haematobium, Planorbarius metidjensis, assèchement
+                    expérimental, cercaire, émissions cercariennes, Mollusques, Trématodes.</p>
+                <p>TITLE : THE CHANGES IN THE CIRCADIAN RHYTHM OF Schistosoma haematobium CERCARIAL
+                    SHEDDING AFTER AN EXPERIMENTAL 43 DRYING OF THE HABITAT OF Planorbarius
+                    metidjensis AND SUBSEQUENT RE-IMMERSION UNDER WATER.</p>
+                <p>ABSTRACT : Experimental investigations were carried out to determine whether the
+                    circadian rhythm found in the cercarial shedding of Schistosoma haematobium
+                    changed when the habitat of Planorbarius metidjensis was subjected to a
+                    desiccation and subsequent re-immersion under water. It is with this aim in view
+                    that young planorbid snaiïls were each subjected to bimiracidial exposures and
+                    were maintained at 24°-26° C until the exit of the first cercariae from snails.
+                    At that time the surviving snails were subjected to a 10-day desiccation before
+                    being replaced into water at 7 a.m., 4 p.m., or 8 p.m. On the first day
+                    following snail re-immersion, the results varied with snaiïl groups. In the
+                    7-a.m. group, the peak in shedding was earlier than that of infected controls,
+                    not subjected to desiccation (10 a.m./11 a.m.</p>
+                <p>instead of 12 a.m./1 p.m.). In the 4-p.m. group, the peak was noted the following
+                    day, between 8 a.m. and 9 a.m. In the &amp;8-p.m. groups, some cercariae were
+                    released from 10 p.m. on, and the peak was also noted in the following day,
+                    between 11 and 12 a.m. A return of cercarial shedding to normality was
+                    subsequently noted from the tenth day following re-immersion of infected snails
+                    in water. The changes found in the circadian rhythm of S. haematobium cercarial
+                    shedding after the re- immersion of a dried habitat under water may be partly
+                    explained by a fall in the cercarial productivity of the trematode sporocysts in
+                    snaïls during the drying period, and by the "awaiting cercariae" that exited en
+                    masse from snails after habitat re- immersion under water.</p>
+                <p>KEY WORDS : Schistosoma haematobium, Planorbarius metidjensis, cercaria,
+                    cercarial shedding, experimental desiccation, Mollusca, Trematoda.</p>
+                <p>INTRODUCTION Planorbarius metidjensis est capable d'assurer le développement
+                    larvaire de Schistosoma haematobium dans les provinces sud du Maroc [1, 2]. Le
+                    problème posé par cette planorbe concerne son milieu de vie car le mollusque
+                    s'enfouit dans le sol lorsque le milieu commence à se dessécher et ne ressort
+                    que si ce dernier est recouvert d'eau [3, 4]. Dans ces conditions, on peut se
+                    demander quel est l'impact d'un assèchement périodique de l'habitat où vit le
+                    mollusque sur les émissions cercariennes de S. haematobium.</p>
+                <p>Les premiers travaux réalisés dans cet objectif montrent que l'assèchement du
+                    milieu et la ré-immersion ultérieure de celui-ci retentissent sur les émissions
+                    cercariennes du Trématode, avec la disparition du rythme infradien si
+                    l'assèchement dure 10 jours et un retour de ce rythme à la normale à partir de
+                    la cinquième semaine si la dessiccation n'est que de 5 jours [5, 6]. Comme
+                    aucune étude n'avait 44 été encore faite sur le rythme circadien de ces
+                    émissions chez ces planorbes infestées, nous nous sommes demandé si cette
+                    ré-immersion provoque des changements dans l'émergence des cercaires en fonction
+                    des tranches horaires de la journée. Pour répondre à cette question, des
+                    juvéniles de P. metidjensis ont été soumis à des expositions bimiracidiennes
+                    individuelles avant d'être élevés à 24°-26° C jusqu'à la sortie des premières
+                    cercaires. À ce moment-là, les survi-vants subissent un assèchement expérimental
+                    de 10 jours et une ré-immersion dans l'eau à Th,àl6houà20h.</p>
+                <p>MATÉRIEL ET MÉTHODES 1. Mollusques et parasite.</p>
+                <p>Les P. metidjensis proviennent d'une population vivant à Sidi Belkacem (Wilaya
+                    d'Agadir), dans une source située dans le lit même de l'Oued Tafsret. Des
+                    adultes ont été prélevés dans cette colonie afin de constituer un élevage
+                    permanent au laboratoire. Des juvéniles issus de ces pontes et mesurant 2-3 mm
+                    de diamètre ont été utilisés dans le cadre de cette expérience.</p>
+                <p>Les œufs de S. haematobium ont été récupérés dans les urines d'un garçon de 14
+                    ans, originaire de T'atga N'Touchka (district d'Aït Baha, province d'Agadir).
+                    Ces dernières ont été fournies par le Département d'Épidémiologie, Service de
+                    l'infrastructure des Actions Ambulatoires Provinciales d'Agadir (Ministère de la
+                    Santé Publique, Maroc). La mise de ces œufs dans de l'eau de source suffit pour
+                    libérer les miracidiums du Trématode.</p>
+                <p>2. Protocole expérimental.</p>
+                <p>Soixante-dix juvéniles de P. metidjensis ont été exposés chacun à deux
+                    miracidiums de S. haematobium pendant 4 heures. Ils ont été élevés ensuite dans
+                    des bacs d'élevage à raison de 35 par récipient. La température de la salle est
+                    de 24°-26° C et un éclairage artificiel est dispensé pendant 12 heures diurnes
+                    afin d'avoir une intensité de 3.000 lux à la surface de l'eau. Les animaux sont
+                    maintenus dans ces conditions jusqu'à la sortie des premières cercaires lorsque
+                    l'on pratique un test lumière [1].</p>
+                <p>Les planorbes infestées sont alors réparties en deux groupes. Le premier comprend
+                    10 mollusques et ne subit pas l'assèchement expérimental (témoins). Le second
+                    est fort de 32 planorbes et a été soumis à une dessiccation de 10 jours avant
+                    d'être remis dans l'eau.</p>
+                <p>Le sédiment utilisé pour l'assèchement expérimental provient du site de Sidi
+                    Belkacem. Après une stérilisation à l'étuve à 110° C pendant 24 h, il est
+                    réparti dans des boîtes de Pétri (diamètre, 10 cm) à raison de 100 g par
+                    récipient, sur une épaisseur de 1,5 em. Chaque boîte reçoit ensuite 45 mL d'eau,
+                    cinq ou six planorbes et est fermée par un couvercle troué afin d'assurer une
+                    bonne aération. Les 45 récipients sont placés dans une salle à 24°-26° C. Afin
+                    de compenser l'eau évaporée, on ajoute chaque jour le même volume de liquide. Ce
+                    dernier est déterminé par la différence existant entre le poids initial de deux
+                    boîtes témoins préparées selon le même protocole (mais sans planorbes) et le
+                    poids final de celles- ci après un séjour de 24 h dans un étude à 110° C. Dans
+                    ces conditions, l'humidité du sédiment varie de 100 % à 50-60 %.</p>
+                <p>Le suivi des émissions cercariennes a été réalisé en isolant individuellement (à
+                    7 heures du matin) les 10 témoins dans des boîtes de Pétri de 35 mm de diamètre,
+                    avec 2-3 mL d'eau et un fragment de salade. Le protocole est le même pour les
+                    mollusques à la fin de l'assèchement, mais la remise dans l'eau a été effectuée
+                    à 7 h du matin, à 16 h ou à 20 h à raison de 10 planorbes par groupe. Les boîtes
+                    sont soumises aux mêmes conditions que les bacs d'élevage. Une surveillance
+                    journalière est effectuée jusqu'à la mort de chaque mollusque afin de décompter
+                    les cercaires en fonction des différentes heures de la journée.</p>
+                <p>Pourcentage de Pourcentage de cercaires émises Témoins cercaires émises Lot7h 60;
+                    60; 60. TT 50: Il 40 40 30: 30 20 20: 10! JL 10! [e] — —= J me 0 | ] EL 7 9 11
+                    13 15 17 19 7 9 11 13 15 17 19 Tranches horaires Tranches horaires Pourcentage
+                    de Pourcentage de 60 &lt;°'caires émises Lot 16h 6 ÿ-2e"calres émises Lot 20h 60
+                    40! 40 30.</p>
+                <p>30 20 20.</p>
+                <p>Lu ” _ 0 + 0 = 17 19 7 9 11 18 15 21 23 8 10 12 14 16 Tranches horaires Tranches
+                    horaires Figure 1. La distribution numérique des cercaires de Schistosoma
+                    haematobium en fonction des tranches horaires du premier jour après l'isolement
+                    individuel des planorbes dans les boîtes de Pétri.</p>
+                <p>46 Pourcentage de Pourcentage de _cercaires émises Lot7h cercaires émises Lot7h
+                    ler jour 3e jour 80 60 50 40: 60: 30 40: 20 10 20 0 ri — | 7 9 11 13 15 17 19 7
+                    9 11 13 16 17 19 Tranches horaires Tranches horaires Pourcentage de cercaires
+                    émises Lot7h 70: 10e jour 60: 560 40: 30! 20]: 10]: 7 9 11 13 15 17 19 Tranches
+                    horaires Figure 2. La distribution numérique des cercaires de Schistosoma
+                    haematobium en fonction des tranches horaires du premier jour, du troisième et
+                    du dixième après l'isolement individuel des planorbes du lot 7 h dans les boîtes
+                    de Pétri.</p>
+                <p>3. Paramètre étudié.</p>
+                <p>Il s'agit du pourcentage de cercaires décompté pour chaque tranche horaire.</p>
+                <p>Des valeurs moyennes, encadrées chacune par un écart-type, ont été calculées en
+                    tenant compte de chaque groupe (témoins, lot 7 h, lot 16 h, ou lot 20 h) et de
+                    chaque tranche horaire. Le test de comparaison des fréquences expérimentales a
+                    été utilisé pour établir les niveaux de signification statistique.</p>
+                <p>RÉSULTATS La figure 1 indique les pourcentages de cercaires émises par les P.
+                    metidjensis lors du premier jour post-isolement. Quelle que soit l'heure à
+                    laquelle s'effectue l'immersion des planorbes, on observe une émission de
+                    cercaires. Elle est instantanée dans trois groupes et débute seulement entre 22
+                    et 23 heures dans le lot 20 h. Le pic survient le même jour entre 12 et 13
+                    heures chez les témoins, entre 10 et 11 heures dans le groupe 7 h. Par contre,
+                    dans les deux autres lots, il s'observe le lendemain, entre 8 et 9 heures dans
+                    le groupe 16 h, et entre 11 et 12 heures dans le lot 20 h. L'analyse de ces
+                    pourcentages par le test de comparaison des fréquences expérimentales ne montre
+                    pas de différence significative, quelles que soient les modalités d'étude. ‘ 47
+                    La figure 2 montre la distribution des cercaires (sous forme de pourcentages)
+                    dans le lot 7 h en fonction du premier jour post-isolement, du troisième jour et
+                    du dixième jour. Le pic de production retourne pratiquement à la normale à
+                    partir du dixième jour. Des résultats similaires (données non représentées) ont
+                    été notés dans les deux lots 16 et 20 h.</p>
+                <p>DISCUSSION Les résultats obtenus confortent les observations que Zekhnini ef al.
+                    [6] ont notées sur les émissions cercariennes de S. haematobium à partir de P.
+                    metidjensis en utilisant le même protocole expérimental. D'après ces auteurs, si
+                    l'assèchement dure 10 jours, le rythme infradien est complètement supprimé. Par
+                    contre, dans notre étude, le rythme circadien ne disparaît pas et revient à la
+                    normale à partir du dixième jour. Si le facteur lumière est connu pour stimuler
+                    l'émergence des cercaires de S. haematobium |7, 8], il ne peut expliquer seul ce
+                    retour à la normale du rythme circadien. Comme ce dernier est déterminé par
+                    l'espèce du Trématode [9.</p>
+                <p>10], il faut admettre que les perturbations physiologiques, provoquées par cet
+                    assèchement de 10 jours, ne seraient pas irréversibles et que le retour à la
+                    normale du rythme circadien correspondrait à la reprise de la différentiation
+                    pour les sporocystes survivants, avec production de cercaires.</p>
+                <p>Lorsque les planorbes sont remises dans l'eau, on note un décalage du pic
+                    d'émission lors du premier jour dans les lots 7 et 16 h. L'hypothèse la plus
+                    valide pour expliquer ces résultats serait d'admettre une perte de la capacité
+                    des cercaires à réagir à la lumière lorsque les mollusques sont enfouis dans le
+                    sédiment. La présence de la lumière lors de la réhydratation du milieu se
+                    traduirait par un bouleversement dans le comportement des cercaires, d'autant
+                    plus que de nombreuses larves sont "en attente" dans le corps du mollusque et
+                    sortent en masse de ce dernier au premier jour [6].</p>
+                <p>Malgré l'obscurité, l'émission cercarienne constatée dans le lot 20 h montre que
+                    le seul retour à l'eau peut, lui aussi, constituer un stimulus pour l'émergence
+                    des cercaires. Les deux heures de latence observées dans ce groupe peuvent être
+                    attribuées au temps pour que les mollusques rétractés dans leur coquille se
+                    réhydratent et reprennent leurs déplacements. Toutefois, cette sortie de
+                    cercaires dans l'obscurité reste faible et ne dure que deux heures, probablement
+                    à cause de l'absence de lumière.</p>
+                <p>BIBLIOGRAPHIE 1. Moukrim A., Zekhnini A. et Rondelaud D. 1995. A comparative
+                    study of the shedding of cercariae of Schistosoma haematobium in newborn Bulinus
+                    truncatus and Planorbarius metidjensis. Parasitol. Res., 81: 537-539.</p>
+                <p>48 2. Zekhnini A., Yacoubi B., Moukrim A. et Rondelaud D. 1997. Schistosoma
+                    haematobium : comparative studies on prevalence and cercarial shedding according
+                    to the shell diameter of Planorbarius metidjensis at miracidial exposure.
+                    Parasitol.</p>
+                <p>Res., 83: 303-305.</p>
+                <p>3. McCullough F.$S. et Combes C. 1982. Observations on the epidemiology and
+                    control of schistosomiasis around the Mediterranean basin. Rev. Jbér.
+                    Parasitol.</p>
+                <p>Vol. Extra, 407-422.</p>
+                <p>4. Ramajo-Martin V. et Simon-Vicente F. 1988. Variaciones estacionales de
+                    Planorbarius metidjensis en un arroyo de corriente temporal e infeccion de los
+                    moluscos por Schistosoma bovis. Rev. Ibér. Parasitol., 48: 379-386.</p>
+                <p>5. Yacoubi B. 1999. Étude de la relation hôte-parasite dans le couple Planorba-
+                    rius metidjensis-Schistosoma haematobium dans la Wilaya d'Agadir. Écologie du
+                    mollusque et effet de l'assèchemebt sur le développement larvaire du
+                    parasite.</p>
+                <p>Thèse Doct. ès-Sci. Nat., Parasitol., Agadir (Maroc), n° 35, 218 p.</p>
+                <p>6. Zekhnini A., Yacoubi B., Rondelaud D. et Moukrim A. Effect of transient
+                    desiccation during the patent period on cercarial shedding of Schistosoma
+                    haematobium from Planorbarius metidjensis. En préparation.</p>
+                <p>7. Nojima H. et Sato A. 1978. The emergence of schistosome cercariae from the
+                    snails. IL. Hourly response of cercarial emergence of Schistosoma mansoni and S.
+                    haematobium and effect of light-cut on their emergence. Jap. J. Parasitol., 27:
+                    197-213.</p>
+                <p>8. Gracio M.A.M. 1988. À comparative laboratory study of Bulinus (Physopsis)
+                    globosus uninfected and infected with Schistosoma haematobium. Malacol. Rev.</p>
+                <p>21: 123-127.</p>
+                <p>9. Pages J.R. et Théron A. 1990. Analysis and comparison of cercarial emergence
+                    rhythms of Schistosoma haematobium, S. intercalatum, and S. bovis, and their
+                    hybrid progeny. /nt. J. Parasitol., 20: 193-197.</p>
+                <p>10. Combes C. 1995. Interactions durables. Écologie et évolution du
+                    parasitisme.</p>
+                <p>Masson, Paris/Milan/Barcelone, 524 p.</p>
+                <p>49 Bulletin de la Société Française de Parasitologie 1999, Tome 17, numéro unique
+                    OBSERVATIONS SUR LA DIFFUSION DE GLYCYPHAGUS DOMESTICUS (ACARI: GLYCYPHAGIDAE)
+                    DANS LES HABITATIONS.</p>
+                <p>PRINCIPATO M.(1), MELIDONE R. (2), NYILIGIRA J.B.(2) (1) Département de Sciences
+                    Biopathologiques Vétérinaires, Faculté de Médecine Vétérinaire de Pérouse,
+                    Pérouse, Italie.</p>
+                <p>(2) Docteur Vétérinaire.</p>
+                <p>RÉSUMÉ : Les Auteurs étudient, sous le profil parasitologique, 48 habitations
+                    dans lesquelles survenaient périodiquement des cas de dermite humaine provoquée
+                    par la présence de Glycyphagus domesticus. Fut étudiée, à travers l'examen
+                    direct des poussières de l'environnement, la diffusion des acariens et leurs
+                    stades évolutifs, en fonction des différentes conditions d'humidité et de
+                    température. La présence des acariens, en outre, a été mise en relation avec les
+                    altérations structurales communes à la plupart des appartements examinés. Enfin,
+                    les auteurs ont identifié les principaux sites de développement des différents
+                    stades évolutifs de l'acarien et des deutonymphes hypopales, c'est-à-dire les
+                    formes de résistance qui peuvent reconstituer rapidement la population après
+                    chaque traitement environnemental avec des acaricides.</p>
+                <p>MOTS-CLÉS : Acariens, habitations, Examen direct de la poussière
+                    environnementale.</p>
+                <p>TITLE : OBSERVATIONS ON DIFFUSION OF GLYCYPHAGUS DOMESTICUS (ACARI:
+                    GLYCYPHAGIDAE) IN HABITATIONS.</p>
+                <p>SUMMARY : Forty-eight houses in which were recurrent cases of human dermatitis
+                    due to the presence of Glycyphagus domesticus, were examined under the
+                    parasitological aspect. The diffusion of mites and their evolving instars were
+                    studied in relation with different conditions of humidity and temperature
+                    through the direct examination of the environmental dusts. The presence of mites
+                    was correlated with structural alterations, common to most examined
+                    dwellings.</p>
+                <p>Finally the main development sites of various lifecycle instars of the mite, as
+                    well as for the hypopal deutonymphs, were identified. These last ones are
+                    resistant forms that are able to restore the mite population quickly after every
+                    environmental treatment with acaricids.</p>
+                <p>KEY-WORDS : Mites, Houses, Direct examination of the environmental dusts.</p>
+                <p>50 INTRODUCTION Glycyphagus domesticus est un acarien qui infeste les produits
+                    alimentaires conservés. On le retrouve fréquemment, dans les magasins, dans les
+                    farineux avariés. Il provoque chez les gens qui manient imprudemment de tels
+                    produits une dermite des mains et des avant-bras, connue en Italie sous le nom
+                    de "fausse gale" (Principato, 1998). Récemment Stingeni et al. (1997-1998), à
+                    travers l'examen direct des poussières environnementales, exécuté dans les
+                    habitations des sujets affectés de graves dermites prurigineuses généralisées au
+                    tronc et aux bras, ont trouvé cet acarien à des pourcentages élevés. Ils ont pu
+                    obtenir, à travers une intervention spécifique sur l'environnement, la
+                    résolution des problèmes dermatologiques de certains patients. La grande
+                    fréquence des dermatites humaines "indoor" provoquées en Italie par la présence
+                    de G. domesticus, a conduit les auteurs à inventer le terme de "Glicifagosi",
+                    glycyphagose pour indiquer une pathologie cutanée spécifique provoquée par
+                    l'action allergisante de cet acarien. Puisque le comportement biologique de G.
+                    domesticus à l'intérieur des habitations est peu connu (Fain ef al., 1990), nous
+                    avons voulu effectuer quelques enquêtes parasitologiques, afin d'identifier les
+                    lieux de diffusion majeure de l'acarien dans l'environnement, les conditions
+                    microclimatiques qui en favorisent le développement, ainsi que les principaux
+                    sites qui donnent naissance à l'infestation et qui en permettent le
+                    développement.</p>
+                <p>MATÉRIELS ET MÉTHODES Pour l'étude, 48 habitations avec des cas périodiques de
+                    dermatite prurigineuse au tronc et aux bras, ont été sélectionnées. Pour chacune
+                    des mois densité hypopes : densité autres stades : (acariens/gramme) |
+                    moyenne/gramme | densité moyenne/g 66.4 2.4 64 J 69.75 3,75 66 F 32,8 4,8 28 M
+                    62 22 40 - 86 56 30 M 64 52 12 ] 443 7 37,3 J 32.6 3.3 29.3 A 62.25 1.25 6 S
+                    51,1 0.5 50.6 0 70.4 0 70.4 à 64,6 0 64.6 SI habitations, pendant une année,
+                    nous avons effectué un examen direct de la poussière du milieu ambiant par
+                    flottaison, en utilisant une solution saturée de NaCI. En outre, chaque mois le
+                    taux d'HR (humidité relative) et la température de l'environnement étaient
+                    enregistrés. Le prélèvement de la poussière présente sur toute la surface du
+                    pavement de chaque pièce a été exécuté avec un balai. Pour recueillir la
+                    poussière des rembourrages des chaises, fauteuils, divans, couvertures, etc.
+                    nous avons utilisé un aspirateur. Le temps d’aspiration était approximativement
+                    de deux minutes par mètre carré (environ 25 min. par matelas pour un lit de deux
+                    personnes).</p>
+                <p>On recueille ainsi en moyenne 10 grammes de poussière pour chaque appartement (5
+                    à 10 grammes sur le sol ou dans le matelas et 0,5 à 1 gramme dans les
+                    rembourrages et les édredons).</p>
+                <p>L'isolement des acariens a été effectué au stéréomicroscope avec des
+                    microaiguilles et leur fixation sur lame de verre, nécessaire pour une
+                    identification correcte, a été réalisée "à chaud" directement dans la solution
+                    de Berlese.</p>
+                <p>RÉSULTATS ET COMMENTAIRES Nous avons noté que Glycyphagus domesticus est présent
+                    pendant toute l'année et dans toutes les habitations examinées, bien que le
+                    nombre des acariens soit globalement inférieur durant la période estivale. Une
+                    différence remarquable a été observée au contraire pour la distribution
+                    saisonnière des deutonymphes hypopales et des adultes de cette espèce (Fig.
+                    1).</p>
+                <p>A côté des Glycyphagus domesticus, il faut noter un assez grand nombre de
+                    Dermatophagoides pteronyssinus (100 à 300/g environ) aussi bien dans le matelas
+                    que sur le sol des habitations humides en automne/hiver. En été, le nombre était
+                    presque toujours inférieur à 50 acariens/g. Dermatophagoides farinae était
+                    irrégulièrement présent et souvent en moindre quantité. Euroglyphus maynei était
+                    rare, tandis que Cheyletus eruditus était fréquent sur les sols.</p>
+                <p>Soulignons que Dermatophagoides n’est presque jamais directement responsable des
+                    manifestations cutanées chez l’homme, même s’il détermine une sensibilisation
+                    avec le temps alors que Glycyphagus domesticus agit directement, probablement
+                    chez des individus déjà sensibles, en déchaînant des manifestations cutanées
+                    parfois même graves (même en l’absence de Dermatophagoides).</p>
+                <p>Depuis plus de dix ans, à part quatre ou cinq fois, nous n’avons jamais pu mettre
+                    en évidence une relation entre la présence de Dermatophagoides et des
+                    manifestations cutanées chez l’homme. Au contraire, l’élimination de G.
+                    domesticus de l’environnement domestique fait cesser les dermites chez les
+                    patients.</p>
+                <p>n° acariensigr 100 en nnee me anna 60 À —— Hypopes -—@— Adultes 40 + Fig 1. -
+                    Quantité moyenne de Glycyphagus domesticus/gr de poussière, relevée globalement
+                    dans toutes les habitations examinées au cours des mois différents de
+                    l'année.</p>
+                <p>En fait durant les mois d'avril, mai et juin on a observé une grande diminution
+                    du nombre d'adultes de G. domesticus en phase reproductive, pendant que le
+                    nombre d'hypopes s'élevait progressivement, avec un relèvement moyen de 39
+                    hyp./gr de poussière en juin. Au cours des mois suivants, leur nombre avait
+                    tendance à diminuer, pour s’annuler complètement en novembre/décembre. Juste en
+                    décembre en revanche, on relevait le pic maximal d'infestation par les adultes
+                    en phase reproductive, avec une moyenne de 97/er. de poussière.</p>
+                <p>La période de reproduction la plus importante et, par conséquent, de grande
+                    diffusion de femelles ovigères de G. domesticus a été observée entre octobre et
+                    janvier/février, même si leur présence se vérifie toute l'année. Au cours du
+                    mois de juin nous avons enregistré en revanche un moindre nombre d'acariens
+                    adultes avec une moyenne de 9/gr. de poussière.</p>
+                <p>Pour ce qui est de l'origine des infestations "indoor", c'est à dire la cause
+                    primaire de diffusion de G. domesticus dans les habitations, nous avons observé
+                    qu’une partie minime (12,5%) des cas relevés, sont réellement dus à
+                    l'introduction dans l'appartement de matériel étranger, tel que le bois de
+                    chauffage, mobilier gardé précédemment dans des sous-sols trop humides, etc.; la
+                    majorité des cas observés (87,5%) avaient comme origine les altérations
+                    structurales de la maison à cause desquelles se formait une moisissure verdâtre
+                    sur les murs et le taux d'humidité atteignait 75-80% dans la plupart des cas
+                    (64,3%) (Fig.2).</p>
+                <p>De telles altérations étaient constituées principalement par les murs de ciment
+                    armé non plâtrés, infiltrations d'humidité par défauts aux tuyauteries,
+                    isolement excessif des murs de la pièce ou fermetures trop hermétiques, comme
+                    les fenêtres doubles en aluminium.</p>
+                <p>n‘appartements # Alterations struclurales de l'habitation Autre origine
+                    Alterations structurales de l'habitation 75-80% Autre origine JA LI Li La] Ü
+                    Fig.2. - Origine des infestations dans les habitations: rapport entre les
+                    altérations structurales trouvées et les cas dus à l'introduction de matériels
+                    étrangers contaminés (bois, etc.) Une différence notable dans la distribution
+                    environnementale s'est remarquée entre les hypopes et les autres stades
+                    évolutifs de G. domesticus. En n° acariensigr.</p>
+                <p>1000 Ÿ | | Œ creme æ ‘aps 800 E1 habus li #1] rembourrages : j } couvenures
+                    rernbourrés 1} 5 matolas { FI ! 600 + | | | | i | l Î | 400 | | il 200 | li 1| E
+                    0 J = - Fig.3. - Phases reproductives: diffusion des adultes, larves et nymphes
+                    (sauf les hypopes) de Glycyphagus domesticus dans les habitations examinées.</p>
+                <p>Sésame fait, dans la phase reproductive, cet acarien paraît avoir une préférence
+                    pour le tissu des habits, des matelas et des moquettes, mais il se répand
+                    amplement aussi sur le pavement, sur les murs et au-dessus des meubles
+                    (Fig.3).</p>
+                <p>Dans la phase de résistance au contraire, les hypopes se trouvent à l'intérieur
+                    des rembourrages des chaises, des fauteuils et des divans, mais aussi, à un
+                    degré moindre, dans les moquettes et à l'intérieur du tissu des matelas
+                    (Fig.4).</p>
+                <p>n° acanensigr 300 fi { | | M cavcrert l| mu | H habits E3 rembourrages Î C2
+                    couvenures rombourrécs 200 | B matelas | n î il j Î 400 Fig.4. - Phases de
+                    résistance: diffusion des deutonymphes hypopales de Glycyphagus domesticus dans
+                    les habitations examinées.</p>
+                <p>La diffusion des deutonymphes hypopales est basse sur le pavement et les habits.
+                    La distribution mensuelle des acariens dans les appartements examinés (Fig.5)
+                    indique que dans la période d'avril/juin, G. domesticus tend à se n° hypapeïg
+                    420 + —————— cornes —— puvement i j runs Î ï œ! Al m— habits 1 ji 1 i Îi sé
+                    HAMDOUTTAGES i couverture remous } | matelas l 80 : Î À Î Î : Î n [l | 60- d ! Î
+                    | : / | L | ! i | ! ‘ | Î | | | j i | Î | 40+ | | il &gt; i Ë FM A M JS A S D N
+                    Fig. 5. - Distribution mensuelle des deutonymphes hypopales de Glycyphagus
+                    domesticus (phases de résistance dans le milieu) transformer en hypope et
+                    colonise d'une façon préférentielle les rembourrages et les couvertures, où il
+                    reste inactif jusqu'à ce que les conditions microclimatiques deviennent
+                    favorables.</p>
+                <p>Au cours des mois suivants leur nombre a tendance à diminuer, mais la
+                    distribution environnementale dans les différents sites reste constante.</p>
+                <p>Au cours de l’automne/hiver G. domesticus entre dans la phase reproductive et se
+                    localise sur les habits d'une manière prédominante (avec une préférence pour
+                    l'intérieur des coutures) et à la surface des matelas (Fig.6).</p>
+                <p>F acars Hareun osbeR, A cg fat &amp; ALERTE “ DONC OT EERTE ESS cracher CE 4
+                    Fig.6. - Distribution mensuelle de Glycyphagus domesticus en phase reproductive
+                    (larves, nymphes, adultes).</p>
+                <p>Constamment on le retrouve sur le pavement, sur les murs et sur les meubles,
+                    surtout dans la période de novembre/janvier.</p>
+                <p>DISCUSSION La méthode utilisée, l’examen direct de la poussière de
+                    l'environnement par flottaison avec NaCI, nous a permis d'isoler et de
+                    quantifier les phases évolutives de G. domesticus et surtout les deutonymphes
+                    hypopales de cet acarien, c'est-à-dire les formes de résistance qui permettent
+                    la survie de l'arthropode dans les conditions microclimatiques plus hostiles
+                    (Bronswijk, 1981; Principato et al, 1995).</p>
+                <p>Bien que cet acarien soit présent toute l'année, la distribution mensuelle des
+                    hypopes varie beaucoup par rapport à celle des adultes et des autres stades
+                    évolutifs, en étant influencé notablement par l'abaissement de l'HR de la
+                    période d'été. Dans de telles conditions microclimatiques hostiles, les acariens
+                    ne se reproduisent plus et la plupart d'entre eux meurent. Cependant, les
+                    deutonymphes hypopales se cachent à l'intérieur des rembourrages des meubles et
+                    résistent jusqu'à ce que les conditions de l'environnement «indoor» redeviennent
+                    favorables. Précédemment, quelques fluctuations saisonnières de cet acarien
+                    avaient été observées par Gridelet et Lebrun en 1973. Ces auteurs les ont mises
+                    en relation avec les variations d'humidité et température.</p>
+                <p>Nous retenons comme intéressant l’observation de la prédominance de G. domesticus
+                    dans les appartements ayant des altérations structurales. Dans ces milieux, il
+                    se produit généralement une augmentation excessive du taux d'humidité, souvent
+                    en association avec une circulation d'air insuffisante à l'intérieur. De telles
+                    conditions créent un microclimat favorable au développement de cet acarien qui,
+                    étant mycophage, réussit à se nourrir des micromoisissures qui se forment
+                    inévitablement sous l'effet du grand taux d'HR.</p>
+                <p>En fait, dans l'infestation de G. domesticus, on retrouve constamment une
+                    moisissure verdâtre dans les angles humides des murs de la maison, sur le
+                    mobilier, derrière le chauffage central ou sur les murs plus exposés au nord. De
+                    telles moisissures constituent un substrat qui permet le développement et la
+                    survie ainsi que la diffusion dans l'air ambiant de l'acarien, même quand les
+                    conditions générales d'HR de l'appartement paraissent trop basses pour permettre
+                    sa survie (45% HR).</p>
+                <p>Du point de vue épidémiologique au contraire, il faut considérer que les hypopes
+                    et les adultes, à cause de leur biologie différente, ont des habitats très
+                    différents et par conséquent l'identification de leurs lieux de développement
+                    est fondamentale pour le bon résultat d'un possible traitement de
+                    désinfestation. En fait, pendant que la plupart des adultes, larves ou nymphes
+                    de G. domesticus se distribue sur la surface du sol, du mobilier ou des matelas
+                    et sont facilement atteints par l'acaricide, les hypopes au contraire, abrités à
+                    l'intérieur des rembourrages des chaises, des fauteuils, des divans et des
+                    couvertures, sont plus difficiles à éliminer. En fait, en dépit des traitement
+                    de désinfestation effectués en répétition, ils réussissent souvent à
+                    reconstituer, en peu de temps, toute la population qui avait été éliminée par
+                    l'acaricide.</p>
+                <p>Par conséquent, le diagnostic parasitologique de glycyphagose dans le milieu doit
+                    nécessairement tenir compte, soit de la distribution que de la quantité/gr. des
+                    deutonymphes hypopales de G. domesticus, dont la présence ou absence
+                    caractérisent d'une façon spécifique les conditions microclimatiques du milieu
+                    domestique et indiquent l'état de salubrité de l'appartement.</p>
+                <p>57 BIBLIOGRAPHIE Bronswijk J.E.M.H. van 1981. House dust biology for allergists,
+                    acarologists and mycologists. Ed. J.E.M.H. van Bronswijk, NIB Zeist, The
+                    Netherlands, Zoelmand, 316 p.</p>
+                <p>Fain A., Guérin B.,Hart B.J. 1990. Mites and Allergic Disease, A/lerbio, Ed.</p>
+                <p>Groeninghe Courtrai (Belgium), 147-149.</p>
+                <p>Gridelet D., Lebrun Ph. 1973. Contribution à l'étude écologique des acariens des
+                    poussières de maisons, Acarologia, 15, 461-476.</p>
+                <p>Principato M., Polidori G.A. 1995. Le deutoninfe eteromorfe di Glycyphagus
+                    domesticus (De Geer) (Acarina: Glycyphagidae) quale mezzo per la disseminazione
+                    della specie negli ambienti domestici. Rivista di Parassitologia, 12,195.</p>
+                <p>Principato M. 1998. Artropodi patogeni rilevabili nelle abitazioni con l'esame
+                    diretto delle polveri ambientali, Annali ltaliani di Dermatologia Clinica e
+                    Sperimentale, 52,6072.</p>
+                <p>Stingeni L., Principato M., Lisi P. 1997. Glicifagosi: due casi di dermatite
+                    papulo-vescico-pustolosa da Glycyphagus domesticus e Lepidoglyphus destructor
+                    (Astigmata: Glycyphagidae), Annali Italiani di Dermatologia Clinica e
+                    Sperimentale, 51, 91-95.</p>
+                <p>Stingeni L., Principato M., Mariotti M., Lisi P. 1998. Le dermatiti "indoor" da
+                    artropodi dell'ambiente domestico, Atti SIDEV.</p>
+                <p>58 Bulletin de la Société Française de Parasitologie 1999, Tome 17, numéro unique
+                    LES PHLÉBOTOMES DE TÉNEÉS (ALGÉRIE).</p>
+                <p>Résultats d'une enquête entomo-épidémiologique IZRI M.A.l, BELAZZOUG S.2,
+                    ALBERTINI J.P.3, ROUSSET J.J.1 1 - Parasitologie-Mycologie, UFR Bobigny, Paris
+                    XIII, France 2 - Parasitologie, Institut Pasteur d'Alger, Algérie 3 - Biochimie,
+                    UFR Bobigny, France RÉSUMÉ : Les auteurs rapportent les résultats d'une enquête
+                    entomo- épidémiologiques effectuée dans la région de Ténès en Algérie en 1991.
+                    Ils mettent en évidence la présence de huit espèces de Phlébotomes. P.
+                    perfiliewi, le plus abondant de ces insectes est trouvé naturellement parasité
+                    par des promastigotes de Leishmania infantum MON-24. L'analyse des résultats met
+                    en évidence un phototropisme de cet insecte qui, comme P. longicuspis, n'est
+                    pratiquement capturé que par les pièges lumineux. Les résultats mettent
+                    également en évidence la présence dans cette région de deux espèces de
+                    Sergentomyia, S. fallax et S. dreyfussi, habituellement rencontrées dans les
+                    régions arides du sud du Maghreb. Enfin, les auteurs soulignent le risque de
+                    développement de différentes formes de leishmanioses dans le foyer étudié.</p>
+                <p>MOTS CLÉS : Leishmanioses, Phlébotomes, vecteur, phototropisme. Ténès,
+                    Algérie.</p>
+                <p>TITLE : THE SANDFLIES OF TÉNES (ALGERIA): RESULTS OF AN ENTOMO-EPIDEMIOLOGICAL
+                    STUDY.</p>
+                <p>SUMMARY : The results of an entomo-epidemiological survey in the Ténès area
+                    (Algeria) during 1991 are reported. Eight Sandflies species were collected.</p>
+                <p>The dominant species, P. perfiliewi, appears to be naturally infected by
+                    Leishmania infantum MON-24. The phototropism of P. perfiliewi and P. longicuspis
+                    is reported. Two new species were captured for the first time in this area. The
+                    autors point out on the risk of a development of the leishmaniasis in this
+                    area.</p>
+                <p>KEY-WORDS :Leishmaniasis, Sandflies, vector, Phototropism, Ténès, Algeria.</p>
+                <p>INTRODUCTION La découverte d'un nouveau variant enzymatique, Leishmania infantum
+                    zymodème MON-24 (Belazzoug, 1985) à Ténès et l'apparition de plusieurs cas de
+                    leishmaniose cutanée dans cette région jusque là indemne de la maladie (2) ont
+                    motivé l'organisation d'une mission exploratoire. Celle-ci s'est déroulée du 20
+                    au 29 août 1991 et avait pour objectif la réalisation d'une première étude des
+                    phlébotomes avec tentative de mise en évidence du ou des vecteurs.</p>
+                <p>MOYENS ET MÉTHODES 1 -le milieu Ténès est le chef lieu d'une daïra
+                    (sous-préfecture) de 110.000 habitants, située à mi-distance entre Alger à l'est
+                    et Oran à l'ouest, entre le 36ème et le 37ème degré de latitude nord et le 12 et
+                    le 2ème degré de longitude est. La ville est construite autour d'un petit port
+                    de pêche méditerranéen, au pied d'une montagne, le Djebel Bissa, qui culmine à
+                    près de 1.200 mètres.</p>
+                <p>Les sites de Sidi Akacha et de Bouzghaïa C'est à environ 10 km de la ville, au
+                    sud-ouest des collines côtières, que s'est déroulée la plus grande partie de ce
+                    travail, autour de deux localités voisines : Sidi Akacha et Bouzghaïa situées
+                    respectivement à 8 et 25 km de la ville de Ténès, au sud-est des collines
+                    côtières. Le paysage est constitué de collines déboisées. L'altitude varie de
+                    150 à 240 mètres à Sidi-Akacha et de 240 à 300 m à Bouzghaïa. Le climat de type
+                    semi-aride à Sidi-Akacha est aride à Bouzghaïa. La végétation, rare, est
+                    principalement constituée de jujubiers (Zyzyphus lotus) et de rares Oliviers. Le
+                    blé et la vigne (vin du Dahra) sont les principales cultures. Les figuiers de
+                    Barbarie, abondants, sont développés en "remparts épineux" autour des
+                    habitations campagnardes, très dispersées.</p>
+                <p>Les maisons sont de type traditionnel, construites en terre battue, à moitié
+                    enterrées. Elles comprennent plusieurs pièces autour d'une cour intérieure. Un
+                    ou plusieurs abris d'animaux domestiques, des bergeries le plus souvent, forment
+                    les dépendances qui avoisinent ou entourent les habitations humaines. Dans ces
+                    fermes, de nombreux chiens vivent en liberté, d'autres sont attachés nuit et
+                    jour dans les cours intérieures ou près des troupeaux de moutons qui comptent
+                    souvent plusieurs dizaines, voire centaines de têtes. Quelques poules et
+                    pintades, en liberté, vont chercher leur nourriture sur les tas d'ordures
+                    ménagères ou de fumier qui sont assemblés à proximité des habitations.</p>
+                <p>60 Hors des villages, l'eau courante n'existe pas. L'approvisionnement est alors
+                    effectué par voiture, vélomoteur ou dos d'âne depuis des points d'eau situés
+                    parfois à plusieurs kilomètres. Le liquide est transporté et stocké dans des
+                    Jerricanes en plastique ou des réservoirs de fortune constitués notamment par
+                    des chambres à air de roues de camions ou de tracteurs.</p>
+                <p>Les sites de Bissa et de Ténès L'étude de ces deux sites ne constituent pas
+                    l'objet de notre enquête, mais en raison de leur proximité et des différences
+                    climatiques importantes qu'ils présentent avec les deux premiers, ils sont
+                    visités et quelques captures de phlébotomes y sont effectuées.</p>
+                <p>- Le mont Bissa est situé au sud-est de la région prospectée. Il se prolonge au
+                    nord par les collines sahéliennes qui se jettent abruptement dans la
+                    Méditerranée et qui forment une barrière naturelle entre la mer et la principale
+                    zone prospectée.</p>
+                <p>Le versant nord du mont Bissa est exposé à l'influence maritime et connaît un
+                    climat humide à sub-humide: c'est le versant vert, recouvert d'une forêt de pins
+                    d'Alep. Le versant sud, plus sec, connaît un climat sub-humide à semi-aride. La
+                    végétation y est plus rare, composée principalement de lentisques et
+                    d'oliviers.</p>
+                <p>Les populations, berbérophones, vivent dans des habitations en dur entourées de
+                    champs ravineux. Le figuier est l'arbre le plus cultivé. Les animaux domestiques
+                    sont peu nombreux, mais présents dans presque toutes les habitations.</p>
+                <p>- Le site de Ténès est en fait constitué par la route qui longe l'oued Allala en
+                    passant par les gorges du même nom et qui mène de Ténès aux localités étudiées,
+                    Bouzghaïa et Sidi Akacha.</p>
+                <p>2 - capture, dissection et identification des phlébotomes 10,2 m2 de pièges
+                    adhésifs sont posés devant les anfractuosités et les barbacanes des murs de
+                    soutènement, parfois dans ou autour des habitations et les abris d'animaux
+                    domestiques. Cette technique, utilisée comme un moyen de sondage, contribue à
+                    l'établissement d'un inventaire des espèces phlébotomiennes.</p>
+                <p>36 nuits-pièges CDC sont utilisés pour les captures de phlébotomes vivants en vue
+                    des dissections de femelles pour tenter d'isoler des leishmanies.</p>
+                <p>Les pièges sont tendus devant les ouvertures et à l'intérieur des habitations ou
+                    des abris d'animaux domestiques.</p>
+                <p>61 Les dissections sont réalisées au laboratoire de l'hôpital de Ténès. Les
+                    phlébotomes sont déterminés en partie sur place dans le même hôpital, le reste
+                    est conservé dans l'alcool éthylique à 70° et étudié ultérieurement dans le
+                    service de Parasitologie-Mycologie du professeur Rousset, hôpital Avicenne
+                    (Bobigny).</p>
+                <p>Les identifications sont réalisées à l'aide des clés mises au point par Abonnenc
+                    (1) et Léger et coll. (14) 3 - analyse des résultats La comparaison non appariée
+                    des moyennes des densités des captures quotidienne est réalisée selon le test t
+                    de Student pour analyser les résultats obtenus avec le même type de piège dans
+                    les stations ou sites différents.</p>
+                <p>4 - autres activités Parallèlement aux activités entomologiques, sont examinés
+                    les patients porteurs de lésions cutanées. Des biopsies cutanées sont réalisées
+                    sur les berges des plaies et les prélèvements sont ensemencés sur milieu
+                    N.N.N.</p>
+                <p>Les chiens sont également examinés et près d'une trentaine de prélèvements
+                    sanguins sont obtenus pour une analyse sérologique par immunofluorescence
+                    indirecte utilisant L. infantum comme antigène.</p>
+                <p>RÉSULTATS Globalement 10.401 phlébotomes sont capturés. Ils se répartissent en 8
+                    espèces à l'intérieur de deux genres. Le genre Phlebotomus totalise près de 15%
+                    des captures avec 5 espèces : P. perfiliewi Parrot, 1930, P. perniciosus
+                    Newstead, 1911, P. longicuspis Nitzulescu, 1930, P. papatasi (Scopoli, 1786) et
+                    P. ariasi Tonnoir, 1921. Les autres espèces appartiennent au genre Sergentomyia,
+                    il s'agit de S. minuta, S. fallax et S. dreyfussi (tableau Ténès 1).</p>
+                <p>801 femelles sont disséquées dont 2 sont trouvées parasitées par des
+                    promastigotes: une femelle de P. perfiliewi provenant de la station de Sidi
+                    Akacha et une femelle de P. papatasi de Bouzghaïa. Les promastigotes isolés de
+                    P. perfiliewi se sont développés en culture sur milieu N.N.N. et ont permis
+                    d'isoler la souche de leishmanie identifiée au Laboratoire d'Écologie Médicale
+                    de Montpellier comme étant Leishmania infantum zymodème MON-I (Izri et
+                    Belazzoug, 1993).</p>
+                <p>62 La même souche est isolée dans la même station à partir d'une lésion frontale
+                    d'un enfant, au cours de cette même enquête.</p>
+                <p>Aucun chien examiné ne présente de signes cliniques de leishmaniose et toutes les
+                    sérologies effectuées sont négatives.</p>
+                <p>Tableau 1 : Répartition de l'ensemble des captures par station et espèce espèce
+                    S. Akacha | Bouzghaïa Bissa Ténès TOTAL P. perfiliewi 2443 3336 1 6 5786 P.
+                    perniciosus 922 769 54 445 2190 P. longicuspis 196 742 24 2 964 P. papatasi 164
+                    676 8 3 851 P. ariasi 0 1 0 0 1 S. minuta 32 63 81 305 481 S. fallax 0 0 0 123
+                    123 S. dreyfussi 3 2 0 0 5 TOTAL 3760 5589 168 884 10401 DISCUSSION Analyse
+                    globale des résultats Les captures sont abondantes et la densité est en moyenne
+                    de 244,47 phlébotomes par nuit-piège CDC et 156,86 phlébotomes par m2 de pièges
+                    adhésifs (tableau 2).</p>
+                <p>Tableau 2: climat, altitude des stations, densité des captures selon la station
+                    _et le type de piège utilisé station P./n.-p. CDC | P./m2 p. adhé. climat
+                    altitude S. Akacha 155,64 120,00 semi-aride 150-240 m Bouzghaïa 526,10 233,57
+                    aride à 1/2-aride | 240-300 m Bissa 28,75 33,13 sub-humide 600-1010m Ténès -
+                    200,91 sub-humide 50m Total 244,47 156,86 63 Les captures sont nettement plus
+                    importante dans le site aride de Bouzghaïa qui est également le site le plus
+                    rural, que dans les autres régions.</p>
+                <p>(tableaux 1 et 2). Les captures atteignent parfois plus de 2000 phlébotomes par
+                    cage CDC. Ces records sont observés autour des animaux domestiques, chiens et
+                    moutons. Dans cette station, les captures par CDC représentent à elles seules
+                    plus de 50% de la totalité de nos captures. L'espèce la plus souvent rencontrée
+                    est P. perfiliewi (63,4%).</p>
+                <p>Dans la localité de Sidi Akacha (climat semi-aride), les captures sont également
+                    importantes, avec toutefois des densités inférieures à celles obtenues à
+                    Bouzghaïa. Les mêmes espèces qu'à Bouzghaïa sont retrouvées. On y constate aussi
+                    la nette prédominance de P. perfiliewi {64,97%), mais une densité plus faible
+                    pour P. longicuspis et P. papatasi.</p>
+                <p>Cette répartition, prédominance de P. perfiliewi (55,63%) suivie de P.
+                    perniciosus (21,10%), P. longicuspis (9,27%) et P. papatasi (8,18%) pour
+                    l'ensemble des résultats, correspond à une faune de zone de transition entre les
+                    climats humide à sub-humide (Bissa et Ténès) et semi-aride à aride (Sidi Akacha
+                    et Bouzghaïa).</p>
+                <p>La comparaison entre les moyens quotidiennes des captures dans les abris
+                    d'animaux domestiques et dans les habitations humaines montre une différence
+                    significative (p — 0,008) en faveur des abris d'animaux (tableau 4).</p>
+                <p>Analyse par espèce P. perfiliewi La présence de Phlebotomus perfiliewi en Algérie
+                    a été rapportée pour la première fois en 1935 par Parrot (18). Cette espèce se
+                    retrouve dans le bassin méditerranéen, depuis le Maroc (Rioux, 1977) et s'étend
+                    jusqu'au niveau des Balkans (Lewis, 1982).</p>
+                <p>Dans nos résultats, P. perfiliewi est l'espèce la plus abondante. Elle est
+                    principalement retrouvée à Bouzghaïa et à Sidi Akacha.</p>
+                <p>Nos résultats soulignent pour P. perfiliewi un évident phototropisme : cette
+                    espèce n'est pratiquement prise qu'avec les pièges lumineux CDC, 5778
+                    phlébotomes contre seulement 8 avec les pièges adhésifs (tableau 3). Ce
+                    phototropisme est également observé en Italie par Maroli et coll. (17).</p>
+                <p>64 Par ailleurs, cette espèce est surtout retrouvée dans et autour des abris
+                    d'animaux domestiques, 4101 phlébotomes, contre 1676 dans les habitations
+                    humaines ; P. perfiliewi semble donc plutôt lié à la présence d'herbivores. Ces
+                    observations ne corroborent que partiellement celles de V. Zivkovic et Z.
+                    Miscevic (25) qui décrivent cette espèce comme étant "mi-exophile", fréquentant
+                    aussi bien l'homme que les animaux domestiques ou sauvages.</p>
+                <p>Le rôle vecteur de P. perfiliewi a surtout été étudié en Italie où il a été
+                    trouvé parasité par Leishmania infantum dans un foyer de leishmaniose cutanée
+                    (Maroli et coll., 1987). Nous avons également trouvé cette espèce parasitée par
+                    des promastigotes en Kabylie (Izri et coll., 1990).</p>
+                <p>À Ténès, au cours de cette enquête, P. perfiliewi est trouvé naturellement
+                    infesté par Leishmania infantum MON-24, mais, comme dans les autres foyers où
+                    cet insecte est reconnu vecteur, le pourcentage de femelles naturellement
+                    parasitées reste très faible et contraste avec la densité toujours très élevée
+                    de cette espèce.</p>
+                <p>P. perniciosus P. perniciosus est observé pour la première fois en Algérie par
+                    Sergent (23). C'est un phlébotome méditerranéen rencontré depuis les régions
+                    médio- européennes jusqu'au Sahara et depuis l'Espagne jusqu'en Turquie (Lewis,
+                    1982).</p>
+                <p>C'est un insecte adapté au climat sub-humide.</p>
+                <p>Dans l'ensemble, les auteurs s'accordent à reconnaître en cette espèce un insecte
+                    endophile anthropozoophile. Parrot le décrit comme piquant l'homme et le chien,
+                    mais avec une nette prédilection pour ce dernier (20).</p>
+                <p>Dans nos captures, cette espèce vient en deuxième position par ordre numérique
+                    après P. perfiliewi. Le nombre de phlébotomes capturés à l'aide de pièges CDC
+                    est plus élevé que celui obtenu avec les pièges adhésifs, mais dans ces
+                    derniers, P. perniciosus est l'espèce le plus souvent représentée (tableau
+                    3).</p>
+                <p>Elle est plus abondante dans les habitations humaines que dans les abris
+                    d'animaux domestiques (tableau 4).</p>
+                <p>P. perniciosus est considéré comme principal vecteur de la leishmaniose viscérale
+                    humaine et canine depuis les travaux de Adler et Théodor en 1928 (3) et ceux de
+                    Bettini et coll. (7). Nous avons retrouvé cette espèce parasitée par L. infantum
+                    MON-I en Kabylie en 1988 (9) et à plusieurs reprises parasitée par des
+                    promastigotes dans le sud-est de la France (11 et 13), mais, aucune femelle
+                    n'est trouvée infectée à Ténès.</p>
+                <p>P. longicuspis Comme P. perfiliewi, P. longicuspis possède un phototropisme qui
+                    le conduit dans les pièges lumineux. Cette espèce n'est pratiquement pas
+                    capturée par les pièges adhésifs (tableau 3). Elle est plus abondante dans le
+                    site aride à semi-aride de Bouzghaïa et est pratiquement autant capturée dans
+                    les habitations humaines que dans les abris d'animaux domestiques (tableau
+                    4).</p>
+                <p>P. longicuspis a été signalé pour la première fois en Algérie par Parrot (19).
+                    C'est un insecte de l'Afrique du nord et partiellement de la péninsule ibérique
+                    (Lewis, 1982).</p>
+                <p>Le comportement de ce Phlébotome est souvent rapproché de celui de P. perniciosus
+                    avec qui il est d'ailleurs parfois confondu. Il semble avoir une certaine
+                    affinité à piquer le chien. En effet, dans un chenil à Alger, Parrot et
+                    coll.</p>
+                <p>(20), le trouvent naturellement infecté par des promastigotes pratiquement aussi
+                    souvent (16,5%) que P. perniciosus (20%). Depuis ces travaux, P. longicuspis est
+                    considéré comme vecteur de leishmaniose. mais ce rôle n'a jamais été confirmé
+                    par l'isolement et l'identification de leishmanies.</p>
+                <p>P. papatasi Plus fréquente dans le site aride à semi-aride, cette espèce est
+                    capturée presque autant dans les abris d'animaux domestiques que dans les
+                    habitations humaines (tableau 4). Elle est mieux représentée dans les résultats
+                    obtenus avec les pièges CDC que dans ceux obtenus avec les pièges adhésifs.</p>
+                <p>P. papatasi est largement répandu dans toute la région méditerranéenne, depuis le
+                    Maroc jusqu'en Égypte; il occupe la péninsule arabique et pénètre jusqu'en Asie
+                    (Lewis 1982).</p>
+                <p>Retrouvé jusque dans les régions Sub-humides, il est parfaitement adapté aux
+                    régions semi-arides, voire arides et particulièrement abondant dans les régions
+                    steppiques. C'est le Phlebotomus le plus souvent rencontré dans la frange nord
+                    du Sahara.</p>
+                <p>Le rôle de ce phlébotome dans la transmission de la leishmaniose cutanée a été
+                    démontré cliniquement par Sergent et coll. dès 1921 (24), puis démontré dans
+                    d'autres régions, notamment au Maroc par Rioux et coll. (22) et en Tunisie par
+                    Ben-Ismail et coll. (6). En Algérie, nous avons retrouvé cet insecte parasité
+                    par L. major MON-25 (10).</p>
+                <p>66 A Bouzghaïa, une femelle est trouvée parasitée par des promastigotes et bien
+                    que la culture sur milieu NNN ne se soit pas développée, le rôle vecteur de cet
+                    insecte n'est pas écarté. En effet, P. papatasi est relativement abondant dans
+                    la région et de nombreux terriers de rongeurs sauvages ont été observés dans les
+                    champs. La capture de ces mammifères n'a pas été entreprise et nous ignorons
+                    quelle est ou quelles sont la ou les espèce(s) qui y vi(ven)t. Rappelons que les
+                    nombreuses décharges sauvages d'ordures ménagères et la désertification qui
+                    semblent gagner la région peuvent entraîner la colonisation des lieux par des
+                    rongeurs réservoirs de L. major.</p>
+                <p>La présence des cinq espèces appartenant au genre Phlebotomus: P. perfiliewi, P.
+                    perniciosus, P. longicuspis, P. ariasi et P. papatasi, toutes reconnues
+                    vectrices de leishmaniose, constitue un risque potentiel de développement de
+                    différentes formes de leishmaniose, en particulier de leishmaniose viscérale
+                    dont le réservoir (chien) est abondant dans la région. Ces craintes, formulées
+                    dans notre rapport de mission, se sont malheureusement confirmées avec
+                    l'apparition deux ans plus tard des premiers cas de leishmanioses viscérales
+                    dans ce foyer (8).</p>
+                <p>Les autres espèces sont capturées en trop faible quantité et ne jouent aucun rôle
+                    dans la transmission des leishmanioses. Il s'agit de Sergentomyia minuta, S.
+                    fallax et S. drevfussi.</p>
+                <p>S. minuta est surtout présente sur les papiers adhésifs (tableau 3), mais il est
+                    connu que cette espèce qui pique surtout les lézards préfère le biotope de ces
+                    animaux et vit donc dans les anfractuosités et les barbacanes des murs.</p>
+                <p>S. fallax est retrouvée seulement dans les pièges adhésifs, mais ceci s'explique
+                    par le fait qu'aucun piège CDC n'a éte posé dans la station où est retrouvée
+                    cette espèce (tableau 3).</p>
+                <p>Notons la présence en zone humide de $. faliax et de S. dreyfussi. Ces espèces,
+                    habituellement sahariennes, sont signalées pour la première fois dans cette
+                    région, mais ont déjà été retrouvées dans d'autres régions du nord du Maghreb
+                    (4).</p>
+                <p>CONCLUSION La densité des Phlébotomes est élevée dans la région de Ténès. Elle
+                    est significativement plus élevée autour des abris d'animaux domestiques que
+                    dans les habitations humaines.</p>
+                <p>67 Huit espèces de Phlébotomes sont retrouvées. Cinq appartiennent au genre
+                    Phlebotomus et sont connues comme vectrices de leishmaniose. Elles sont capables
+                    d'assurer la transmission des différentes formes de la leishmaniose, la forme
+                    viscérale dont le réservoir animal constitué par le chien est particulièrement
+                    abondant et les formes cutanées, dont celle à L. infantum qui a motivé ce
+                    travail.</p>
+                <p>P. perfiliewi est le Phlébotome le plus souvent rencontré dans la région, mais
+                    une seule femelle est trouvée naturellement infesté par Leishmania infantum
+                    MON-24. Au cours de ce travail, le phototropisme de cet insecte est mis en
+                    évidence.</p>
+                <p>La présence des espèces Sergentomyia fallax et S. dreyfussi, habituellement
+                    sahariennes, est rapportée pour la première fois dans la région.</p>
+                <p>Tableau 3 : Répartition des captures par espèce et par type de piège utilisé
+                    espèce CDC pièges adhésifs TOTAL P. perfiliewi | 5778 8 5786 P. perniciosus 1383
+                    807 2190 P. longicuspis 957 7 964 P. papatasi 579 272 851 P. ariasi l 0 Ï S.
+                    minuta 98 383 481 S. fallax 0 123 123 S. dreyfussi 5 0 5 TOTAL 8801 1600 10401
+                    68 Tableau 4 : Répartition des captures effectuées par CDC à Sidi Akacha +
+                    Bouzghaïa site espèces mâles femelles total habitations P. perfiliewi 1124 552
+                    1676 humaines P. perniciosus 622 276 898 P. longicuspis 223 187 410 P. papatasi
+                    144 188 332 S. minuta 16 19 35 S. dreyfussi 0 2 2 S/total 1 2129 1224 3353 abris
+                    P. perfiliewi 2395 1706 4101 d'animaux P. perniciosus 162 170 332 domestiques |
+                    P. longicuspis 312 212 524 (bergeries, P. papatasi 65 175 240 P. ariasi 0 1 1
+                    niches de S. minuta 9 23 32 chiens S. dreyfussi 2 1 3 S/total 2945 2288 5233
+                    TOTAL | | 5074 | 3512 | 8586 | MER MÉDITERRANÉE DA \ u | \ ALGERIE / / \ / nl \
+                    [AROC / \ Carte du nord-algérien : Situation géographique du foyer de Ténès 69
+                    RÉFÉRENCES 1 - Abonnenc E. Les Phlébotomes de la région éthiopienne. Ed ORSTOM,
+                    1972 (France).</p>
+                <p>2 - Addadi K., Dedet J. P. Epidémiologie des leishmaniose en Algérie. 6. -
+                    recensement des cas de leishmaniose viscérale infantile entre 1965 et 1974.
+                    Bull.</p>
+                <p>Soc. Path. Exot., 1976, 69, 68-75.</p>
+                <p>3 - Adler S. &amp; Theodor ©. Infection of Phlebotomus perniciosus Newstead with
+                    Leishmania infantum. Nature, 1928, 122, 437.</p>
+                <p>4 - Bailly-Choumara H., Abonnenc E. &amp; Pastre J. Contribution à l'étude des
+                    Phlébotomes du Maroc (Diptera, Psychodidea). Données faunistiques et
+                    écologiques. Cah. ORSTOM, sér. Ent. méd. Parasitol., 1971, IX, 431-460.</p>
+                <p>5 - Belazzoug S., Lanotte G., Maazoun R., Pratlong F. &amp; Rioux J.-A. Un
+                    nouveau variant enzymatique de Leishmania infantum Nicolle, 1908, Agent de la
+                    leishmaniose cutanée du nord de l'Algérie. Ann. Parasitol. Hum. Comp.. 1985, 60,
+                    1-3.</p>
+                <p>6 - Ben Ismail R., Gramiccia M., Gradoni L., Helal H. &amp; Ben Rachid M.S.</p>
+                <p>Isolation of Leishmania major from Phlebotomus papatasi in Tunisia. Trans.</p>
+                <p>Roy. Soc. Trp. Med. Hyg., 1987, 81, 749.</p>
+                <p>7 - Bettini S., Gramiccia M., Gradoni L. &amp; Atzenl M.C. Leishmaniasis in
+                    Sardinia: Il. Natural infection of Phlebotomus perniciosus Newstead, 1911, by
+                    Leishmania infantum Nicolle, 1908, in the province of Cagliari. Trans. Roy.
+                    Soc.</p>
+                <p>trop. Med. Hyg., 1986, 80, 458-459.</p>
+                <p>8 - Harrat Z., Addadi K., Belkaïd M. &amp; Tabet-Derraz O. La leishmaniose
+                    viscérale en Algérie. Recensement des cas de leishmaniose viscérale (période
+                    1985-1990). Bull. Soc. Path. Exot., 1992, 85, 296-301.</p>
+                <p>9 - Izri M.A., Belazzoug $S., Boudjebla Y., Dereure J., Pratlong F., Delalbre-
+                    Belmonte A., Rioux J.A. Leishmania infantum MON 1, isolée de Phlebotomus.</p>
+                <p>perniciosus en Kabylie, Algérie. Ann. Parasitol. Hum. Comp., 1990. 65, 151.</p>
+                <p>10 - Izri M.A., Belazzoug S., Pratlong F., Rioux J.A. Isolement de Leishmania
+                    major MON 25 de Phlebotomus papatasi à Biskra, Algérie Ann. Parasitol. Hum.</p>
+                <p>Comp., 1992, 67, 31-32.</p>
+                <p>70 11 - Izri M.A., Marty P., Rahal A. Lelièvre A., Ozon C., Baldelli G., Presiozo
+                    J., Haas P. et Le Fichoux Y. Phlebotomus perniciosus naturellement infesté par
+                    des promastigotes à Nice (France). Bull. Soc. Path. Exot., 1992, 85,
+                    385-387.</p>
+                <p>12 - Izri M.A., Belazzoug S. Phlebotomus perfiliewi naturally infected with
+                    dermotropic Leishmania infantum in Tenes (Algeria). Trans. Roy. Soc. Trop.</p>
+                <p>Med. Hyg., 1993, 87, 399.</p>
+                <p>13 - izri M.A., Marty P., Fauran P., Le Fichoux Y. &amp; Rousset J.J. Presumed
+                    vectors of leishmaniasis in the Principality of Monaco. Trans. R. Soc. Trop.
+                    Med.</p>
+                <p>Hyg.. 1996, 90, 114.</p>
+                <p>14 - Léger N., Pesson B., Madulo-Leblond G. &amp; Abonnenc E. Sur la
+                    différenciation des femelles du genre Laroussius Nitzulescu, 1931 (Diptera
+                    Phlebotomidae) de la région méditerranéenne. Ann. Parasitol. Hum. Comp.</p>
+                <p>1983, 58, 611-623.</p>
+                <p>15 - Lewis D.J. À taxonomic review of the genus Phlebotomus (Diptera:
+                    Psychodidae) Bull. Br. Mus. na. Hist. (Ent), 1982, 45, 121-209.</p>
+                <p>16 - Maroli M., Gramiccia M. &amp; Gradoni L. Natural infection of Phlebotomus
+                    perfiliewi with Leishmania infantum in a cutaneous leishmaniasis focus of the
+                    Abruzzi region, Italy. Trans. Roy. Soc. Trop. Med. Hyg. 1987, 81, 596-598.</p>
+                <p>17 - Maroli M. Bigliocchi F., Khoury C. I flebotomi in Italia : osservazioni
+                    sulla distribuzione e sui metodi di campionamento. Parassitologia, 1994, 36,
+                    251-264.</p>
+                <p>18 - Parrot L. Notes sur les Phlébotomes. XV. - Présence en Algérie de
+                    Phlebotomus perfiliewi Parrot, 1930. Arch. Instit. Pasteur d'Algérie, 1935, 13,
+                    257-258.</p>
+                <p>19 - Parrot L. Notes sur les phlébotomes. XX. Sur le Phlebotomus langeroni var.
+                    longicuspis Nitzulescu, 1930. Arch. Inst. Pasteur Algérie, 1936, 14,
+                    136-143.</p>
+                <p>20 - Parrot L., Donatien A. &amp; Plantureux E. Sur l'infection naturelle des
+                    Phlébotomes par la leishmaniose générale du chien et de l'homme en Algérie.</p>
+                <p>Arch. Inst. Pasteur Alg., 1941a, 14, 209-218.</p>
+                <p>21 - Rioux J.A., Croset H., Léger N. &amp; Rosin G. Présence au Maroc de
+                    Phlebotomus perfiliewi Parrot, 1930. Annal. Parasitol., 1977, 52, 377-380.</p>
+                <p>71 22 - Rioux J.A., Guilvard E., Dereure J., Lanotte G., Denial M., Pratlong F.,
+                    Serres E. &amp; Belmonte A. Infestation naturelle de P. papatasi (Scopoli, 1786)
+                    par Leishmania major MON-25. À propos de 28 souches isolées dans un foyer du Sud
+                    marocain. In: Leishmania. Taxonomie et Phylogenèse. Applications
+                    écoépidémiologiques. J.A. Rioux éd., IMEEE, Montpellier, 1986, 471-480.</p>
+                <p>23 - Sergent Ed. Première note sur les phlébotomes algériens. Bull. Soc.
+                    Path.</p>
+                <p>Exot., 1914, 7, 660-662.</p>
+                <p>24 - Sergent Ed. &amp; Et., Parrot L., Donatien A. &amp; Béguet M. Transmission
+                    du clou de Biskra par le phlébotome (Phlebotomus papatasi Scop.). C. R. Acad.
+                    Sc..</p>
+                <p>1921, 173, 1030-103.</p>
+                <p>25 - Zivkivic V. &amp; miscevic Z. Fluctuations des populations de phlébotomes
+                    (Diptera, Psychodidae) dans les habitations humaines et les abris des animaux
+                    domestiques dans deux villages de la région de Nis. Ekologija, 1972, 7,
+                    197-206.</p>
+                <p>NÉCROLOGIE JEAN-MARIE DOBY (1925-1999) C’est à Richelieu, en Indre-et-Loire, dans
+                    l’annexe du laboratoire de parasitologie de Paris que, moniteur débutant, je fis
+                    la connaissance de ce jeune professeur d’origine nordique —il était né le 2
+                    avril 1925 à Wattignies et élève du Professeur Coutelen-, devenu breton depuis
+                    sa nomination en 1960 à la Faculté mixte de Médecine et de Pharmacie de Rennes.
+                    Il ne passait pas inaperçu : sa voix de stentor, son bel organe comme il se
+                    plaisait à le dire, son activité débordante, ses centres d'intérêt multiples
+                    entraînaient tous ceux qui acceptaient de vivre passionnément. Son
+                    minilaboratoire en camionnette permettait de pratiquer des études de terrain
+                    mais ses connaissances historiques nous faisaient par ailleurs recueillir des
+                    nucleus du néolithique au bord des champs. Il vivait pleinement la connaissance
+                    en général et la parasitologie en particulier; de la protozoologie à
+                    l’entomologie en passant par la mycologie ou l'helminthologie, tout était à
+                    voir, à étudier. Les journées étaient toujours trop courtes : les vacances
+                    étaient prétextes à des missions plus lointaines et il avait un tel charisme que
+                    rien ne semblait impossible.</p>
+                <p>Quand, en 1987, il fut nommé professeur émérite, il ne cessa pas pour autant ses
+                    multiples activités couronnées par la présidence du Comité d'organisation
+                    d'ICOPA VII à Paris. Il serait trop long d’énumérer ses titres honorifiques
+                    nationaux et internationaux, ses récompenses, ses publications — plus de 300- et
+                    nous laissons à ses fidèles élèves bretons le soin de le faire.</p>
+                <p>Toujours prêt à rendre service il accepta la vice-présidence de l’Université de
+                    Rennes de 1979 à 1981, avec la responsabilité du Campus Universitaire local.</p>
+                <p>Quand il a dû laisser, pour des raisons personnelles, la rédaction du Bulletin de
+                    la Société Française de Parasitologie, qu’il maintenait contre vents et marées,
+                    nous l’avons vu pour la dernière fois, toujours actif, toujours passionné.</p>
+                <p>toujours passionnant, secondé de sa discrète épouse. Il était tout heureux de
+                    nous présenter sa collection de cucurbitacées car quand on est le professeur
+                    Doby.</p>
+                <p>même si, comme Candide, on profite de la retraite pour cultiver son jardin, on
+                    s’ouvre à d’autres recherches.</p>
+                <p>Ses quatre livres sur nos Compagnons de toujours sont des petits chefs- d'œuvre
+                    de connaissance scientifique et de culture. {1 faut d’ailleurs souligner que le
+                    professeur Doby était en outre un historien de la médecine comme en témoignent
+                    des publications diverses en France ou à l'étranger, au Canada par exemple.</p>
+                <p>Il avait créé une exposition itinérante qui lui donnait l'occasion de partager
+                    ses passions à l’aide des diapositives qu'il présentait lors des conférences
+                    données dans les villes qui l’invitaient. Sa disparition a, là aussi, laissé un
+                    grand vide.</p>
+                <p>Avec le Professeur Doby part une image de plus en plus rare d’un homme de science
+                    véritable doublé d’un homme de cœur et de culture. Notre peine s’associe à celle
+                    de ceux qu’il aimait et qui l’aimaient.</p>
+                <p>Pr J.-J. ROUSSET RER | Parmi les nombreuses photographies du Professeur J.-M.
+                    Doby, n'est-ce pas celle-ci qui reflète le mieux sa personnalité, cachant sa
+                    convivialité et sa gentillesse derrière une moustache agressive ? On le voit ici
+                    avec, de gauche à droite : les professeurs A. Aeschlimann, G. Luffau, R. Houin,
+                    A. Bédossa et, à sa gauche, J.-A. Rioux.</p>
+                <p>74 LUCIEN BRUMPT (1910 — 1999) Le professeur Lucien Brumpt a achevé sa vie le 11
+                    avril 1999.</p>
+                <p>D'importants problèmes de santé, ne l'empêchèrent cependant pas de mener jusqu'à
+                    la fin une vie scientifique et sociale active, en travaillant en particulier sur
+                    les ankylostomidés.</p>
+                <p>L. Brumpt est né à Paris en 1910. Il fut nommé interne des hôpitaux de Paris au
+                    concours de 1934 et passa sa thèse de doctorat en médecine en 1939 sur la
+                    ponction médullaire dans les maladies parasitaires. Il fut reçu professeur
+                    agrégé de parasitologie en 1946, et nommé professeur dans cette discipline à la
+                    faculté de médecine de Paris en 1962.</p>
+                <p>Ses importantes responsabilités étaient nombreuses. Nous citerons entre autres,
+                    celle d'expert à l'Organisation Mondiale de la Santé pour les maladies
+                    parasitaires : il fut chargé de plusieurs missions sur l'enseignement médical
+                    dans le Sud-Est Asiatique et en Afrique. Il était également Médecin Consultant à
+                    Air France.</p>
+                <p>Il faisait partie de 27 sociétés savantes françaises ou étrangères, et fut le
+                    président de plusieurs d'entre elles notamment de celles de Pathologie Exotique,
+                    d'Hématologie et de Biologie Clinique.</p>
+                <p>La double carrière de Lucien Brumpt, à la fois clinique c'est à dire au lit du
+                    malade et de diagnostic biologique en particulier au microscope, se retrouve
+                    dans ses différents travaux.</p>
+                <p>Lucien Brumpt consacra à la parasitologie la plus grande partie de sa vie.</p>
+                <p>En protozoologie il s'intéressa à la transmission congénitale de la leishmaniose.
+                    Il apporta de nombreuses données à la lutte contre le fléau paludéen : paludisme
+                    autochtone avec l'étude des derniers cas observés en France (Corse, épidémie de
+                    la Croix de Berny), transmission par la seringue (1949), description des
+                    gamontes (1952). L'amibiase avec ÆEntamoeba dispar décrit en 1925, fut l'objet
+                    de nombreuses publications épidémiologiques et thérapeutiques.</p>
+                <p>Parmi les helminthoses, ce sont surtout les nématodes auxquels Lucien Brumpt se
+                    consacra. D'abord en 1940 avec la mise au point du traitement des polyglobulies
+                    par l'ankylostomose provoquée, méthode adaptable à l'importance de la maladie,
+                    simple à mettre en œuvre, que l'on pouvait qualifier d'écologique et qui se
+                    développa considérablement. Ensuite il y eut l'étude expérimentale par
+                    auto-infestation de l'ankylostomose à Ancylostoma duodenale (6 auto-
+                    infestations), la nécatorose (12 auto-infestations), et la strongyloïdose (6
+                    auto- infestations) qui lui permirent de préciser pour ces nématodoses de
+                    nombreux 75 points d'ordre clinique, épidémiologique et immunitaire. Il
+                    introduisit en 1947 en France le test de la cellophane adhésive pour la
+                    recherche des œufs d'oxyures.</p>
+                <p>Concernant les filarioses, il observa en 1947 le premier cas de Mansonella
+                    ozzardi à la Guadeloupe. Il étudia l'encéphalite thérapeutique de la loase,
+                    conséquence de la lyse des microfilaires, qu'il prévint par les exsanguino-
+                    transfusions. L. Brumpt travailla également sur des problèmes concernant les
+                    cestodes, les douves et les bilharzies.</p>
+                <p>En mycologie il étudia l'épidémiologie des teignes et leur examen cytologique
+                    (1952). En 1961, en collaboration avec E. Drouhet il explora un cas de
+                    cryptococcose, cutanée, méningée et viscérale dont la gravité était en relation
+                    avec une réticulose maligne associée. Lucien Brumpt fut pour la mycologie à
+                    bonne école, celle de son père d'abord, Emile Brumpt, qui s'intéressa en
+                    particulier aux mycétomes, décrivant plusieurs espèces à l'origine de ces
+                    lésions, en particulier Nocardia somaliensis, et celle de Langeron, un des plus
+                    brillants mycologues français, qui travaillait dans le laboratoire de son
+                    père.</p>
+                <p>Il étudia des maladies bactériennes, principalement celles transmises par des
+                    vecteurs comme la fièvre récurrente des Hauts Plateaux mexicains (1939).</p>
+                <p>Il mit au point l'hémodiagnostic rapide, technique d'hémagglutination utilisant
+                    les hématies du malade comme substrat et le bleu de méthylène comme colorant. I]
+                    l'appliqua à différentes infections bactériennes : aux fièvres typhiques et
+                    paratyphiques, aux brucelloses et au typhus dès 1940. Cette méthode allait
+                    recevoir une grande application pratique lors de la libération des camps de
+                    déportés, en particulier à Dachau où il est arrivé le 29 avril 1945, 48 heures
+                    après la libération par les troupes américaines. Cela lui permit d'assurer un
+                    tri sanitaire des déportés permettant une libération rapide de certains et une
+                    mise en quarantaine pour d'autres, évitant ainsi la transmission par le pou de
+                    Rickettsia prowazeki.</p>
+                <p>En hématologie, discipline sœur de la parasitologie, où s'illustrèrent d'ailleurs
+                    plusieurs parasitologues, tels J. Ruffié et J. Ranque, l'étude de l'éosinophilie
+                    dans l'ankylostomose thérapeutique des polyglobulies fut un important apport à
+                    la description de ce qui allait aboutir à la très connue courbe de Lavier.</p>
+                <p>Dès 1942, il créa un des premiers enseignements pratique, si ce n'est le premier,
+                    de perfectionnement de cytologie sanguine. Ce cours après avoir subi quelques
+                    adaptations au fil des ans, existe toujours. En collaboration avec P.M.</p>
+                <p>de Traverse il travailla sur l'hémoglobine E et la thalassémie dans le Sud-Est
+                    asiatique, en particulier au Cambodge.</p>
+                <p>76 Son œuvre scientifique fut donc très vaste. Elle était marquée d'une honnêteté
+                    scrupuleuse : il refusait souvent d'être associé à des publications faites dans
+                    son laboratoire. Sur le plan financier, il envisageait de redoter le prix Emile
+                    Brumpt auquel il tenait beaucoup. Son désintéressement se manifesta aussi lors
+                    de son départ à la retraite, car il laissa entières toutes les collections
+                    constituées par ses prédécesseurs, et par son père en particulier : travaux et
+                    publications scientifiques, médailles, photos, objets exotiques Lucien Brumpt
+                    était une personne d'une grande courtoisie et d'une extrême amabilité. Son
+                    contact humain faisait de lui un homme que tout le monde aimait rencontrer,
+                    écouter, en particulier quand il parlait de la parasitologie qu'il connaissait
+                    si bien.</p>
+                <p>J.C. PETITHORY 77 ANALYSE D’OUVRAGE TRAITE DE ZOOLOGIE Tome VII, fasc. III A
+                    Crustacés Péracarides, ouvrage collectif (sous la direction de J. Forest),
+                    Mémoires Institut Océanographique Monaco, N° 19, 1999, 464 p. 431 figs P. GRASSÉ
+                    Devant la défection des éditons Masson, c'est dans les Mémoires de l'Institut
+                    Océanographique de Monaco que paraît ce volume du monumental Traité de Zoologie
+                    dirigé par le regretté Prof. P. Grassé (1895-1985).</p>
+                <p>Celui-ci traitant des Crustacés Péracarides constitue une importante contribution
+                    à l'étude de la parasitologie animale avec les chapitres consacrés aux ordres
+                    des Amphipodes et des Isopodes chez lesquels se rencontrent de nombreuses
+                    espèces commensales ou parasites.</p>
+                <p>Notons par exemple les Cyamidæ ou "poux de baleines" vivant en ectoparasites chez
+                    les Cétacés tandis que les représentants du sous-ordre des Hyperiidea sont
+                    parasites de Tuniciers ou de méduses.</p>
+                <p>Mais c'est dans le sous-ordre d'Isopodes des Épicarides étudiés par JP. Trilles
+                    (p. 279-352) que se rencontrent les espèces endoparasites considérablement
+                    déformées par la vie parasitaire avec perte de tous les appendices.</p>
+                <p>Tel est le cas des Bopyriens, hôtes de la cavité branchiale de Décapodes chez
+                    lesquels ils peuvent en outre entraîner une castration parasitaire comparable à
+                    celle due aux Rhizocéphales (sacculines) mais sans modification des caractères
+                    sexuels secondaires.</p>
+                <p>Ce groupe inclut les familles des Bopyridæ, Dajidæ, Entoniscidæ.</p>
+                <p>Les Cryptonisciens, autre section des Épicarides présentent la même régression
+                    morphologique chez les femelles réduites à des sacs à embryons.</p>
+                <p>Ils sont parasites de Cirripèdes (balanes), Isopodes et Décapodes.</p>
+                <p>Ajoutons que ce chapitre est agrémenté de 46 excellentes illustrations et d'une
+                    importante bibliographie (p. 348-352).</p>
+                <p>Cet ouvrage sera donc utilement consulté par les parasitologistes intéressés par
+                    le parasitisme animal et il convient d'en féliciter très vivement le Professeur
+                    J. Forest et ses nombreux collaborateurs français et étrangers.</p>
+                <p>Jean Théodoridès 78 TABLE DES MATIÈRES Lettre du président de la Société
+                    Française de Parasitologie.......… Parasitologie et Histoire A.CABANNES, G.
+                    CLIQUET &amp; H. DUDAY Étude paléoparasitologique du site Aven de la boucle de
+                    Corconne (Gard, France) J. THÉODORIDES Un parasitologiste alsacien méconnu Jean
+                    Kuhn Protozoologie J.C. PETITHORY &amp; F. ARDOUIN Coloration des cristalloïdes
+                    des kystes d’amibes par la Méthode de P. Sargeaunt au vert
+                    nalachite..................</p>
+                <p>P. SOLANO, S. DE LA ROCQUE, J.M. REIFENBERG, D. CUISANCE &amp; G. DUVALLET
+                    Biodiversité des trypanosomes pathogènes pour le bétail et importance ei,
+                    épidémiologie...............................</p>
+                <p>Helminthologie B. YACOUBI, A. ZEKHNINI, G. DREYFUSS, D. RONDELAUD &amp; A.
+                    MOUKRIM Les perturbations du rythme circadien lors des émissions Cercariennes de
+                    Schistosoma haematobium.… Arthropodologie M. PRINCIPATO, R. MELIDONE &amp; J.B.
+                    NYILIGIRA Observations sur la diffusion de Glycyphagus domesticus (Acari :
+                    Glycyphagidae) dans les habitations................</p>
+                <p>M.A. IZRI, S. BELAZZOUG, J.P. ALBERTINI &amp; J.J.</p>
+                <p>ROUSSET Les Phlébotomes de Ténès (Algérie). Résultats d’une enquête
+                    entomo-épidémiologique............................</p>
+                <p>Nécrologie pm ee J.M. DOBY.................... Fissepess HT dures RS ELITES L.
+                    BRUMPT...............l.{g ps. |.</p>
+                <p>Analyse d’ouvrage................... EEE 32 43 59 73 75 78</p>
+            </div>
+        </body>
+    </text>
+</TEI>
