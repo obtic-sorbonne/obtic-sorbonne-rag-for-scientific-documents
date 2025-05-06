@@ -41,7 +41,10 @@ st.markdown("#### Projet préparé par l'équipe ObTIC.")
 # Fixed system prompt - not modifiable by users
 SYSTEM_PROMPT = """
 Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+
+IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information.
 """
+
 
 # Default query prompt - can be modified by users
 DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :  
@@ -62,6 +65,7 @@ DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :
 [R] **Règles de restitution** :  
 - Titres en **gras**  
 - Informations citées textuellement depuis les documents  
+- Pour chaque information importante, indiquer explicitement le numéro de la source (ex: Source 1, Source 2, etc.)
 - En l'absence d'information : écrire _"Les documents fournis ne contiennent pas cette information."_  
 - Chaque information doit comporter un **niveau de confiance** : Élevé / Moyen / Faible  
 - Chiffres présentés de manière claire et lisible  
@@ -376,6 +380,15 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             st.error(f"Error with batch processing: {str(batch_e)}")
             return None
 
+def prepare_sources_for_llm(source_docs):
+    """Create a mapping of sources with numbers to include in the prompt"""
+    source_mapping = []
+    for i, doc in enumerate(source_docs):
+        doc_title = doc.metadata.get('title', 'Document sans titre')
+        source_mapping.append(f"Source {i+1}: {doc_title}")
+    return "\n".join(source_mapping)
+
+
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
     
@@ -387,7 +400,26 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         # Construct COSTAR-based prompt
         base_query_template = st.session_state.query_prompt
         
-        # Enhance the query with COSTAR components
+        # First, retrieve relevant documents
+        relevant_docs = retriever.get_relevant_documents(query)
+        
+        # Create a source mapping to include in the prompt
+        source_mapping = []
+        for i, doc in enumerate(relevant_docs):
+            doc_title = doc.metadata.get('title', 'Document sans titre')
+            doc_date = doc.metadata.get('date', 'Date inconnue')
+            source_mapping.append(f"Source {i+1}: {doc_title} | {doc_date}")
+        
+        source_references = "\n".join(source_mapping)
+        
+        # Update system prompt to emphasize source citations
+        enhanced_system_prompt = """
+        Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+        
+        IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information.
+        """
+        
+        # Enhance the query with COSTAR components and source references
         costar_query = {
             "query": query,
             "context": "Analyse des documents scientifiques historiques en français.",
@@ -395,11 +427,22 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
             "style": "Factuel, précis et structuré avec formatage markdown.",
             "tone": "Académique et objectif.",
             "audience": "Chercheurs et historiens travaillant sur des documents scientifiques.",
-            "response_format": "Structure en sections avec citations exactes et niveau de confiance."
+            "response_format": "Structure en sections avec citations exactes, niveau de confiance et numéro de source explicite."
         }
         
         # Format the query using the template
         query_prompt_template = base_query_template
+        
+        # Add explicit instruction to reference source numbers
+        additional_instructions = """
+        INSTRUCTIONS IMPORTANTES: 
+        - Pour CHAQUE fait ou information mentionné dans ta réponse, indique EXPLICITEMENT le numéro de la source correspondante (ex: Source 1, Source 3) 
+        - Cite les sources même pour les informations de confiance élevée
+        - Fais référence aux sources numérotées ci-dessous dans chaque section de ta réponse
+        
+        SOURCES DISPONIBLES:
+        {}
+        """.format(source_references)
         
         # For OpenAI model
         if model_choice == "openrouter":
@@ -416,7 +459,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 openai_api_base="https://openrouter.ai/api/v1",
                 model_kwargs={
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT}
+                        {"role": "system", "content": enhanced_system_prompt}
                     ]
                 },
                 default_headers={
@@ -491,6 +534,9 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
             response_format=costar_query["response_format"]
         )
         
+        # Add the source references and additional instructions
+        enh_query = enh_query + "\n\n" + additional_instructions
+        
         # Generate response
         result = qa_chain({"query": enh_query})
         
@@ -514,7 +560,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
     except Exception as e:
         progress_container.error(f"Erreur pendant la génération: {str(e)}")
         return None, None
-
+        
 def process_documents(hf_api_key, use_uploaded_only):
     if not hf_api_key:
         st.warning("Please provide the Hugging Face API key.")
