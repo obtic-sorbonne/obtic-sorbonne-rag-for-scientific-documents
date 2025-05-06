@@ -1,81 +1,84 @@
-# SimpleRAG - Application de Retrieval Augmented Generation
+# Système de Retrieval Augmented Generation (RAG) pour Documents Scientifiques
 
-Cette application Streamlit implémente un système de Retrieval Augmented Generation (RAG) permettant d'interroger des documents scientifiques au format XML-TEI. L'application utilise au choix plusieurs LLMs via l'API Hugging Face, l'API OpenAI ou l'API de OpenRouter.
+## Vue d'ensemble
 
-## 🌟 Fonctionnalités
+Ce projet implémente un système de RAG (Retrieval Augmented Generation) spécialisé pour l'analyse de documents scientifiques historiques au format XML-TEI. Le système permet d'interroger un corpus de documents en français et de générer des réponses précises et sourcées en utilisant des modèles de langage de pointe.
 
-- **Interface conversationnelle** pour poser des questions sur vos documents
-- **Support de multiples LLMs** 
-- **Traitement de corpus personnalisé** via l'upload de fichiers XML-TEI
-- **Affichage des sources** pour chaque réponse avec métadonnées détaillées
-- **Personnalisation avancée** du prompt système pour ajuster les réponses
-- **Visualisation des extraits** de texte pertinents pour chaque réponse
+## Architecture du Pipeline
 
-## 📋 Prérequis pour le déploiement
+L'architecture actuelle est principalement de type **RAG Naïf** avec des éléments de **Retrieve-and-Rerank**. Voici les composants principaux :
 
-- Compte Streamlit (même gratuit)
-- Compte Hugging Face (pour l'API key)
-- Compte OpenAI (optionnel)
-- Compte OpenRouter (optionnel)
+### 1. Traitement des Documents
 
-## 🚀 Lancement de l'application
+- **Chargement des documents** : Les fichiers XML-TEI sont chargés depuis les emplacements par défaut ou via téléchargement utilisateur
+- **Parsing XML-TEI** : Extraction du texte et des métadonnées (titre, date, personnes mentionnées)
+- **Découpage en fragments** : Utilisation de `RecursiveCharacterTextSplitter` avec une taille de fragment de 2500 caractères et un chevauchement de 800 caractères
 
-L'application actuelle est exécutée directement via le service Streamlit, qui prend en entrée le répertoire GitHub et construit l'application sur leur infrastructure cloud, la rendant immédiatement utilisable. Pour cela, il est nécessaire de disposer d'un compte Streamlit et de créer un projet. Les instructions sur leur site sont claires et faciles à suivre.
+### 2. Création des Embeddings
 
-## 📊 Structure du projet
+Le système propose deux options pour les embeddings :
 
-```
-simple-rag/
-├── app.py              # Application Streamlit principale
-├── requirements.txt    # Dépendances Python
-├── README.md           # Documentation (ce fichier)
-├── .gitignore          # Fichiers ignorés par Git
-└── data/               # Répertoire pour les documents à traiter par défaut
-```
+- **Traitement en temps réel** : Utilisation du modèle "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+- **Embeddings pré-calculés** : Option d'utiliser des embeddings déjà générés avec le modèle "instruct-e5"
 
-## 📝 Guide d'utilisation
+### 3. Mécanisme de Récupération (Retrieval)
 
-### Configurer l'application
-1. Dans la barre latérale, entrez votre clé API Hugging Face (obligatoire)
-2. Si vous souhaitez utiliser GPT-3.5, entrez également votre clé API OpenAI
-3. Choisissez le modèle LLM à utiliser parmi les 4 options disponibles
+- **Base de données vectorielle** : Utilisation de FAISS pour stocker et récupérer les fragments de documents
+- **Retriever MMR** : Implémentation de Maximum Marginal Relevance pour équilibrer pertinence et diversité
+  ```python
+  retriever = vectordb.as_retriever(
+      search_type="mmr", 
+      search_kwargs={'k': 5, 'fetch_k': 10}
+  )
+  ```
 
-### Ajouter des documents
-1. Téléchargez vos fichiers XML-TEI via le sélecteur de fichiers dans la barre latérale
-2. Cochez "Utiliser uniquement les fichiers téléchargés" si vous ne voulez pas utiliser le corpus par défaut
-3. Cliquez sur "Traiter les documents" pour indexer votre corpus (cela peut prendre un peu du temps)
+### 4. Génération de Réponses
 
-### Interroger votre corpus
-1. Saisissez votre question dans le champ de texte en bas de l'écran
-2. Consultez la réponse générée et les sources utilisées
-3. Cliquez sur les sources pour voir les extraits exacts utilisés pour la réponse
+- **Modèles de langage supportés** :
+  
+Via HuggingFace :
 
-### Personnaliser les réponses
-Pour ajuster le style ou le comportement des réponses, utilisez l'option "Options avancées" pour modifier le prompt système.
+  - Llama 3 (Meta-Llama-3-8B-Instruct)
+  - Mistral (Mistral-7B-Instruct-v0.2)
+  - Phi (Phi-4-mini)
+    
+Via OpenRouter : 
 
-## 🧠 Spécifications techniques
+  - Llama 4 Maverick
+    
+- **Framework de prompting COSTAR** :
 
-### LLMs utilisés
-- **Llama** : Meta-Llama-3-8B-Instruct via l'API Hugging Face
-- **Llama 4 Maverick** :  via l'API OpenRouter
-- **GPT-4o-mini** : via l'API OpenRouter
-- **Mistral Small** : Mistral-Small-24B-Instruct-2501 via l'API Hugging Face  
-- **Phi-4-mini** : Phi-4-mini-instruct via l'API Hugging Face
-- **Température** : 0.4 
-- **Tokens maximum** : 512
-- **Top_p** : 0.95 (permet une diversité contrôlée dans les réponses)
+## Fonctionnalités Principales
 
-### Traitement des documents
-- **Technique de chunking** : [RecursiveCharacterTextSplitter](https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/recursive_text_splitter/) de Langchain
-- **Taille des chunks** : 1000 caractères
-- **Chevauchement** : 100 caractères (assure une continuité entre les chunks)
-- **Extraction des métadonnées** : titre, date, personnes mentionnées
-- **Organisation** : métadonnées en en-tête pour contextualiser les chunks
+1. **Interface utilisateur Streamlit** avec configuration dans la barre latérale
+2. **Options de traitement flexibles** :
+   - Utilisation d'embeddings pré-calculés
+   - Traitement en temps réel des documents
+3. **Personnalisation du prompt** via le cadre COSTAR
+4. **Visualisation des sources** utilisées pour générer la réponse et vérifier si on y peut faire confience
+5. **Support multilingue** optimisé pour les documents scientifiques en français
+6. **Gestion des erreurs OCR** avec niveaux de confiance
 
-### Embeddings et recherche
-- **Modèle d'embedding** : [sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2) (optimisé pour le français)
-- **Base de données vectorielle** : FAISS (rapide et efficace pour la recherche de similarité)
-- **Configuration du retriever** : k=3 (récupère les 3 documents les plus pertinents)
+## Utilisation
+
+1. Configurer les clés API dans la barre latérale (Hugging Face, OpenRouter)
+2. Choisir entre embeddings pré-calculés ou traitement en temps réel
+3. Sélectionner un modèle LLM
+4. Télécharger des documents XML-TEI ou charger les embeddings
+5. Traiter les documents ou charger les embeddings
+6. Poser des questions dans l'interface de chat
+
+## Structure du Système
+
+Le système est organisé autour des fonctions principales suivantes :
+- `load_documents` : Chargement des documents XML-TEI
+- `parse_xmltei_document` : Extraction du contenu et des métadonnées
+- `split_documents` : Découpage en fragments pour le traitement
+- `embeddings_on_local_vectordb` : Création des embeddings et de la base vectorielle
+- `load_precomputed_embeddings` : Chargement des embeddings pré-calculés
+- `query_llm` : Interrogation du modèle de langage avec la requête utilisateur
+- `process_documents` : Orchestration du processus de traitement
+
 
 ## 🔄 Format des fichiers XML-TEI supportés
 
@@ -94,3 +97,4 @@ Ce projet est sous une licence open source MIT.
 Le projet est préparé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur en Traitement Automatique des Langues, équipe ObTIC, Sorbonne Université.
 
 Pour découvrir d'autres projets de l'équipe ObTIC ainsi que les formations proposées, consultez le site : https://obtic.sorbonne-universite.fr/
+
