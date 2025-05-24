@@ -7,7 +7,8 @@ import pickle
 
 import streamlit as st
 from langchain.chains import RetrievalQA
-from langchain_community.embeddings import HuggingFaceEmbeddings # Sticking to this due to constraints
+from langchain_huggingface import HuggingFaceEmbeddings
+
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import HuggingFaceHub
 from langchain_community.document_loaders import DirectoryLoader # Included as per original script
