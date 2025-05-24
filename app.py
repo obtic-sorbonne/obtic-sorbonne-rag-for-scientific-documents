@@ -6,19 +6,19 @@ from pathlib import Path
 import pickle
 
 import streamlit as st
-from langchain.chains import RetrievalQA  # Keep this original import
+from langchain.chains import RetrievalQA # Keep this original import
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import HuggingFaceHub
-from langchain_community.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter  # Reverting to original
+# from langchain_community.document_loaders import DirectoryLoader # Not used in the provided code snippet relevant to the fix, can be kept if used elsewhere
+from langchain.text_splitter import RecursiveCharacterTextSplitter # Reverting to original
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
 # Defining paths 
 
-os.environ["TRANSFORMERS_OFFLINE"] = "0"  # Make sure offline mode is disabled
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"  # Use HF mirror
+os.environ["TRANSFORMERS_OFFLINE"] = "0" # Make sure offline mode is disabled
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com" # Use HF mirror
 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('vector_store')
@@ -63,8 +63,7 @@ DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :
 [A] **Audience** : Chercheurs et historien·ne·s, en quête d'informations fiables, vérifiables et bien sourcées.
 
 [R] **Règles de restitution** :  
-- Titres en **gras**  
-- Informations citées textuellement depuis les documents  
+- Titres en **gras** - Informations citées textuellement depuis les documents  
 - Pour chaque information importante, indiquer explicitement le numéro de la source (ex: Source 1, Source 2, etc.)
 - En l'absence d'information : écrire _"Les documents fournis ne contiennent pas cette information."_  
 - Chaque information doit comporter un **niveau de confiance** : Élevé / Moyen / Faible  
@@ -219,7 +218,7 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    # Increased chunk size to 5000 and overlap to 700 for better context
+    # Increased chunk size to 2500 and overlap to 800 for better context
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
     texts = text_splitter.split_documents(documents)
     
@@ -244,7 +243,7 @@ def load_precomputed_embeddings():
         return None
     
     # Load metadata to get model information
-    embedding_model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # Default model
+    embedding_model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" # Default model
     
     if metadata_path.exists():
         try:
@@ -266,16 +265,18 @@ def load_precomputed_embeddings():
     
     try:
         # Initialize the embeddings model using the model from metadata
-        from langchain_community.embeddings import HuggingFaceEmbeddings
+        # from langchain_community.embeddings import HuggingFaceEmbeddings # Already imported globally
         
         # Use the same model that created the embeddings
+        # MODIFICATION: Added model_kwargs={'device': 'cpu'}
         embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
+            model_kwargs={'device': 'cpu'} 
         )
         
         # Try to load the FAISS index
         try:
-            from langchain_community.vectorstores import FAISS
+            # from langchain_community.vectorstores import FAISS # Already imported globally
             
             # Load with allow_dangerous_deserialization
             st.info(f"Loading FAISS index with model: {embedding_model}")
@@ -300,7 +301,7 @@ def load_precomputed_embeddings():
             return None
     
     except Exception as e:
-        st.error(f"Error in embeddings initialization: {str(e)}")
+        st.error(f"Error in embeddings initialization: {str(e)}") # This is where the original error was caught
         return None
 
 
@@ -308,17 +309,18 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     """Create embeddings and store in a local vector database using FAISS.
     This function always uses the paraphrase-multilingual-MiniLM-L12-v2 model for real-time embedding.
     """
-    import os
+    # import os # Already imported globally
     os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
     
-    model_kwargs = {"token": hf_api_key}
+    # MODIFICATION: Added 'device': 'cpu' to model_kwargs
+    _model_kwargs = {"token": hf_api_key, "device": "cpu"} 
     
     # Always use this model for real-time processing
     model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     
     embeddings = HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs=model_kwargs
+        model_kwargs=_model_kwargs # Use the modified kwargs
     )
     
     # Create vector database
@@ -462,7 +464,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 temperature=0.4,
                 model_name="meta-llama/llama-4-maverick:free",
                 openai_api_key=openrouter_api_key,
-                max_tokens=50000,
+                max_tokens=50000, # Note: Large max_tokens, ensure this is intended and supported
                 openai_api_base="https://openrouter.ai/api/v1",
                 model_kwargs={
                     "messages": [
@@ -493,7 +495,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 return None, None
                 
             llm = HuggingFaceHub(
-                repo_id="microsoft/Phi-4-mini-instruct",
+                repo_id="microsoft/Phi-4-mini-instruct", # Ensure this model ID is correct and accessible
                 huggingfacehub_api_token=hf_api_key,
                 model_kwargs={
                     "temperature": 0.4,
@@ -501,8 +503,11 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                     "top_p": 0.95
                 }
             )
-        else:
-            # Default Llama model
+        else: # Default Llama model
+            if not hf_api_key: # Added API key check for default Llama as well
+                st.error("Hugging Face API key is required to use Llama model")
+                return None, None
+
             llm = HuggingFaceHub(
                 repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
@@ -688,22 +693,22 @@ def input_fields():
                         metadata = pickle.load(f)
                         st.info(f"Modèle: {metadata.get('model_name', 'Unknown')}")
                 except:
-                    pass
+                    pass # Silently ignore if metadata loading fails here, main loading handles errors
             
             st.markdown("---")
             
         # Model selection - Modified to remove GPT option
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "mistral", "phi", "openrouter"],  # "gpt" removed
+            ["llama", "mistral", "phi", "openrouter"], # "gpt" removed
             format_func=lambda x: {
                 "llama": "Llama 3",
-                # "gpt": "GPT-3.5",  # commented out
+                # "gpt": "GPT-3.5", # commented out
                 "mistral": "Mistral 7B",
                 "phi": "Phi-4-mini",
                 "openrouter": "Llama 4 Maverick"
             }[x],
-            horizontal=False
+            horizontal=False # Changed to False for better readability if labels are long
         )
 
         
@@ -773,7 +778,7 @@ def input_fields():
             
             st.markdown("##### Prompt de requête")
             st.session_state.query_prompt = st.text_area(
-                "Query prompt",
+                "Query prompt", # This label is not shown due to label_visibility
                 value=st.session_state.query_prompt,
                 height=300,
                 key="query_prompt_area",
@@ -783,48 +788,50 @@ def input_fields():
             # Add button to reset prompt to default
             if st.button("Réinitialiser le prompt"):
                 st.session_state.query_prompt = DEFAULT_QUERY_PROMPT
-                st.experimental_rerun()
+                st.experimental_rerun() # Use st.rerun() for newer Streamlit versions
             
         # Initialize uploaded_files in session state if not present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
 
-        st.markdown("### Fichiers XML")  # Section header
+        st.markdown("### Fichiers XML") # Section header
         
         # File uploader with clear label
         uploaded_files = st.file_uploader("Télécharger", 
-                                        type=["xml", "xmltei"], 
-                                        accept_multiple_files=True,
-                                        label_visibility="collapsed")  # Hide redundant label
+                                            type=["xml", "xmltei"], 
+                                            accept_multiple_files=True,
+                                            label_visibility="collapsed") # Hide redundant label
         
         # Process uploaded files and store them in session state
         if uploaded_files:
             # Clear existing files first
-            new_files = []
+            new_files_paths = [] # Store paths of newly saved files
             
             # Create the upload directory if it doesn't exist
-            os.makedirs("data/uploaded", exist_ok=True)
+            upload_dir = Path("data/uploaded")
+            upload_dir.mkdir(parents=True, exist_ok=True)
             
             # Process each file silently without success messages here
-            for uploaded_file in uploaded_files:
-                file_path = os.path.join("data/uploaded", uploaded_file.name)
+            for uploaded_file_obj in uploaded_files:
+                file_path = upload_dir / uploaded_file_obj.name
                 with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                new_files.append(file_path)
+                    f.write(uploaded_file_obj.getbuffer())
+                new_files_paths.append(file_path.as_posix()) # Store as string path
             
-            # Add new files to existing list
-            for file_path in new_files:
-                if file_path not in st.session_state.uploaded_files:
-                    st.session_state.uploaded_files.append(file_path)
+            # Add new files to existing list, avoiding duplicates
+            current_uploaded_files = set(st.session_state.uploaded_files)
+            for fp_str in new_files_paths:
+                if fp_str not in current_uploaded_files:
+                    st.session_state.uploaded_files.append(fp_str)
             
             # Show a single success message instead of multiple ones
-            if len(new_files) > 0:
-                st.success(f"{len(new_files)} fichier(s) sauvegardé(s)")
+            if len(new_files_paths) > 0:
+                st.success(f"{len(new_files_paths)} fichier(s) sauvegardé(s)")
         
         # Display checkbox for using only uploaded files - with compact styling
         st.session_state.use_uploaded_only = st.checkbox(
-            "Utiliser uniquement fichiers téléchargés",  # Shortened label
-            value=bool(st.session_state.uploaded_files)
+            "Utiliser uniquement fichiers téléchargés", # Shortened label
+            value=bool(st.session_state.uploaded_files) # Auto-check if files are present
         )
         
         # Warning if checkbox is checked but no files are uploaded
@@ -837,8 +844,8 @@ def input_fields():
             with st.expander(f"Fichiers ({total_files})", expanded=False):
                 # Create a scrollable area for the files with fixed height
                 file_list_html = "<div style='max-height: 150px; overflow-y: auto;'>"
-                for file_path in st.session_state.uploaded_files:
-                    file_name = os.path.basename(file_path)
+                for file_path_str in st.session_state.uploaded_files:
+                    file_name = os.path.basename(file_path_str)
                     file_list_html += f"<div style='padding: 2px 0; font-size: 13px;'>✓ {file_name}</div>"
                 file_list_html += "</div>"
                 st.markdown(file_list_html, unsafe_allow_html=True)
@@ -846,7 +853,7 @@ def input_fields():
                 # Add a clear button
                 if st.button("Effacer tous", key="clear_files"):
                     st.session_state.uploaded_files = []
-                    st.experimental_rerun()
+                    st.experimental_rerun() # Use st.rerun() for newer Streamlit versions
 def boot():
     """Main function to run the application."""
     # Initialize query prompt if not present
@@ -864,95 +871,104 @@ def boot():
         st.session_state.retriever = None
     
     # Add buttons for different processing methods
-    col1, col2 = st.columns(2)
+    # Using st.columns might make sense if there are always two buttons, 
+    # but here the visibility of "Traiter les documents" depends on conditions.
+    # For simplicity, let's place them one after another or manage layout carefully.
 
-    # Button for pre-computed embeddings
-    if st.session_state.use_precomputed:
-        with col1:
-            if st.button("Charger embeddings pré-calculés", use_container_width=True):
+    button_col1, button_col2 = st.columns(2) # Keep columns for layout if desired
+
+    with button_col1:
+        if st.session_state.use_precomputed:
+            if st.button("Charger embeddings pré-calculés", use_container_width=True, key="load_precomputed_btn"):
                 with st.spinner("Chargement des embeddings pré-calculés..."):
                     st.session_state.retriever = load_precomputed_embeddings()
-    
-    # Button for processing documents - Always show when there are uploaded files
-    if not st.session_state.use_precomputed or st.session_state.uploaded_files:
-        with col1:  # Keep it in the left column
-            if st.button("Traiter les documents", use_container_width=True):
+        
+        # Show "Traiter les documents" if not using precomputed OR if there are uploaded files to process specifically
+        # This logic ensures it appears if "Utiliser embeddings pré-calculés" is unchecked,
+        # or if it is checked BUT the user has also uploaded files (implying they might want to process those instead or in addition)
+        # The `use_uploaded_only` flag will determine *what* gets processed by `process_documents`.
+        # Simplified condition: Show if precomputed is not used, or if uploaded files exist (as user might want to process them).
+        if not st.session_state.get('use_precomputed', False) or st.session_state.get('uploaded_files'):
+             if st.button("Traiter les documents", use_container_width=True, key="process_documents_btn"):
                 st.session_state.retriever = process_documents(
                     st.session_state.hf_api_key, 
-                    st.session_state.use_uploaded_only
+                    st.session_state.get('use_uploaded_only', False) # Default to False if not set
                 )
-
-
     
     # Display chat history
-    for message in st.session_state.messages:
-        st.chat_message('human').write(message[0])
-        st.chat_message('ai').write(message[1])
+    for message_idx, message_content in enumerate(st.session_state.messages):
+        st.chat_message('human', key=f"human_msg_{message_idx}").write(message_content[0])
+        st.chat_message('ai', key=f"ai_msg_{message_idx}").write(message_content[1])
     
     # Chat input
     if query := st.chat_input("Posez votre question..."):
         if not st.session_state.retriever:
             st.error("Veuillez d'abord charger les embeddings ou traiter les documents.")
-            return
-        
-        st.chat_message("human").write(query)
-        
-        with st.spinner("Génération de la réponse..."):
-            try:
-                # Check model requirements - GPT check commented out
-                # if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
-                #     st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
-                #     return
-                
-                # For backward compatibility, still pass openai_api_key even though it's not used
-                answer, source_docs = query_llm(
-                    st.session_state.retriever, 
-                    query, 
-                    st.session_state.hf_api_key,
-                    None,  # openai_api_key set to None
-                    st.session_state.openrouter_api_key, 
-                    st.session_state.model_choice
-                )
-                
-                # Display the answer with markdown support
-                response_container = st.chat_message("ai")
-                response_container.markdown(answer)
-                
-                if source_docs:
-                    response_container.markdown("---")
-                    response_container.markdown("**Sources:**")
-                    
-                    # Create an expander for each source
-                    for i, doc in enumerate(source_docs):
-                        # Prepare document info
-                        doc_title = doc.metadata.get('title', 'Document sans titre')
-                        doc_date = doc.metadata.get('date', 'Date inconnue')
-                        doc_year = doc.metadata.get('year', '')
-                        doc_file = doc.metadata.get('source', 'Fichier inconnu')
-                        
-                        # Use expander as a button-like interface
-                        with response_container.expander(f"📄 Source {i+1}: {doc_title}", expanded=False):
-                            st.markdown(f"**Date:** {doc_date}")
-                            st.markdown(f"**Fichier:** {doc_file}")
-                            
-                            # Show persons if available
-                            if doc.metadata.get('persons'):
-                                persons = doc.metadata.get('persons')
-                                if isinstance(persons, list) and persons:
-                                    st.markdown("**Personnes mentionnées:**")
-                                    st.markdown(", ".join(persons))
-                            
-                            # Show content
-                            st.markdown("**Extrait:**")
-                            content = doc.page_content
-                            # Clean up content if needed
-                            if content.startswith(f"Document: {doc_title}"):
-                                content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
-                            
-                            st.text_area("", value=content, height=150, disabled=True)
+            # return # No need to return, Streamlit will rerun
+        else:
+            st.chat_message("human").write(query)
             
-            except Exception as e:
-                st.error(f"Error generating response: {e}")
+            with st.spinner("Génération de la réponse..."):
+                try:
+                    # Check model requirements - GPT check commented out
+                    # if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
+                    #     st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
+                    #     return # No need to return
+                    
+                    # For backward compatibility, still pass openai_api_key even though it's not used
+                    answer, source_docs = query_llm(
+                        st.session_state.retriever, 
+                        query, 
+                        st.session_state.hf_api_key,
+                        None, # openai_api_key set to None
+                        st.session_state.openrouter_api_key, 
+                        st.session_state.model_choice
+                    )
+                    
+                    if answer is not None: # Check if answer was generated
+                        # Display the answer with markdown support
+                        response_container = st.chat_message("ai")
+                        response_container.markdown(answer)
+                        
+                        if source_docs:
+                            response_container.markdown("---")
+                            response_container.markdown("**Sources:**")
+                            
+                            # Create an expander for each source
+                            for i, doc in enumerate(source_docs):
+                                # Prepare document info
+                                doc_title = doc.metadata.get('title', 'Document sans titre')
+                                doc_date = doc.metadata.get('date', 'Date inconnue')
+                                # doc_year = doc.metadata.get('year', '') # Not used in expander label
+                                doc_file = doc.metadata.get('source', 'Fichier inconnu')
+                                
+                                # Use expander as a button-like interface
+                                with response_container.expander(f"📄 Source {i+1}: {doc_title}", expanded=False):
+                                    st.markdown(f"**Date:** {doc_date}")
+                                    st.markdown(f"**Fichier:** {doc_file}")
+                                    
+                                    # Show persons if available
+                                    persons_metadata = doc.metadata.get('persons')
+                                    if persons_metadata and isinstance(persons_metadata, list) and persons_metadata:
+                                        st.markdown("**Personnes mentionnées:**")
+                                        st.markdown(", ".join(persons_metadata))
+                                    
+                                    # Show content
+                                    st.markdown("**Extrait:**")
+                                    content = doc.page_content
+                                    # Clean up content if needed (already done in your code)
+                                    if content.startswith(f"Document: {doc_title}"): # Check if header is present
+                                        # More robust replace: find the first occurrence of the text after the header part
+                                        header_to_remove = f"Document: {doc_title} | Date: {doc_date}\n\n"
+                                        if content.startswith(header_to_remove):
+                                             content = content.replace(header_to_remove, "", 1)
+                                    
+                                    st.text_area("", value=content, height=150, disabled=True, key=f"source_content_{query}_{i}")
+                    else:
+                        st.chat_message("ai").error("La génération de la réponse a échoué.")
+                
+                except Exception as e:
+                    st.error(f"Error generating response: {e}")
 
 if __name__ == '__main__':
     boot()
