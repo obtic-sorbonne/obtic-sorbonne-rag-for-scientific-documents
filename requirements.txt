@@ -1,35 +1,37 @@
-# Core Streamlit and dependencies
+# Core Streamlit and dependencies with explicit rich constraint
 streamlit==1.28.2
-rich>=10.14.0,<14.0.0
+rich>=10.14.0,<14
 
-# LangChain ecosystem - compatible versions
-langchain==0.1.20
-langchain-community==0.0.38
+# LangChain ecosystem - working versions
+langchain==0.1.17
+langchain-community==0.0.36
 langchain-text-splitters==0.0.1
-langchain-openai==0.1.8
+langchain-openai==0.1.7
 
-# Hugging Face ecosystem
+# PyTorch ecosystem - using available versions
+torch==2.2.0
+torchvision==0.17.0
+torchaudio==2.2.0
+
+# Hugging Face ecosystem - compatible versions
 huggingface-hub==0.20.3
-transformers==4.36.2
-tokenizers==0.15.0
-sentence-transformers==2.2.2
-
-# PyTorch ecosystem - stable versions
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+transformers==4.37.2
+tokenizers==0.15.2
+sentence-transformers==2.3.1
 
 # Vector database and ML
 faiss-cpu==1.7.4
-numpy==1.24.4
-scipy==1.11.4
-scikit-learn==1.3.2
+numpy>=1.21.0,<2.0.0
+scipy>=1.7.0,<2.0.0
+scikit-learn>=1.0.0,<2.0.0
 
 # Data handling
-pandas==2.0.3
-pillow==10.0.1
+pandas>=1.3.0,<3.0.0
+pillow>=8.0.0
 
-# Additional dependencies that might be needed
+# Essential dependencies
 packaging>=20.0
 typing-extensions>=4.0.0
-pydantic>=1.10.0,<3.0.0
+pydantic>=1.10.0,<2.0.0
+requests>=2.25.0
+urllib3>=1.26.0,<3.0.0
