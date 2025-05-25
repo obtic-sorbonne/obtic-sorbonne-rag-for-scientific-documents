@@ -269,9 +269,12 @@ def load_precomputed_embeddings():
         from langchain_community.embeddings import HuggingFaceEmbeddings
         
         # Use the same model that created the embeddings
+
         embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
+            model_kwargs={"device": "cpu"}
         )
+
         
         # Try to load the FAISS index
         try:
@@ -316,10 +319,12 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     # Always use this model for real-time processing
     model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     
+
     embeddings = HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs=model_kwargs
+        model_kwargs={**model_kwargs, "device": "cpu"}
     )
+
     
     # Create vector database
     try:
