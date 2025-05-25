@@ -9,3 +9,4 @@ torch==2.2.0
 torchvision==0.17.0
 transformers>=4.35.0
 tokenizers>=0.19.1
+sentence-transformers
