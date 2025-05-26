@@ -22,3 +22,4 @@ rad.json
 TestResults.xml
 DS_Store
 .DS_Store
+.streamlit/secrets.toml
