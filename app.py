@@ -6,27 +6,23 @@ from pathlib import Path
 import pickle
 
 import streamlit as st
-from langchain.chains import RetrievalQA  # Keep this original import
-#from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.chains import RetrievalQA
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import HuggingFaceHub
 from langchain_community.document_loaders import DirectoryLoader
-#from langchain.text_splitter import RecursiveCharacterTextSplitter 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 
 # Defining paths 
-
-os.environ["TRANSFORMERS_OFFLINE"] = "0"  # Make sure offline mode is disabled
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"  # Use HF mirror
+os.environ["TRANSFORMERS_OFFLINE"] = "0"
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('vector_store')
 EMBEDDINGS_DIR = Path(__file__).resolve().parent.joinpath('embeddings')
-
 
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
@@ -38,16 +34,14 @@ NAMESPACES = {
 
 st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
 st.title("Retrieval Augmented Generation")
-st.image("static/sfp_logo.png", width=100)
+if os.path.exists("static/sfp_logo.png"):
+    st.image("static/sfp_logo.png", width=100)
 st.markdown("#### Projet préparé par l'équipe ObTIC.")
 
 # Fixed system prompt - not modifiable by users
-SYSTEM_PROMPT = """
-Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+SYSTEM_PROMPT = """Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
 
-IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information.
-"""
-
+IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information."""
 
 # Default query prompt - can be modified by users
 DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :  
@@ -83,17 +77,11 @@ def extract_year(date_str):
         return int(year_match.group(1))
     return None
 
-# Function to parse XML-TEI documents
 def parse_xmltei_document(file_path):
     """Parse an XML-TEI document and extract text content with metadata."""
     try:
-        # Parse the XML file
         tree = ET.parse(file_path)
         root = tree.getroot()
-        
-        # Debug: Print file being processed for key files
-        if os.path.basename(file_path).startswith("SFP_"):
-            st.write(f"Parsing: {file_path}")
         
         # Extract document metadata for context
         title = root.find('.//tei:titleStmt/tei:title', NAMESPACES)
@@ -149,29 +137,17 @@ def parse_xmltei_document(file_path):
         return None
 
 def load_documents(use_uploaded_only=False):
-    """Load XML-TEI documents
-    
-    Args:
-        use_uploaded_only: If True, only use uploaded files and ignore default corpus
-    """
+    """Load XML-TEI documents"""
     documents = []
     document_dates = {}
-    
     xml_files = []
     
-    # Debug message to verify the value of use_uploaded_only
-    st.write(f"Using uploaded files only: {use_uploaded_only}")
-    
     if use_uploaded_only:
-        # Only process uploaded files when the flag is True
         if "uploaded_files" in st.session_state and st.session_state.uploaded_files:
-            st.write(f"Found {len(st.session_state.uploaded_files)} uploaded files")
             for file_path in st.session_state.uploaded_files:
                 if os.path.exists(file_path) and (file_path.endswith(".xml") or file_path.endswith(".xmltei")):
                     xml_files.append(file_path)
-                    st.write(f"Added uploaded file: {file_path}")
     else:
-        # Process files from default directories
         for path in [".", "data"]:
             if os.path.exists(path):
                 for file in os.listdir(path):
@@ -189,7 +165,6 @@ def load_documents(use_uploaded_only=False):
     
     # Process files with progress updates
     for i, file_path in enumerate(xml_files):
-        # Update progress bar and status
         progress = (i) / len(xml_files)
         progress_bar.progress(progress)
         status_text.text(f"Traitement du fichier {i+1}/{len(xml_files)}: {os.path.basename(file_path)}")
@@ -197,7 +172,6 @@ def load_documents(use_uploaded_only=False):
         doc_data = parse_xmltei_document(file_path)
         
         if doc_data:
-            # Create a Document object with metadata
             doc = Document(
                 page_content=doc_data["text"],
                 metadata={
@@ -210,21 +184,17 @@ def load_documents(use_uploaded_only=False):
             )
             documents.append(doc)
             
-            # Store year information
             if doc_data["year"]:
                 document_dates[file_path] = doc_data["year"]
     
-    # Complete the progress bar
     progress_bar.progress(1.0)
     status_text.text(f"Traitement terminé! {len(documents)} documents analysés.")
     
     return documents, document_dates
 
 def split_documents(documents):
-    # Increased chunk size to 5000 and overlap to 700 for better context
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
     texts = text_splitter.split_documents(documents)
-    
     return texts
 
 def load_precomputed_embeddings():
@@ -232,7 +202,6 @@ def load_precomputed_embeddings():
     embeddings_path = EMBEDDINGS_DIR / "faiss_index"
     metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
     
-    # First check if paths exist
     if not embeddings_path.exists():
         st.error(f"Pre-computed embeddings folder not found at {embeddings_path}")
         return None
@@ -245,8 +214,7 @@ def load_precomputed_embeddings():
         st.error(f"Index pickle file not found at {embeddings_path}/index.pkl")
         return None
     
-    # Load metadata to get model information
-    embedding_model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"  # Default model
+    embedding_model = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     
     if metadata_path.exists():
         try:
@@ -254,7 +222,6 @@ def load_precomputed_embeddings():
                 metadata = pickle.load(f)
                 st.success(f"Loaded pre-computed embeddings with {metadata['chunk_count']} chunks from {metadata['document_count']} documents")
                 
-                # Get the model name from metadata if available
                 if 'model_name' in metadata:
                     embedding_model = metadata['model_name']
                     st.info(f"Embedding model: {embedding_model}")
@@ -267,20 +234,12 @@ def load_precomputed_embeddings():
         st.warning("Metadata file not found. Using default embedding model.")
     
     try:
-        # Initialize the embeddings model using the model from metadata
-        from langchain_community.embeddings import HuggingFaceEmbeddings
-        
-        # Use the same model that created the embeddings
         embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
-            model_kwargs={"device": "cpu"} # Explicitly set device to CPU
+            model_kwargs={"device": "cpu"}
         )
         
-        # Try to load the FAISS index
         try:
-            from langchain_community.vectorstores import FAISS
-            
-            # Load with allow_dangerous_deserialization
             st.info(f"Loading FAISS index with model: {embedding_model}")
             vectordb = FAISS.load_local(
                 embeddings_path.as_posix(), 
@@ -288,7 +247,6 @@ def load_precomputed_embeddings():
                 allow_dangerous_deserialization=True
             )
             
-            # Create retriever
             retriever = vectordb.as_retriever(
                 search_type="mmr", 
                 search_kwargs={'k': 5, 'fetch_k': 10}
@@ -306,42 +264,31 @@ def load_precomputed_embeddings():
         st.error(f"Error in embeddings initialization: {str(e)}")
         return None
 
-
 def embeddings_on_local_vectordb(texts, hf_api_key):
-    """Create embeddings and store in a local vector database using FAISS.
-    This function always uses the paraphrase-multilingual-MiniLM-L12-v2 model for real-time embedding.
-    """
+    """Create embeddings and store in a local vector database using FAISS."""
     import os
     os.environ["HUGGINGFACE_HUB_TOKEN"] = hf_api_key
     
     model_kwargs = {"token": hf_api_key}
-    
-    # Always use this model for real-time processing
     model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     
     embeddings = HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs={**model_kwargs, "device": "cpu"} # Explicitly set device to CPU
+        model_kwargs={**model_kwargs, "device": "cpu"}
     )
     
-    # Create vector database
     try:
         vectordb = FAISS.from_documents(texts, embeddings)
         
-        # Make sure directory exists
         LOCAL_VECTOR_STORE_DIR.mkdir(parents=True, exist_ok=True)
-        
-        # Save vector database
         vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
         
-        # Also save model information
         with open(LOCAL_VECTOR_STORE_DIR / "model_info.pkl", "wb") as f:
             pickle.dump({
                 "model_name": model_name,
                 "chunk_count": len(texts)
             }, f)
         
-        # Create retriever
         retriever = vectordb.as_retriever(
             search_type="mmr", 
             search_kwargs={'k': 5, 'fetch_k': 10}
@@ -352,33 +299,26 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     except Exception as e:
         st.error(f"Error creating embeddings: {str(e)}")
         
-        # Try batching approach if regular approach fails
         try:
             st.info("Trying batch processing approach...")
             
-            # Process in batches
             batch_size = 50
             batches = [texts[i:i + batch_size] for i in range(0, len(texts), batch_size)]
             
-            # Initialize with first batch
             vectordb = FAISS.from_documents(batches[0], embeddings)
             
-            # Add remaining batches
             for i, batch in enumerate(batches[1:], 1):
                 st.info(f"Processing batch {i+1}/{len(batches)}...")
                 vectordb.add_documents(batch)
             
-            # Save results
             vectordb.save_local(LOCAL_VECTOR_STORE_DIR.as_posix())
             
-            # Save model information
             with open(LOCAL_VECTOR_STORE_DIR / "model_info.pkl", "wb") as f:
                 pickle.dump({
                     "model_name": model_name,
                     "chunk_count": len(texts)
                 }, f)
             
-            # Create retriever
             retriever = vectordb.as_retriever(
                 search_type="mmr", 
                 search_kwargs={'k': 5, 'fetch_k': 10}
@@ -390,15 +330,6 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             st.error(f"Error with batch processing: {str(batch_e)}")
             return None
 
-def prepare_sources_for_llm(source_docs):
-    """Create a mapping of sources with numbers to include in the prompt"""
-    source_mapping = []
-    for i, doc in enumerate(source_docs):
-        doc_title = doc.metadata.get('title', 'Document sans titre')
-        source_mapping.append(f"Source {i+1}: {doc_title}")
-    return "\n".join(source_mapping)
-
-
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models."""
     
@@ -407,11 +338,8 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
     progress_bar = st.progress(0)
     
     try:
-        # Construct COSTAR-based prompt
-        base_query_template = st.session_state.query_prompt
-        
-        # First, retrieve relevant documents
-        relevant_docs = retriever.get_relevant_documents(query)
+        # Use invoke instead of get_relevant_documents (fixes deprecation warning)
+        relevant_docs = retriever.invoke(query)
         
         # Create a source mapping to include in the prompt
         source_mapping = []
@@ -422,58 +350,39 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         
         source_references = "\n".join(source_mapping)
         
-        # Update system prompt to emphasize source citations
-        enhanced_system_prompt = """
-        Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
-        
-        IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information.
-        """
-        
-        # Enhance the query with COSTAR components and source references
-        costar_query = {
-            "query": query,
-            "context": "Analyse des documents scientifiques historiques en français.",
-            "objective": f"Réponds précisément à la question: {query}",
-            "style": "Factuel, précis et structuré avec formatage markdown.",
-            "tone": "Académique et objectif.",
-            "audience": "Chercheurs et historiens travaillant sur des documents scientifiques.",
-            "response_format": "Structure en sections avec citations exactes, niveau de confiance et numéro de source explicite."
-        }
-        
-        # Format the query using the template
-        query_prompt_template = base_query_template
+        # Format the query using the template from session state
+        base_query_template = st.session_state.query_prompt
+        formatted_query = base_query_template.format(query=query)
         
         # Add explicit instruction to reference source numbers
-        additional_instructions = """
-        INSTRUCTIONS IMPORTANTES: 
-        - Pour CHAQUE fait ou information mentionné dans ta réponse, indique EXPLICITEMENT le numéro de la source correspondante (ex: Source 1, Source 3) 
-        - Cite les sources même pour les informations de confiance élevée
-        - Fais référence aux sources numérotées ci-dessous dans chaque section de ta réponse
+        additional_instructions = f"""
+
+INSTRUCTIONS IMPORTANTES: 
+- Pour CHAQUE fait ou information mentionné dans ta réponse, indique EXPLICITEMENT le numéro de la source correspondante (ex: Source 1, Source 3) 
+- Cite les sources même pour les informations de confiance élevée
+- Fais référence aux sources numérotées ci-dessous dans chaque section de ta réponse
+
+SOURCES DISPONIBLES:
+{source_references}
+"""
         
-        SOURCES DISPONIBLES:
-        {}
-        """.format(source_references)
+        # Complete query with source references
+        complete_query = formatted_query + additional_instructions
         
-        # For OpenAI model
+        # Initialize LLM based on model choice
         if model_choice == "openrouter":
             if not openrouter_api_key:
                 st.error("OpenRouter API key is required to use Llama 4 Maverick model")
                 return None, None
                 
-            # Use ChatOpenAI with OpenRouter base URL
             llm = ChatOpenAI(
                 temperature=0.4,
                 model_name="meta-llama/llama-4-maverick:free",
                 openai_api_key=openrouter_api_key,
                 max_tokens=50000,
                 openai_api_base="https://openrouter.ai/api/v1",
-                model_kwargs={
-                    "messages": [
-                        {"role": "system", "content": enhanced_system_prompt}
-                    ]
-                },
                 default_headers={
-                    "HTTP-Referer": "https://your-streamlit-app.com"  
+                    "HTTP-Referer": "https://your-streamlit-app.com"
                 }
             )
         elif model_choice == "mistral":
@@ -506,6 +415,10 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
             )
         else:
             # Default Llama model
+            if not hf_api_key:
+                st.error("Hugging Face API key is required")
+                return None, None
+                
             llm = HuggingFaceHub(
                 repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
                 huggingfacehub_api_token=hf_api_key,
@@ -516,11 +429,10 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                 }
             )
         
-        # Update progress
         progress_bar.progress(0.3)
         progress_container.info("Création de la chaîne de traitement...")
         
-        # Use the original import
+        # Create QA chain
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
             chain_type="stuff",
@@ -529,28 +441,12 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
             verbose=True
         )
         
-        # Update progress
         progress_bar.progress(0.5)
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
-        # Use the COSTAR-enhanced query template
-        enh_query = query_prompt_template.format(
-            query=query,
-            context=costar_query["context"],
-            objective=costar_query["objective"],
-            style=costar_query["style"],
-            tone=costar_query["tone"],
-            audience=costar_query["audience"],
-            response_format=costar_query["response_format"]
-        )
+        # Use invoke instead of __call__ (fixes deprecation warning)
+        result = qa_chain.invoke({"query": complete_query})
         
-        # Add the source references and additional instructions
-        enh_query = enh_query + "\n\n" + additional_instructions
-        
-        # Generate response
-        result = qa_chain({"query": enh_query})
-        
-        # Update progress
         progress_bar.progress(0.9)
         progress_container.info("Finalisation et mise en forme de la réponse...")
         
@@ -561,7 +457,6 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         if "messages" in st.session_state:
             st.session_state.messages.append((query, answer))
         
-        # Complete progress
         progress_bar.progress(1.0)
         progress_container.empty()
         
@@ -569,15 +464,15 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
         
     except Exception as e:
         progress_container.error(f"Erreur pendant la génération: {str(e)}")
+        st.exception(e)  # This will show the full traceback
         return None, None
-        
+
 def process_documents(hf_api_key, use_uploaded_only):
     if not hf_api_key:
         st.warning("Please provide the Hugging Face API key.")
         return None
     
     try:
-        # Create main status container
         status_container = st.empty()
         status_container.info("Chargement des documents...")
         
@@ -586,27 +481,20 @@ def process_documents(hf_api_key, use_uploaded_only):
             st.error("No documents found to process.")
             return None
         
-        # Split into chunks with progress indication
         status_container.info("Découpage des documents en fragments...")
-        # Updated chunking parameters to match split_documents function
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
         texts = text_splitter.split_documents(documents)
         
-        # Create embeddings with progress indication
         status_container.info("Création des embeddings (cela peut prendre plusieurs minutes)...")
         progress_bar = st.progress(0)
         
-        # Update manually with approximate progress values
         progress_bar.progress(0.2)
         
-        # Create embeddings
         retriever = embeddings_on_local_vectordb(texts, hf_api_key)
         
-        # Update progress
         progress_bar.progress(0.8)
         status_container.info("Finalisation...")
         
-        # Complete progress
         progress_bar.progress(1.0)
         status_container.success(f"Traitement terminé! {len(texts)} fragments créés à partir de {len(documents)} documents.")
         
@@ -614,13 +502,12 @@ def process_documents(hf_api_key, use_uploaded_only):
         
     except Exception as e:
         st.error(f"Une erreur s'est produite: {e}")
+        st.exception(e)  # Show full traceback for debugging
         return None
-
 
 def input_fields():
     """Set up the input fields in the sidebar with improved responsive layout."""
     with st.sidebar:
-        # Apply custom CSS to make sidebar elements more compact and responsive
         st.markdown("""
         <style>
         .stSelectbox, .stRadio > div, .stExpander, [data-testid="stFileUploader"] {
@@ -658,20 +545,13 @@ def input_fields():
         if "hf_api_key" in st.secrets:
             st.session_state.hf_api_key = st.secrets.hf_api_key
         else:
-            st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password")
+            st.session_state.hf_api_key = st.text_input("Hugging Face API Key", type="password", key="hf_key")
         
-        # OpenAI API Key - commented out but preserved
-        # # OpenAI API Key
-        # if "openai_api_key" in st.secrets:
-        #     st.session_state.openai_api_key = st.secrets.openai_api_key
-        # else:
-        #     st.session_state.openai_api_key = st.text_input("OpenAI API Key (GPT-3.5)", type="password")
-            
-        # Open Router 
+        # OpenRouter API Key
         if "openrouter_api_key" in st.secrets:
             st.session_state.openrouter_api_key = st.secrets.openrouter_api_key
         else:
-            st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password")
+            st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password", key="openrouter_key")
             
         # Add option to use pre-computed embeddings
         embeddings_path = EMBEDDINGS_DIR / "faiss_index"
@@ -680,7 +560,8 @@ def input_fields():
         st.session_state.use_precomputed = st.checkbox(
             "Utiliser embeddings pré-calculés",
             value=embeddings_available,
-            disabled=not embeddings_available
+            disabled=not embeddings_available,
+            key="use_precomputed_cb"
         )
         
         if embeddings_available and st.session_state.use_precomputed:
@@ -695,22 +576,21 @@ def input_fields():
             
             st.markdown("---")
             
-        # Model selection - Modified to remove GPT option
+        # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "mistral", "phi", "openrouter"],  # "gpt" removed
+            ["llama", "mistral", "phi", "openrouter"],
             format_func=lambda x: {
                 "llama": "Llama 3",
-                # "gpt": "GPT-3.5",  # commented out
                 "mistral": "Mistral 7B",
                 "phi": "Phi-4-mini",
                 "openrouter": "Llama 4 Maverick"
             }[x],
-            horizontal=False
+            horizontal=False,
+            key="model_choice_radio"
         )
 
-        
-        # Model information with clean markdown formatting
+        # Model information
         with st.expander("Infos modèle", expanded=False):
             if st.session_state.model_choice == "llama":
                 st.markdown("""
@@ -720,15 +600,6 @@ def input_fields():
                 * Fort en synthèse de documents longs
                 * Précision factuelle solide
                 """)
-            # GPT model info - commented out but preserved
-            # elif st.session_state.model_choice == "gpt":
-            #     st.markdown("""
-            #     **GPT-3.5-Turbo**
-            #     
-            #     * Excellent en analyse contextuelle
-            #     * Fort en résumé et reformulation
-            #     * Bonnes capacités multilingues
-            #     """)
             elif st.session_state.model_choice == "mistral":
                 st.markdown("""
                 **Mistral-7B-Instruct**
@@ -754,16 +625,14 @@ def input_fields():
                 * Excellente compréhension du français
                 """)
         
-        # Prompt configuration in expander - only query prompt is customizable
+        # Prompt configuration
         with st.expander("Configuration du prompt (COSTAR)", expanded=False):
-            # Initialize query prompt if not present
             if "query_prompt" not in st.session_state:
                 st.session_state.query_prompt = DEFAULT_QUERY_PROMPT
             
             st.markdown("##### Framework COSTAR")
             st.markdown("*Méthodologie structurée pour des réponses précises*")
             
-            # Explain COSTAR
             st.info("""
             **COSTAR** est un framework de prompting structuré:
             - **C**ontexte: Le cadre de l'analyse
@@ -779,66 +648,57 @@ def input_fields():
                 "Query prompt",
                 value=st.session_state.query_prompt,
                 height=300,
-                key="query_prompt_area",
-                label_visibility="collapsed"
+                key="query_prompt_area"
             )
             
-            # Add button to reset prompt to default
-            if st.button("Réinitialiser le prompt"):
+            if st.button("Réinitialiser le prompt", key="reset_prompt_btn"):
                 st.session_state.query_prompt = DEFAULT_QUERY_PROMPT
-                st.experimental_rerun()
+                st.rerun()
             
         # Initialize uploaded_files in session state if not present
         if "uploaded_files" not in st.session_state:
             st.session_state.uploaded_files = []
 
-        st.markdown("### Fichiers XML")  # Section header
+        st.markdown("### Fichiers XML")
         
-        # File uploader with clear label
+        # File uploader
         uploaded_files = st.file_uploader("Télécharger", 
                                          type=["xml", "xmltei"], 
                                          accept_multiple_files=True,
-                                         label_visibility="collapsed")  # Hide redundant label
+                                         key="file_uploader")
         
         # Process uploaded files and store them in session state
         if uploaded_files:
-            # Clear existing files first
             new_files = []
-            
-            # Create the upload directory if it doesn't exist
             os.makedirs("data/uploaded", exist_ok=True)
             
-            # Process each file silently without success messages here
             for uploaded_file in uploaded_files:
                 file_path = os.path.join("data/uploaded", uploaded_file.name)
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 new_files.append(file_path)
             
-            # Add new files to existing list
             for file_path in new_files:
                 if file_path not in st.session_state.uploaded_files:
                     st.session_state.uploaded_files.append(file_path)
             
-            # Show a single success message instead of multiple ones
             if len(new_files) > 0:
                 st.success(f"{len(new_files)} fichier(s) sauvegardé(s)")
         
-        # Display checkbox for using only uploaded files - with compact styling
+        # Display checkbox for using only uploaded files
         st.session_state.use_uploaded_only = st.checkbox(
-            "Utiliser uniquement fichiers téléchargés",  # Shortened label
-            value=bool(st.session_state.uploaded_files)
+            "Utiliser uniquement fichiers téléchargés",
+            value=bool(st.session_state.uploaded_files),
+            key="use_uploaded_only_cb"
         )
         
-        # Warning if checkbox is checked but no files are uploaded
         if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
             st.warning("Aucun fichier téléchargé")
         
-        # Display the list of uploaded files in a more compact way
+        # Display the list of uploaded files
         if st.session_state.uploaded_files:
             total_files = len(st.session_state.uploaded_files)
             with st.expander(f"Fichiers ({total_files})", expanded=False):
-                # Create a scrollable area for the files with fixed height
                 file_list_html = "<div style='max-height: 150px; overflow-y: auto;'>"
                 for file_path in st.session_state.uploaded_files:
                     file_name = os.path.basename(file_path)
@@ -846,10 +706,10 @@ def input_fields():
                 file_list_html += "</div>"
                 st.markdown(file_list_html, unsafe_allow_html=True)
                 
-                # Add a clear button
                 if st.button("Effacer tous", key="clear_files"):
                     st.session_state.uploaded_files = []
-                    st.experimental_rerun()
+                    st.rerun()
+
 def boot():
     """Main function to run the application."""
     # Initialize query prompt if not present
