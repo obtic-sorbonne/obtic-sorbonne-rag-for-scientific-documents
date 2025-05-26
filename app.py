@@ -332,6 +332,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             st.error(f"Error with batch processing: {str(batch_e)}")
             return None
 
+
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
     """Query the LLM using one of the supported models with improved error handling."""
     
@@ -433,44 +434,45 @@ CONTEXTE DOCUMENTAIRE:
                     return None, None
                     
                 llm = HuggingFaceHub(
-                    repo_id="mistralai/Mistral-7B-Instruct-v0.2",
+                    repo_id="mistralai/Mistral-7B-Instruct-v0.3",
                     huggingfacehub_api_token=hf_api_key,
                     model_kwargs={
                         "temperature": 0.7,
-                        "max_new_tokens": 2000, 
+                        "max_new_tokens": 1000, 
                         "top_p": 0.95,
                         "do_sample": True,
                         "return_full_text": False
                     }
                 )
+            
             elif model_choice == "phi":
                 if not hf_api_key:
                     st.error("Hugging Face API key is required to use Phi model")
                     return None, None
                     
                 llm = HuggingFaceHub(
-                    repo_id="microsoft/Phi-3.5-mini-instruct",
+                    repo_id="microsoft/Phi-3-mini-4k-instruct",
                     huggingfacehub_api_token=hf_api_key,
                     model_kwargs={
-                        "temperature": 0.4,
-                        "max_new_tokens": 500, 
+                        "temperature": 0.9,
+                        "max_new_tokens": 1000, 
                         "top_p": 0.95,
-                        "do_sample": True,
+                        "do_sample": False,
                         "return_full_text": False
                     }
                 )
             else:
-                # Default Llama model
+      
                 if not hf_api_key:
                     st.error("Hugging Face API key is required")
                     return None, None
                     
                 llm = HuggingFaceHub(
-                    repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+                    repo_id="HuggingFaceH4/zephyr-7b-beta",
                     huggingfacehub_api_token=hf_api_key,
                     model_kwargs={
                         "temperature": 0.7,
-                        "max_new_tokens": 500, 
+                        "max_new_tokens": 1000, 
                         "top_p": 0.95,
                         "do_sample": True,
                         "return_full_text": False
@@ -669,12 +671,12 @@ def input_fields():
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["openrouter", "llama", "mistral", "phi"],
+            ["model_1", "model_2", "model_3", "model_4"],
             format_func=lambda x: {
-                "openrouter": "Llama 4 Maverick",
-                "llama": "Llama 3",
-                "mistral": "Mistral 7B",
-                "phi": "Phi-4-mini"
+                "model_1": "Llama",
+                "model_2": "Zephyr",
+                "model_3": "Mistral",
+                "model_4": "Phi"
             }[x],
             horizontal=False,
             key="model_choice_radio"
@@ -682,31 +684,30 @@ def input_fields():
 
         # Model information
         with st.expander("Infos modèle", expanded=False):
-            if st.session_state.model_choice == "llama":
+            if st.session_state.model_choice == "model_2":
                 st.markdown("""
-                **Meta-Llama-3-8B**
+                **Zephyr-7b-beta**
                 
                 * Bonne compréhension des instructions
-                * Fort en synthèse de documents longs
                 * Précision factuelle solide
                 """)
-            elif st.session_state.model_choice == "mistral":
+            elif st.session_state.model_choice == "model_3":
                 st.markdown("""
-                **Mistral-7B-Instruct**
+                **Mistral-7B-Instruct-v0.3**
                 
                 * Raisonnement sur documents scientifiques
                 * Bonne extraction d'informations
                 * Réponses structurées en français
                 """)
-            elif st.session_state.model_choice == "phi":
+            elif st.session_state.model_choice == "model_4":
                 st.markdown("""
-                **Phi-4-mini**
+                **Phi-3-mini**
                 
                 * Rapide pour traitement RAG léger
                 * Bon ratio performance/taille
                 * Précision sur citations textuelles
                 """)
-            elif st.session_state.model_choice == "openrouter":
+            elif st.session_state.model_choice == "model_1":
                 st.markdown("""
                 **Llama 4 Maverick**
                 
