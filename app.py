@@ -64,8 +64,7 @@ DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :
 [A] **Audience** : Chercheurs et historien·ne·s, en quête d'informations fiables, vérifiables et bien sourcées.
 
 [R] **Règles de restitution** :  
-- Titres en **gras**  
-- Informations citées textuellement depuis les documents  
+- Titres en **gras** - Informations citées textuellement depuis les documents  
 - Pour chaque information importante, indiquer explicitement le numéro de la source (ex: Source 1, Source 2, etc.)
 - En l'absence d'information : écrire _"Les documents fournis ne contiennent pas cette information."_  
 - Chaque information doit comporter un **niveau de confiance** : Élevé / Moyen / Faible  
@@ -270,12 +269,10 @@ def load_precomputed_embeddings():
         from langchain_community.embeddings import HuggingFaceEmbeddings
         
         # Use the same model that created the embeddings
-
         embeddings = HuggingFaceEmbeddings(
             model_name=embedding_model,
-            model_kwargs={"device": "cpu"}
+            model_kwargs={"device": "cpu"} # Explicitly set device to CPU
         )
-
         
         # Try to load the FAISS index
         try:
@@ -320,12 +317,10 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
     # Always use this model for real-time processing
     model_name = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
     
-
     embeddings = HuggingFaceEmbeddings(
         model_name=model_name,
-        model_kwargs={**model_kwargs, "device": "cpu"}
+        model_kwargs={**model_kwargs, "device": "cpu"} # Explicitly set device to CPU
     )
-
     
     # Create vector database
     try:
@@ -476,7 +471,7 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
                     ]
                 },
                 default_headers={
-                    "HTTP-Referer": "https://your-streamlit-app.com" 
+                    "HTTP-Referer": "https://your-streamlit-app.com"  
                 }
             )
         elif model_choice == "mistral":
@@ -614,7 +609,7 @@ def process_documents(hf_api_key, use_uploaded_only):
         status_container.success(f"Traitement terminé! {len(texts)} fragments créés à partir de {len(documents)} documents.")
         
         return retriever
-    
+        
     except Exception as e:
         st.error(f"Une erreur s'est produite: {e}")
         return None
@@ -799,9 +794,9 @@ def input_fields():
         
         # File uploader with clear label
         uploaded_files = st.file_uploader("Télécharger", 
-                                        type=["xml", "xmltei"], 
-                                        accept_multiple_files=True,
-                                        label_visibility="collapsed")  # Hide redundant label
+                                         type=["xml", "xmltei"], 
+                                         accept_multiple_files=True,
+                                         label_visibility="collapsed")  # Hide redundant label
         
         # Process uploaded files and store them in session state
         if uploaded_files:
@@ -884,10 +879,9 @@ def boot():
         with col1:  # Keep it in the left column
             if st.button("Traiter les documents", use_container_width=True):
                 st.session_state.retriever = process_documents(
-                    st.session_state.hf_api_key, 
+                    st.session_state.hf_api_key,  
                     st.session_state.use_uploaded_only
                 )
-
 
     
     # Display chat history
@@ -912,11 +906,11 @@ def boot():
                 
                 # For backward compatibility, still pass openai_api_key even though it's not used
                 answer, source_docs = query_llm(
-                    st.session_state.retriever, 
-                    query, 
+                    st.session_state.retriever,  
+                    query,  
                     st.session_state.hf_api_key,
                     None,  # openai_api_key set to None
-                    st.session_state.openrouter_api_key, 
+                    st.session_state.openrouter_api_key,  
                     st.session_state.model_choice
                 )
                 
@@ -956,7 +950,7 @@ def boot():
                                 content = content.replace(f"Document: {doc_title} | Date: {doc_date}\n\n", "")
                             
                             st.text_area("", value=content, height=150, disabled=True)
-            
+                
             except Exception as e:
                 st.error(f"Error generating response: {e}")
 
