@@ -1,6 +1,8 @@
 streamlit==1.28.2
-langchain==0.3.7
-langchain-community==0.3.7
+#langchain==0.3.7
+langchain>=0.3.8
+#langchain-community==0.3.7
+langchain-community==0.3.8
 langchain-text-splitters==0.3.2
 langchain-huggingface==0.1.2
 langchain-openai==0.2.8

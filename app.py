@@ -19,6 +19,8 @@ from langchain_openai import ChatOpenAI
 # Defining paths 
 os.environ["TRANSFORMERS_OFFLINE"] = "0"
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('vector_store')
@@ -249,7 +251,7 @@ def load_precomputed_embeddings():
             
             retriever = vectordb.as_retriever(
                 search_type="mmr", 
-                search_kwargs={'k': 5, 'fetch_k': 10}
+                search_kwargs={'k': 3, 'fetch_k': 20}
             )
             
             st.success("FAISS index loaded successfully!")
@@ -291,7 +293,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
         
         retriever = vectordb.as_retriever(
             search_type="mmr", 
-            search_kwargs={'k': 5, 'fetch_k': 10}
+            search_kwargs={'k': 3, 'fetch_k': 20}
         )
         
         return retriever
@@ -321,7 +323,7 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             
             retriever = vectordb.as_retriever(
                 search_type="mmr", 
-                search_kwargs={'k': 5, 'fetch_k': 10}
+                search_kwargs={'k': 3, 'fetch_k': 20}
             )
             
             return retriever
@@ -331,30 +333,55 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             return None
 
 def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
-    """Query the LLM using one of the supported models."""
+    """Query the LLM using one of the supported models with improved error handling."""
     
     progress_container = st.empty()
     progress_container.info("Recherche des documents pertinents...")
     progress_bar = st.progress(0)
     
     try:
-        # Use invoke instead of get_relevant_documents (fixes deprecation warning)
+        # Use invoke instead of get_relevant_documents
         relevant_docs = retriever.invoke(query)
         
-        # Create a source mapping to include in the prompt
+        # --- DEBUG START ---
+        print(f"\n--- DEBUG: Retrieved {len(relevant_docs)} relevant documents ---")
+        retrieved_content_length = 0
+        for i, doc in enumerate(relevant_docs):
+            print(f"Source {i+1} Title: {doc.metadata.get('title', 'N/A')}")
+            print(f"Source {i+1} Full Content:")
+            print(doc.page_content)
+            print("-" * 50)
+            retrieved_content_length += len(doc.page_content)
+        print(f"Total retrieved content length: {retrieved_content_length} characters")
+        print("--------------------------------------------------")
+        # --- DEBUG END ---
+
+        if not relevant_docs:
+            st.warning("Aucun document pertinent trouvé pour cette requête.")
+            return "Aucun document pertinent n'a été trouvé pour répondre à votre question.", []
+
+        # Create context from relevant documents
+        context_parts = []
         source_mapping = []
         for i, doc in enumerate(relevant_docs):
             doc_title = doc.metadata.get('title', 'Document sans titre')
             doc_date = doc.metadata.get('date', 'Date inconnue')
             source_mapping.append(f"Source {i+1}: {doc_title} | {doc_date}")
+            context_parts.append(f"Source {i+1}:\nTitle: {doc_title}\nDate: {doc_date}\nContent: {doc.page_content}\n")
         
+        context = "\n".join(context_parts)
         source_references = "\n".join(source_mapping)
         
         # Format the query using the template from session state
         base_query_template = st.session_state.query_prompt
         formatted_query = base_query_template.format(query=query)
         
-        # Add explicit instruction to reference source numbers
+        # Create the complete prompt with system instructions
+        system_prompt = """Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+
+IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information."""
+        
+        # Additional instructions for source referencing
         additional_instructions = f"""
 
 INSTRUCTIONS IMPORTANTES: 
@@ -364,94 +391,154 @@ INSTRUCTIONS IMPORTANTES:
 
 SOURCES DISPONIBLES:
 {source_references}
+
+CONTEXTE DOCUMENTAIRE:
+{context}
 """
         
-        # Complete query with source references
-        complete_query = formatted_query + additional_instructions
-        
-        # Initialize LLM based on model choice
-        if model_choice == "openrouter":
-            if not openrouter_api_key:
-                st.error("OpenRouter API key is required to use Llama 4 Maverick model")
-                return None, None
-                
-            llm = ChatOpenAI(
-                temperature=0.4,
-                model_name="meta-llama/llama-4-maverick:free",
-                openai_api_key=openrouter_api_key,
-                max_tokens=50000,
-                openai_api_base="https://openrouter.ai/api/v1",
-                default_headers={
-                    "HTTP-Referer": "https://your-streamlit-app.com"
-                }
-            )
-        elif model_choice == "mistral":
-            if not hf_api_key:
-                st.error("Hugging Face API key is required to use Mistral model")
-                return None, None
-                
-            llm = HuggingFaceHub(
-                repo_id="mistralai/Mistral-7B-Instruct-v0.2",
-                huggingfacehub_api_token=hf_api_key,
-                model_kwargs={
-                    "temperature": 0.4,
-                    "max_new_tokens": 1000,
-                    "top_p": 0.95
-                }
-            )
-        elif model_choice == "phi":
-            if not hf_api_key:
-                st.error("Hugging Face API key is required to use Phi model")
-                return None, None
-                
-            llm = HuggingFaceHub(
-                repo_id="microsoft/Phi-4-mini-instruct",
-                huggingfacehub_api_token=hf_api_key,
-                model_kwargs={
-                    "temperature": 0.4,
-                    "max_new_tokens": 1000,
-                    "top_p": 0.95
-                }
-            )
-        else:
-            # Default Llama model
-            if not hf_api_key:
-                st.error("Hugging Face API key is required")
-                return None, None
-                
-            llm = HuggingFaceHub(
-                repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
-                huggingfacehub_api_token=hf_api_key,
-                model_kwargs={
-                    "temperature": 0.4,
-                    "max_new_tokens": 2000,
-                    "top_p": 0.95
-                }
-            )
+        # Complete prompt
+        complete_prompt = f"{system_prompt}\n\n{formatted_query}{additional_instructions}"
+
+        # --- DEBUG START ---
+        print(f"\n--- DEBUG: Complete Prompt sent to LLM (first 1000 chars) ---")
+        print(complete_prompt[:1000])
+        print("...")
+        print(f"--- DEBUG: Complete Prompt Length: {len(complete_prompt)} chars ---")
+        # --- DEBUG END ---
         
         progress_bar.progress(0.3)
-        progress_container.info("Création de la chaîne de traitement...")
+        progress_container.info("Initialisation du modèle...")
         
-        # Create QA chain
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True,
-            verbose=True
-        )
+        # Initialize LLM based on model choice with better error handling
+        llm = None
+        try:
+            if model_choice == "openrouter":
+                if not openrouter_api_key:
+                    st.error("OpenRouter API key is required to use Llama 4 Maverick model")
+                    return None, None
+                    
+                llm = ChatOpenAI(
+                    temperature=0.7,
+                    model_name="meta-llama/llama-4-maverick:free",
+                    openai_api_key=openrouter_api_key,
+                    max_tokens=2000,
+                    openai_api_base="https://openrouter.ai/api/v1",
+                    default_headers={
+                        "HTTP-Referer": "https://streamlit-rag-app.com"
+                    }
+                )
+            elif model_choice == "mistral":
+                if not hf_api_key:
+                    st.error("Hugging Face API key is required to use Mistral model")
+                    return None, None
+                    
+                llm = HuggingFaceHub(
+                    repo_id="mistralai/Mistral-7B-Instruct-v0.2",
+                    huggingfacehub_api_token=hf_api_key,
+                    model_kwargs={
+                        "temperature": 0.7,
+                        "max_new_tokens": 2000, 
+                        "top_p": 0.95,
+                        "do_sample": True,
+                        "return_full_text": False
+                    }
+                )
+            elif model_choice == "phi":
+                if not hf_api_key:
+                    st.error("Hugging Face API key is required to use Phi model")
+                    return None, None
+                    
+                llm = HuggingFaceHub(
+                    repo_id="microsoft/Phi-3.5-mini-instruct",
+                    huggingfacehub_api_token=hf_api_key,
+                    model_kwargs={
+                        "temperature": 0.4,
+                        "max_new_tokens": 500, 
+                        "top_p": 0.95,
+                        "do_sample": True,
+                        "return_full_text": False
+                    }
+                )
+            else:
+                # Default Llama model
+                if not hf_api_key:
+                    st.error("Hugging Face API key is required")
+                    return None, None
+                    
+                llm = HuggingFaceHub(
+                    repo_id="meta-llama/Meta-Llama-3-8B-Instruct",
+                    huggingfacehub_api_token=hf_api_key,
+                    model_kwargs={
+                        "temperature": 0.7,
+                        "max_new_tokens": 500, 
+                        "top_p": 0.95,
+                        "do_sample": True,
+                        "return_full_text": False
+                    }
+                )
+            
+            if llm is None:
+                st.error("Failed to initialize LLM")
+                return None, None
+                
+        except Exception as e:
+            st.error(f"Error initializing LLM: {str(e)}")
+            print(f"LLM initialization error: {str(e)}")
+            return None, None
         
         progress_bar.progress(0.5)
         progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
         
-        # Use invoke instead of __call__ (fixes deprecation warning)
-        result = qa_chain.invoke({"query": complete_query})
+        # Direct LLM invocation instead of using RetrievalQA chain
+        try:
+            if model_choice == "openrouter":
+                # For ChatOpenAI models, use messages format
+                from langchain_core.messages import HumanMessage, SystemMessage
+                messages = [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=f"{formatted_query}{additional_instructions}")
+                ]
+                response = llm.invoke(messages)
+                answer = response.content
+            else:
+                # For HuggingFace models, use direct text input
+                response = llm.invoke(complete_prompt)
+                answer = response
+                
+        except Exception as e:
+            st.error(f"Error during LLM invocation: {str(e)}")
+            print(f"LLM invocation error: {str(e)}")
+            print(f"Error type: {type(e)}")
+            
+            # Try alternative approach
+            try:
+                st.info("Trying alternative approach...")
+                if hasattr(llm, 'predict'):
+                    answer = llm.predict(complete_prompt)
+                elif hasattr(llm, '__call__'):
+                    answer = llm(complete_prompt)
+                else:
+                    st.error("Unable to call LLM with any available method")
+                    return None, None
+            except Exception as e2:
+                st.error(f"Alternative approach also failed: {str(e2)}")
+                return None, None
+
+        # --- DEBUG START ---
+        print(f"\n--- DEBUG: Raw LLM Answer ---")
+        print(answer)
+        print("----------------------------")
+        # --- DEBUG END ---
         
         progress_bar.progress(0.9)
         progress_container.info("Finalisation et mise en forme de la réponse...")
         
-        answer = result["result"]
-        source_docs = result["source_documents"]
+        # Clean up the answer if needed
+        if isinstance(answer, str):
+            # Remove any unwanted prefixes or suffixes
+            answer = answer.strip()
+        else:
+            answer = str(answer).strip()
         
         # Update message history
         if "messages" in st.session_state:
@@ -460,12 +547,15 @@ SOURCES DISPONIBLES:
         progress_bar.progress(1.0)
         progress_container.empty()
         
-        return answer, source_docs
+        return answer, relevant_docs
         
     except Exception as e:
         progress_container.error(f"Erreur pendant la génération: {str(e)}")
-        st.exception(e)  # This will show the full traceback
+        print(f"General error in query_llm: {str(e)}")
+        print(f"Error type: {type(e)}")
+        st.exception(e)
         return None, None
+
 
 def process_documents(hf_api_key, use_uploaded_only):
     if not hf_api_key:
@@ -579,12 +669,12 @@ def input_fields():
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "mistral", "phi", "openrouter"],
+            ["openrouter", "llama", "mistral", "phi"],
             format_func=lambda x: {
+                "openrouter": "Llama 4 Maverick",
                 "llama": "Llama 3",
                 "mistral": "Mistral 7B",
-                "phi": "Phi-4-mini",
-                "openrouter": "Llama 4 Maverick"
+                "phi": "Phi-4-mini"
             }[x],
             horizontal=False,
             key="model_choice_radio"
