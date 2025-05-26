@@ -671,12 +671,12 @@ def input_fields():
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["model_1", "model_2", "model_3", "model_4"],
+            ["openrouter", "zephyr", "mistral", "phi"], # Moved "openrouter" to the first position
             format_func=lambda x: {
-                "model_1": "Llama",
-                "model_2": "Zephyr",
-                "model_3": "Mistral",
-                "model_4": "Phi"
+                "openrouter": "Llama",
+                "zephyr": "Zephyr",
+                "mistral": "Mistral",
+                "phi": "Phi"
             }[x],
             horizontal=False,
             key="model_choice_radio"
@@ -684,14 +684,14 @@ def input_fields():
 
         # Model information
         with st.expander("Infos modèle", expanded=False):
-            if st.session_state.model_choice == "model_2":
+            if st.session_state.model_choice == "zephyr":
                 st.markdown("""
                 **Zephyr-7b-beta**
                 
                 * Bonne compréhension des instructions
                 * Précision factuelle solide
                 """)
-            elif st.session_state.model_choice == "model_3":
+            elif st.session_state.model_choice == "mistral":
                 st.markdown("""
                 **Mistral-7B-Instruct-v0.3**
                 
@@ -699,7 +699,7 @@ def input_fields():
                 * Bonne extraction d'informations
                 * Réponses structurées en français
                 """)
-            elif st.session_state.model_choice == "model_4":
+            elif st.session_state.model_choice == "phi":
                 st.markdown("""
                 **Phi-3-mini**
                 
@@ -707,7 +707,7 @@ def input_fields():
                 * Bon ratio performance/taille
                 * Précision sur citations textuelles
                 """)
-            elif st.session_state.model_choice == "model_1":
+            elif st.session_state.model_choice == "openrouter":
                 st.markdown("""
                 **Llama 4 Maverick**
                 
