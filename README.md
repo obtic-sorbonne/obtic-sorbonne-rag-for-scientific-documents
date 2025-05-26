@@ -1,116 +1,168 @@
-# Système de Retrieval Augmented Generation (RAG) pour Documents Scientifiques
+# 🧠 Système RAG pour Documents Scientifiques (XML-TEI)
 
-## Vue d'ensemble
+Un système **Retrieval Augmented Generation (RAG)** conçu pour interroger des documents scientifiques historiques en **français**, au format **XML-TEI**, et générer des réponses **sourcées** à l’aide de modèles de langage avancés.
 
-Ce projet implémente un système de RAG (Retrieval Augmented Generation) spécialisé pour l'analyse de documents scientifiques historiques au format XML-TEI. Le système permet d'interroger un corpus de documents en français et de générer des réponses précises et sourcées en utilisant des modèles de langage de pointe.
+---
 
-## Architecture du Pipeline
+## 🚀 Fonctionnalités Clés
 
-L'architecture actuelle est principalement de type **RAG Naïf** avec des éléments de **Retrieve-and-Rerank**. Voici les composants principaux :
+- 📂 Prise en charge des fichiers **XML-TEI**
+- 🔍 Recherche vectorielle avec **FAISS** et **MMR**
+- 🧠 Génération de texte avec des modèles **LLM** sélectionnables
+- 🧾 Réponses **sourcées** avec citations automatiques
+- 🌍 Support **multilingue**, optimisé pour le français
+- 🖼️ Interface **Streamlit** simple et interactive
+
+---
+
+## ⚙️ Installation (Pas à pas)
+
+> **Prérequis** : Python 3.12.10
+
+### 1. Installer Python 3.12.10
+
+#### Sous Linux/macOS :
+
+```bash
+# Utiliser pyenv (recommandé)
+curl https://pyenv.run | bash
+
+# Ajouter pyenv à votre shell
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+# Installer Python
+pyenv install 3.12.10
+pyenv local 3.12.10
+```
+
+#### Sous Windows :
+
+Téléchargez Python 3.12.10 depuis : https://www.python.org/downloads/release/python-31210/
+
+---
+
+### 2. Créer un environnement virtuel
+
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Sous Windows : .venv\Scripts\activate
+```
+
+---
+
+### 3. Installer les dépendances
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+---
+
+### 4. Lancer l’application
+
+```bash
+streamlit run app.py
+```
+
+L’interface s’ouvrira automatiquement dans votre navigateur.
+
+---
+
+## 🧬 Vue d'ensemble du Pipeline
 
 ### 1. Traitement des Documents
 
--   **Chargement des documents** : Les fichiers XML-TEI sont chargés depuis les emplacements par défaut (`./`, `data/`) ou via téléchargement utilisateur (sauvegardés dans `data/uploaded/`).
--   **Parsing XML-TEI** : Extraction du texte et des métadonnées (titre, date, année, personnes mentionnées, et contenu textuel complet).
--   **Découpage en fragments** : Utilisation de `RecursiveCharacterTextSplitter` avec une taille de fragment de 2500 caractères et un chevauchement de 800 caractères.
+- Chargement des fichiers `.xml` depuis `./`, `data/`, ou `data/uploaded/`
+- Parsing XML-TEI : extraction du **titre**, **date**, **année**, **noms propres**, **contenu**
+- Fragmentation : `RecursiveCharacterTextSplitter` (2500 caractères, chevauchement 800)
 
-### 2. Création des Embeddings
+### 2. Embeddings
 
-Le système propose deux options pour les embeddings :
+- **En temps réel** : via `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
+- **Ou pré-calculés** : chargés depuis `embeddings/` avec `document_metadata.pkl`
 
--   **Traitement en temps réel** : Utilisation du modèle "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2". Les embeddings et l'index FAISS sont sauvegardés localement dans `vector_store/`.
--   **Embeddings pré-calculés** : Option d'utiliser des embeddings déjà générés et stockés dans `embeddings/`. Le modèle d'embedding utilisé pour ces fichiers est indiqué dans leurs métadonnées (`embeddings/document_metadata.pkl`). Si le nom du modèle n'est pas trouvé dans les métadonnées, "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" est utilisé par défaut.
+### 3. Recherche Vectorielle
 
-### 3. Mécanisme de Récupération (Retrieval)
+- Index FAISS local
+- Retrieve-and-Rerank avec **MMR** :
+```python
+retriever = vectordb.as_retriever(
+    search_type="mmr",
+    search_kwargs={'k': 3, 'fetch_k': 20}
+)
+```
 
--   **Base de données vectorielle** : Utilisation de FAISS pour stocker et récupérer les fragments de documents.
--   **Retriever MMR** : Implémentation de Maximum Marginal Relevance pour équilibrer pertinence et diversité.
-    ```python
-    retriever = vectordb.as_retriever(
-        search_type="mmr",
-        search_kwargs={'k': 3, 'fetch_k': 20} # Mise à jour des valeurs k et fetch_k
-    )
-    ```
+### 4. Génération de Réponse
 
-### 4. Génération de Réponses
+- Modèles disponibles :
 
--   **Modèles de langage supportés** (sélectionnables via l'interface utilisateur) :
+| Source        | Modèle                                      | Option |
+|---------------|---------------------------------------------|--------|
+| HuggingFace   | `HuggingFaceH4/zephyr-7b-beta`              | Zephyr |
+|               | `mistralai/Mistral-7B-Instruct-v0.3`        | Mistral |
+|               | `microsoft/Phi-3-mini-4k-instruct`          | Phi    |
+| OpenRouter    | `meta-llama/llama-4-maverick:free`          | Llama  |
 
-    Via HuggingFace (nécessite une clé API Hugging Face) :
-    -   Zephyr (HuggingFaceH4/zephyr-7b-beta) - *Sélectionné via l'option "Zephyr"*
-    -   Mistral (mistralai/Mistral-7B-Instruct-v0.3) - *Sélectionné via l'option "Mistral"*
-    -   Phi (microsoft/Phi-3-mini-4k-instruct) - *Sélectionné via l'option "Phi"*
+- **Prompt système** intégré (non modifiable) :
+```text
+Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.).
+```
 
-    Via OpenRouter (nécessite une clé API OpenRouter) :
-    -   Llama 4 Maverick (meta-llama/llama-4-maverick:free) - *Sélectionné via l'option "Llama"*
+---
 
--   **Structure du Prompt** :
-    -   Un **Prompt Système fixe** (non modifiable par l'utilisateur) instruit le modèle sur son rôle et l'importance du sourçage.
-        ```
-        Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
+## 🖥️ Interface Utilisateur
 
-        IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information.
-        ```
-    -   Un **Prompt de Requête Utilisateur par défaut (COSTAR)** qui peut être personnalisé dans l'interface.
-    -   Des **Instructions Additionnelles** sont dynamiquement ajoutées pour le référencement des sources et le contexte documentaire.
+1. Ajouter vos **clés API** dans la barre latérale
+2. Sélectionner un **modèle de LLM**
+3. Télécharger des documents XML-TEI (ou utiliser le corpus par défaut)
+4. Choisir entre :
+   - Génération d’embeddings en temps réel
+   - Utilisation d’embeddings pré-calculés
+5. Poser une question dans le champ de requête
+6. Visualiser les sources utilisées dans la réponse
 
-## Fonctionnalités Principales
+---
 
-1.  **Interface utilisateur Streamlit** avec configuration dans la barre latérale.
-2.  **Options de traitement flexibles** :
-    -   Utilisation d'embeddings pré-calculés (chargés depuis `embeddings/`).
-    -   Traitement en temps réel des documents (sauvegarde dans `vector_store/`).
-    -   Option pour utiliser uniquement les fichiers téléchargés par l'utilisateur.
-3.  **Personnalisation du prompt de requête** via le cadre COSTAR dans la barre latérale.
-4.  **Visualisation des sources** utilisées pour générer la réponse (titre, date, fichier, personnes mentionnées, extrait du contenu) pour vérifier la fiabilité.
-5.  **Support multilingue** optimisé pour les documents scientifiques en français (notamment via le modèle d'embedding `paraphrase-multilingual-MiniLM-L12-v2`).
-6.  **Gestion des erreurs OCR** (via instructions dans le prompt COSTAR) avec demande de niveaux de confiance pour les informations extraites.
-7.  **Affichage d'informations sur les modèles LLM** sélectionnables et leurs caractéristiques.
-8.  **Gestion et affichage des fichiers XML téléchargés** par l'utilisateur.
+## 🗂️ Structure du Projet
 
-## Utilisation
+Fonctions principales :
 
-1.  Configurer les clés API dans la barre latérale (Hugging Face, et OpenRouter si le modèle Llama 4 est utilisé).
-2.  Choisir entre l'utilisation d'embeddings pré-calculés ou le traitement en temps réel des documents.
-    -   Si traitement en temps réel, spécifier si seuls les documents téléchargés doivent être utilisés.
-3.  Sélectionner un modèle LLM parmi les options proposées.
-4.  Si traitement en temps réel :
-    -   Télécharger des documents XML-TEI via l'interface (optionnel si utilisation du corpus par défaut).
-    -   Cliquer sur "Traiter les documents".
-5.  Si embeddings pré-calculés :
-    -   S'assurer que le dossier `embeddings/` contient les fichiers `faiss_index/` (avec `index.faiss` et `index.pkl`) et `document_metadata.pkl`.
-    -   Cliquer sur "Charger embeddings pré-calculés".
-6.  Poser des questions dans l'interface de chat.
-7.  Optionnellement, modifier le prompt de requête COSTAR dans la barre latérale.
+- `parse_xmltei_document()` → parsing des fichiers XML
+- `load_documents()` → chargement local ou upload
+- `split_documents()` → découpage en fragments
+- `embeddings_on_local_vectordb()` → embeddings + index FAISS
+- `load_precomputed_embeddings()` → chargement `embeddings/`
+- `query_llm()` → envoi à un LLM + gestion des modèles
+- `process_documents()` → traitement complet
+- `input_fields()` → configuration Streamlit
+- `boot()` → fonction principale Streamlit
 
-## Structure du Système
+---
 
-Le système est organisé autour des fonctions principales suivantes :
--   `parse_xmltei_document` : Extraction du contenu et des métadonnées des fichiers XML-TEI.
--   `load_documents` : Chargement des documents XML-TEI depuis le disque ou les fichiers téléchargés.
--   `split_documents` : Découpage des documents en fragments.
--   `embeddings_on_local_vectordb` : Création des embeddings en temps réel et de la base vectorielle FAISS (sauvegardée dans `LOCAL_VECTOR_STORE_DIR`).
--   `load_precomputed_embeddings` : Chargement des embeddings pré-calculés depuis `EMBEDDINGS_DIR`.
--   `query_llm` : Interrogation du modèle de langage avec la requête utilisateur, le contexte récupéré et la gestion des différents modèles LLM.
--   `process_documents` : Orchestration du processus de traitement des documents (chargement, découpage, création d'embeddings).
--   `input_fields` : Configuration de la barre latérale Streamlit (clés API, sélection de modèle, options de traitement, upload de fichiers, configuration du prompt).
--   `boot` : Fonction principale de l'application Streamlit, initialise l'interface et gère le flux de l'application.
+## 📄 Format TEI supporté
 
-## 🔄 Format des fichiers XML-TEI supportés
+Les balises suivantes sont nécessaires :
 
-L'application est conçue pour traiter des documents XML-TEI avec les balises suivantes :
--   `<tei:titleStmt>/<tei:title>` pour le titre du document.
--   `<tei:sourceDesc>/<tei:p>/<tei:date>` pour la date. Si cette balise n'est pas trouvée, le système tente subsidiairement d'extraire la date depuis `<tei:sourceDesc>/<tei:p>`.
--   `<tei:p>` pour les paragraphes de contenu.
--   `<tei:persName>` pour les noms de personnes mentionnées.
-La fonction `extract_year` tente d'extraire l'année (format AAAA) à partir de la chaîne de date.
+- `<tei:titleStmt>/<tei:title>` → Titre
+- `<tei:sourceDesc>/<tei:p>/<tei:date>` → Date
+- `<tei:p>` → Contenu principal
+- `<tei:persName>` → Noms propres
+- `extract_year()` → Extrait l’année (format AAAA)
 
-## 📄 Licence
+---
 
-Ce projet est sous une licence open source MIT.
+## 📜 Licence
 
-## 🤝 Contributions
+Ce projet est distribué sous licence MIT.
 
-Le projet est préparé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur en Traitement Automatique des Langues, équipe ObTIC, Sorbonne Université.
+---
 
-Pour découvrir d'autres projets de l'équipe ObTIC ainsi que les formations proposées, consultez le site : https://obtic.sorbonne-universite.fr/
+## 🤝 Auteur
+
+Développé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur TAL, équipe ObTIC, Sorbonne Université.
+
+➡️ Plus d'infos : https://obtic.sorbonne-universite.fr/
