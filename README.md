@@ -102,9 +102,11 @@ retriever = vectordb.as_retriever(
 | Source        | Modèle                                      | Option |
 |---------------|---------------------------------------------|--------|
 | HuggingFace   | `HuggingFaceH4/zephyr-7b-beta`              | Zephyr |
-|               | `mistralai/Mistral-7B-Instruct-v0.3`        | Mistral |
-|               | `microsoft/Phi-3-mini-4k-instruct`          | Phi    |
+|               | `mistralai/Mistral-7B-Instruct-v0.3`        | Mistral|
 | OpenRouter    | `meta-llama/llama-4-maverick:free`          | Llama  |
+|               | `google/gemma-3n-e4b-it:free`               | Gemma |
+|               | `qwen/qwen3-32b:free`                        | Qwen |
+
 
 - **Prompt système** intégré (non modifiable) :
 ```text

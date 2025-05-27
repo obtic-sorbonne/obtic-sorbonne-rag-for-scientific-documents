@@ -333,17 +333,19 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
             return None
 
 
-def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="llama"):
+def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_key=None, model_choice="openrouter"):
     """Query the LLM using one of the supported models with improved error handling."""
-    
+    import streamlit as st
+    from langchain_community.llms import HuggingFaceHub
+
     progress_container = st.empty()
     progress_container.info("Recherche des documents pertinents...")
     progress_bar = st.progress(0)
-    
+
     try:
         # Use invoke instead of get_relevant_documents
         relevant_docs = retriever.invoke(query)
-        
+
         # --- DEBUG START ---
         print(f"\n--- DEBUG: Retrieved {len(relevant_docs)} relevant documents ---")
         retrieved_content_length = 0
@@ -369,24 +371,24 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
             doc_date = doc.metadata.get('date', 'Date inconnue')
             source_mapping.append(f"Source {i+1}: {doc_title} | {doc_date}")
             context_parts.append(f"Source {i+1}:\nTitle: {doc_title}\nDate: {doc_date}\nContent: {doc.page_content}\n")
-        
+
         context = "\n".join(context_parts)
         source_references = "\n".join(source_mapping)
-        
+
         # Format the query using the template from session state
         base_query_template = st.session_state.query_prompt
         formatted_query = base_query_template.format(query=query)
-        
+
         # Create the complete prompt with system instructions
         system_prompt = """Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
 
 IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.) dont provient cette information."""
-        
+
         # Additional instructions for source referencing
         additional_instructions = f"""
 
-INSTRUCTIONS IMPORTANTES: 
-- Pour CHAQUE fait ou information mentionné dans ta réponse, indique EXPLICITEMENT le numéro de la source correspondante (ex: Source 1, Source 3) 
+INSTRUCTIONS IMPORTANTES:
+- Pour CHAQUE fait ou information mentionné dans ta réponse, indique EXPLICITEMENT le numéro de la source correspondante (ex: Source 1, Source 3)
 - Cite les sources même pour les informations de confiance élevée
 - Fais référence aux sources numérotées ci-dessous dans chaque section de ta réponse
 
@@ -396,28 +398,35 @@ SOURCES DISPONIBLES:
 CONTEXTE DOCUMENTAIRE:
 {context}
 """
-        
-        # Complete prompt
-        complete_prompt = f"{system_prompt}\n\n{formatted_query}{additional_instructions}"
+
+        # Complete user message
+        user_message = f"{formatted_query}{additional_instructions}"
 
         # --- DEBUG START ---
-        print(f"\n--- DEBUG: Complete Prompt sent to LLM (first 1000 chars) ---")
-        print(complete_prompt[:1000])
+        print(f"\n--- DEBUG: System Prompt Length: {len(system_prompt)} chars ---")
+        print(f"--- DEBUG: User Message Length: {len(user_message)} chars ---")
+        print(f"--- DEBUG: User Message (first 1000 chars) ---")
+        print(user_message[:1000])
         print("...")
-        print(f"--- DEBUG: Complete Prompt Length: {len(complete_prompt)} chars ---")
         # --- DEBUG END ---
-        
+
         progress_bar.progress(0.3)
         progress_container.info("Initialisation du modèle...")
+
+        # Initialize client and get response based on model choice
+        answer = None
         
-        # Initialize LLM based on model choice with better error handling
-        llm = None
         try:
-            if model_choice == "openrouter":
+            if model_choice == "openrouter" or model_choice == "llama":
                 if not openrouter_api_key:
-                    st.error("OpenRouter API key is required to use Llama 4 Maverick model")
+                    st.error("OpenRouter API key is required to use OpenRouter models")
                     return None, None
-                    
+
+                progress_container.info("Utilisation d'OpenRouter avec Llama 4 Maverick...")
+                
+                from langchain_openai import ChatOpenAI
+                from langchain_core.messages import HumanMessage, SystemMessage
+                
                 llm = ChatOpenAI(
                     temperature=0.7,
                     model_name="meta-llama/llama-4-maverick:free",
@@ -425,139 +434,202 @@ CONTEXTE DOCUMENTAIRE:
                     max_tokens=2000,
                     openai_api_base="https://openrouter.ai/api/v1",
                     default_headers={
-                        "HTTP-Referer": "https://streamlit-rag-app.com"
+                        "HTTP-Referer": "https://streamlit-rag-app.com",
+                        "X-Title": "Streamlit RAG App"
                     }
                 )
+                
+                messages = [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=user_message)
+                ]
+                
+                response = llm.invoke(messages)
+                # Proper extraction from LangChain response
+                answer = response.content if hasattr(response, 'content') else str(response)
+
+            elif model_choice == "gemma":
+                if not openrouter_api_key:
+                    st.error("OpenRouter API key is required to use Gemma model")
+                    return None, None
+
+                progress_container.info("Utilisation d'OpenRouter avec Gemma...")
+                
+                from langchain_openai import ChatOpenAI
+                from langchain_core.messages import HumanMessage
+                
+                llm = ChatOpenAI(
+                    temperature=0.7,
+                    model_name="google/gemma-3n-e4b-it:free",
+                    openai_api_key=openrouter_api_key,
+                    max_tokens=2000,
+                    openai_api_base="https://openrouter.ai/api/v1",
+                    default_headers={
+                        "HTTP-Referer": "https://streamlit-rag-app.com",
+                        "X-Title": "Streamlit RAG App"
+                    }
+                )
+                
+                # Gemma doesn't support system messages, combine into single user message
+                combined_message = f"{system_prompt}\n\n{user_message}"
+                messages = [HumanMessage(content=combined_message)]
+                
+                response = llm.invoke(messages)
+                # Proper extraction from LangChain response
+                answer = response.content if hasattr(response, 'content') else str(response)
+
+            elif model_choice == "qwen":
+                if not openrouter_api_key:
+                    st.error("OpenRouter API key is required to use Qwen model")
+                    return None, None
+
+                progress_container.info("Utilisation d'OpenRouter avec Qwen3 32B...")
+                
+                from langchain_openai import ChatOpenAI
+                from langchain_core.messages import HumanMessage, SystemMessage
+                
+                llm = ChatOpenAI(
+                    temperature=0.7,
+                    model_name="qwen/qwen3-32b:free",
+                    openai_api_key=openrouter_api_key,
+                    max_tokens=2000,
+                    openai_api_base="https://openrouter.ai/api/v1",
+                    default_headers={
+                        "HTTP-Referer": "https://streamlit-rag-app.com",
+                        "X-Title": "Streamlit RAG App"
+                    }
+                )
+                
+                messages = [
+                    SystemMessage(content=system_prompt),
+                    HumanMessage(content=user_message)
+                ]
+                
+                response = llm.invoke(messages)
+                # Proper extraction from LangChain response
+                answer = response.content if hasattr(response, 'content') else str(response)
+
             elif model_choice == "mistral":
                 if not hf_api_key:
                     st.error("Hugging Face API key is required to use Mistral model")
                     return None, None
-                    
+
+                progress_container.info("Utilisation de Hugging Face avec Mistral...")
+                
+                # For HuggingFace models, keep the existing approach
                 llm = HuggingFaceHub(
                     repo_id="mistralai/Mistral-7B-Instruct-v0.3",
                     huggingfacehub_api_token=hf_api_key,
                     model_kwargs={
                         "temperature": 0.7,
-                        "max_new_tokens": 1000, 
+                        "max_new_tokens": 1000,
                         "top_p": 0.95,
                         "do_sample": True,
                         "return_full_text": False
                     }
                 )
-            
-            elif model_choice == "phi":
+                
+                # Combine system and user message for HuggingFace
+                complete_prompt = f"{system_prompt}\n\n{user_message}"
+                response = llm.invoke(complete_prompt)
+                answer = response if isinstance(response, str) else str(response)
+
+            elif model_choice == "zephyr":
                 if not hf_api_key:
-                    st.error("Hugging Face API key is required to use Phi model")
+                    st.error("Hugging Face API key is required to use Zephyr model")
                     return None, None
-                    
-                llm = HuggingFaceHub(
-                    repo_id="microsoft/Phi-3-mini-4k-instruct",
-                    huggingfacehub_api_token=hf_api_key,
-                    model_kwargs={
-                        "temperature": 0.9,
-                        "max_new_tokens": 1000, 
-                        "top_p": 0.95,
-                        "do_sample": False,
-                        "return_full_text": False
-                    }
-                )
-            else:
-      
-                if not hf_api_key:
-                    st.error("Hugging Face API key is required")
-                    return None, None
-                    
+
+                progress_container.info("Utilisation de Hugging Face avec Zephyr...")
+                
                 llm = HuggingFaceHub(
                     repo_id="HuggingFaceH4/zephyr-7b-beta",
                     huggingfacehub_api_token=hf_api_key,
                     model_kwargs={
                         "temperature": 0.7,
-                        "max_new_tokens": 1000, 
+                        "max_new_tokens": 1000,
                         "top_p": 0.95,
                         "do_sample": True,
                         "return_full_text": False
                     }
                 )
-            
-            if llm is None:
-                st.error("Failed to initialize LLM")
-                return None, None
                 
-        except Exception as e:
-            st.error(f"Error initializing LLM: {str(e)}")
-            print(f"LLM initialization error: {str(e)}")
-            return None, None
-        
-        progress_bar.progress(0.5)
-        progress_container.info("Génération de la réponse avec le modèle " + model_choice.upper() + "...")
-        
-        # Direct LLM invocation instead of using RetrievalQA chain
-        try:
-            if model_choice == "openrouter":
-                # For ChatOpenAI models, use messages format
+                # Combine system and user message for HuggingFace
+                complete_prompt = f"{system_prompt}\n\n{user_message}"
+                response = llm.invoke(complete_prompt)
+                answer = response if isinstance(response, str) else str(response)
+
+            else:
+                # Default fallback to Llama if unknown model choice
+                if not openrouter_api_key:
+                    st.error("OpenRouter API key is required for the default Llama model")
+                    return None, None
+
+                progress_container.info("Utilisation d'OpenRouter avec Llama 4 Maverick (par défaut)...")
+                
+                from langchain_openai import ChatOpenAI
                 from langchain_core.messages import HumanMessage, SystemMessage
+                
+                llm = ChatOpenAI(
+                    temperature=0.7,
+                    model_name="meta-llama/llama-4-maverick:free",
+                    openai_api_key=openrouter_api_key,
+                    max_tokens=2000,
+                    openai_api_base="https://openrouter.ai/api/v1",
+                    default_headers={
+                        "HTTP-Referer": "https://streamlit-rag-app.com",
+                        "X-Title": "Streamlit RAG App"
+                    }
+                )
+                
                 messages = [
                     SystemMessage(content=system_prompt),
-                    HumanMessage(content=f"{formatted_query}{additional_instructions}")
+                    HumanMessage(content=user_message)
                 ]
-                response = llm.invoke(messages)
-                answer = response.content
-            else:
-                # For HuggingFace models, use direct text input
-                response = llm.invoke(complete_prompt)
-                answer = response
                 
+                response = llm.invoke(messages)
+                # Proper extraction from LangChain response
+                answer = response.content if hasattr(response, 'content') else str(response)
+
         except Exception as e:
             st.error(f"Error during LLM invocation: {str(e)}")
             print(f"LLM invocation error: {str(e)}")
             print(f"Error type: {type(e)}")
-            
-            # Try alternative approach
-            try:
-                st.info("Trying alternative approach...")
-                if hasattr(llm, 'predict'):
-                    answer = llm.predict(complete_prompt)
-                elif hasattr(llm, '__call__'):
-                    answer = llm(complete_prompt)
-                else:
-                    st.error("Unable to call LLM with any available method")
-                    return None, None
-            except Exception as e2:
-                st.error(f"Alternative approach also failed: {str(e2)}")
-                return None, None
+            return None, None
+
+        # Check if we got a valid answer
+        if answer is None or answer.strip() == "":
+            st.error("Failed to get response from LLM")
+            return None, None
 
         # --- DEBUG START ---
-        print(f"\n--- DEBUG: Raw LLM Answer ---")
-        print(answer)
+        print(f"\n--- DEBUG: Final Answer ---")
+        print(f"Answer type: {type(answer)}")
+        print(f"Answer length: {len(answer)} chars")
+        print(f"Answer content (first 500 chars): {answer[:500]}")
         print("----------------------------")
         # --- DEBUG END ---
-        
+
         progress_bar.progress(0.9)
         progress_container.info("Finalisation et mise en forme de la réponse...")
-        
-        # Clean up the answer if needed
-        if isinstance(answer, str):
-            # Remove any unwanted prefixes or suffixes
-            answer = answer.strip()
-        else:
-            answer = str(answer).strip()
-        
+
+        # Clean up the answer
+        answer = answer.strip()
+
         # Update message history
         if "messages" in st.session_state:
             st.session_state.messages.append((query, answer))
-        
+
         progress_bar.progress(1.0)
         progress_container.empty()
-        
+
         return answer, relevant_docs
-        
+
     except Exception as e:
         progress_container.error(f"Erreur pendant la génération: {str(e)}")
         print(f"General error in query_llm: {str(e)}")
         print(f"Error type: {type(e)}")
         st.exception(e)
         return None, None
-
 
 def process_documents(hf_api_key, use_uploaded_only):
     if not hf_api_key:
@@ -671,12 +743,13 @@ def input_fields():
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["openrouter", "zephyr", "mistral", "phi"], # Moved "openrouter" to the first position
+            ["llama", "zephyr", "mistral", "gemma","qwen"], 
             format_func=lambda x: {
-                "openrouter": "Llama",
+                "llama": "Llama",
                 "zephyr": "Zephyr",
                 "mistral": "Mistral",
-                "phi": "Phi"
+                "gemma": "Gemma",
+                "qwen":" Qwen"
             }[x],
             horizontal=False,
             key="model_choice_radio"
@@ -699,21 +772,28 @@ def input_fields():
                 * Bonne extraction d'informations
                 * Réponses structurées en français
                 """)
-            elif st.session_state.model_choice == "phi":
+            elif st.session_state.model_choice == "gemma":
                 st.markdown("""
-                **Phi-3-mini**
+                **Gemma-3n-e4b-it**
                 
-                * Rapide pour traitement RAG léger
-                * Bon ratio performance/taille
-                * Précision sur citations textuelles
+                * Fenêtre contextuelle 32K tokens
+                * Multilingue (140+ langues)
                 """)
-            elif st.session_state.model_choice == "openrouter":
+            elif st.session_state.model_choice == "llama":
                 st.markdown("""
                 **Llama 4 Maverick**
                 
                 * Dernière génération de Llama
                 * Performances supérieures
                 * Excellente compréhension du français
+                """)
+            elif st.session_state.model_choice == "qwen":
+                st.markdown("""
+                **Qwen3-32B**
+                
+                * Excellente logique et raisonnement  
+                * Contexte étendu jusqu’à 131K tokens  
+                * Très bon en RAG multilingue
                 """)
         
         # Prompt configuration
