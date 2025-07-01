@@ -1,9 +1,15 @@
+############################
+# Import necessary libraries
+############################
+
 import os
 import re
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 import pickle
+import requests
+import json
 
 import streamlit as st
 from langchain.chains import RetrievalQA
@@ -15,6 +21,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
+
+
+from ollama_utils import extract_reasoning_and_response, display_deepseek_response
 
 # Defining paths 
 os.environ["TRANSFORMERS_OFFLINE"] = "0"
@@ -39,6 +48,22 @@ st.title("Retrieval Augmented Generation")
 if os.path.exists("static/sfp_logo.png"):
     st.image("static/sfp_logo.png", width=100)
 st.markdown("#### Projet préparé par l'équipe ObTIC.")
+
+
+############################
+# Ollama part 
+############################
+
+from ollama_utils import (
+    check_ollama_availability, 
+    get_ollama_models, 
+    query_ollama, 
+    get_model_info
+)
+
+############################
+# System prompt and default prompt
+############################
 
 # Fixed system prompt - not modifiable by users
 SYSTEM_PROMPT = """Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
@@ -417,7 +442,31 @@ CONTEXTE DOCUMENTAIRE:
         answer = None
         
         try:
-            if model_choice == "openrouter" or model_choice == "llama":
+            if model_choice == "ollama":
+                # Check if Ollama is available
+                if not check_ollama_availability():
+                    st.error("Ollama n'est pas disponible. Veuillez vérifier qu'Ollama est démarré.")
+                    return None, None
+                
+                # Get selected Ollama model
+                ollama_model = st.session_state.get('ollama_model')
+                if not ollama_model:
+                    st.error("Aucun modèle Ollama sélectionné.")
+                    return None, None
+                
+                progress_container.info(f"Utilisation d'Ollama avec {ollama_model}...")
+                
+                # Combine system and user message for Ollama (it doesn't support system messages)
+                complete_prompt = f"{system_prompt}\n\n{user_message}"
+                
+                # Query Ollama
+                answer = query_ollama(ollama_model, complete_prompt, temperature=0.7)
+                
+                if answer is None:
+                    st.error("Erreur lors de la communication avec Ollama")
+                    return None, None
+                
+            elif model_choice == "openrouter" or model_choice == "llama":
                 if not openrouter_api_key:
                     st.error("OpenRouter API key is required to use OpenRouter models")
                     return None, None
@@ -704,6 +753,10 @@ def input_fields():
         """, unsafe_allow_html=True)
         
         st.title("Configuration")
+
+        # Check Ollama availability
+        ollama_available = check_ollama_availability()
+        ollama_models = get_ollama_models() if ollama_available else []
         
         # Hugging Face API Key
         if "hf_api_key" in st.secrets:
@@ -739,25 +792,97 @@ def input_fields():
                     pass
             
             st.markdown("---")
-            
+
+        # Model selection with Ollama integration
+        model_options = ["llama", "zephyr", "mistral", "gemma", "qwen"]
+        
+        if ollama_available and ollama_models:
+            # Add Ollama options
+            model_options.append("ollama")
+
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "zephyr", "mistral", "gemma","qwen"], 
+            model_options,
             format_func=lambda x: {
-                "llama": "Llama",
-                "zephyr": "Zephyr",
-                "mistral": "Mistral",
-                "gemma": "Gemma",
-                "qwen":" Qwen"
+                "llama": "Llama (OpenRouter)",
+                "zephyr": "Zephyr (HuggingFace)",
+                "mistral": "Mistral (HuggingFace)",
+                "gemma": "Gemma (OpenRouter)",
+                "qwen": "Qwen (OpenRouter)",
+                "ollama": f"🏠 Local (Ollama)" + (f" - {len(ollama_models)} models" if ollama_models else "")
             }[x],
             horizontal=False,
             key="model_choice_radio"
         )
 
+       # Ollama model selection
+        if st.session_state.model_choice == "ollama" and ollama_available:
+            if ollama_models:
+                # Find DeepSeek models and prioritize them
+                deepseek_models = [m for m in ollama_models if 'deepseek' in m.lower()]
+                other_models = [m for m in ollama_models if 'deepseek' not in m.lower()]
+                sorted_models = deepseek_models + other_models
+                
+                default_index = 0
+                if 'deepseek-r1' in sorted_models:
+                    default_index = sorted_models.index('deepseek-r1')
+                
+                st.session_state.ollama_model = st.selectbox(
+                    "Modèle Ollama",
+                    sorted_models,
+                    index=default_index,
+                    key="ollama_model_select",
+                    help="Modèles DeepSeek recommandés pour de meilleures performances"
+                )
+                
+                # Show model info
+                if st.session_state.ollama_model:
+                    model_info = get_model_info(st.session_state.ollama_model)
+                    if model_info:
+                        size = model_info.get('details', {}).get('parameter_size', 'Unknown')
+                        st.caption(f"📊 Taille: {size}")
+            else:
+                st.warning("Aucun modèle Ollama trouvé. Téléchargez un modèle d'abord.")
+        
+        # Status indicators
+        if ollama_available and ollama_models:
+            st.success(f"🏠 Ollama: {len(ollama_models)} modèles disponibles")
+        elif not ollama_available:
+            st.info("💡 Ollama non disponible - utilisez les modèles cloud")
+
+
         # Model information
         with st.expander("Infos modèle", expanded=False):
-            if st.session_state.model_choice == "zephyr":
+            if st.session_state.model_choice == "ollama" and ollama_available:
+                selected_model = st.session_state.get('ollama_model')
+                if selected_model:
+                    if 'deepseek-r1' in selected_model.lower():
+                        st.markdown("""
+                        **DeepSeek-R1**
+                        
+                        * Modèle de raisonnement avancé
+                        * Performance comparable à O3 et Gemini 2.5 Pro
+                        * Excellent pour l'analyse de documents
+                        * Contexte: 128K tokens
+                        """)
+                    elif 'deepseek' in selected_model.lower():
+                        st.markdown("""
+                        **DeepSeek Model**
+                        
+                        * Modèle open-source performant
+                        * Bon pour le raisonnement et l'analyse
+                        * Optimisé pour les tâches complexes
+                        """)
+                    else:
+                        st.markdown(f"""
+                        **{selected_model}**
+                        
+                        * Modèle local via Ollama
+                        * Aucune clé API requise
+                        * Traitement privé et sécurisé
+                        """)
+            elif st.session_state.model_choice == "zephyr":
                 st.markdown("""
                 **Zephyr-7b-beta**
                 
@@ -792,7 +917,7 @@ def input_fields():
                 **Qwen3-32B**
                 
                 * Excellente logique et raisonnement  
-                * Contexte étendu jusqu’à 131K tokens  
+                * Contexte étendu jusqu'à 131K tokens  
                 * Très bon en RAG multilingue
                 """)
         
@@ -880,7 +1005,6 @@ def input_fields():
                 if st.button("Effacer tous", key="clear_files"):
                     st.session_state.uploaded_files = []
                     st.rerun()
-
 def boot():
     """Main function to run the application."""
     # Initialize query prompt if not present
@@ -947,9 +1071,15 @@ def boot():
                     st.session_state.model_choice
                 )
                 
-                # Display the answer with markdown support
+                # Display the answer with DeepSeek reasoning handling
                 response_container = st.chat_message("ai")
-                response_container.markdown(answer)
+                
+                # Check if it's a DeepSeek model and handle reasoning
+                selected_model = st.session_state.get('ollama_model', '')
+                if st.session_state.model_choice == "ollama" and 'deepseek-r1' in selected_model.lower():
+                    display_deepseek_response(answer, selected_model, response_container)
+                else:
+                    response_container.markdown(answer)
                 
                 if source_docs:
                     response_container.markdown("---")
@@ -986,6 +1116,6 @@ def boot():
                 
             except Exception as e:
                 st.error(f"Error generating response: {e}")
-
+                
 if __name__ == '__main__':
     boot()
