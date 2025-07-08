@@ -58,7 +58,9 @@ $COMPOSE_CMD up --build -d ollama
 echo "⏳ Waiting for Ollama to be ready..."
 timeout=60
 counter=0
-while ! curl -f http://localhost:11434/api/tags &>/dev/null; do
+
+# 11434 is the default Ollama port
+while ! curl -f http://localhost:11435/api/tags &>/dev/null; do
     if [ $counter -eq $timeout ]; then
         echo "❌ Timeout waiting for Ollama to start"
         $COMPOSE_CMD logs ollama
@@ -87,7 +89,7 @@ $COMPOSE_CMD ps
 
 echo ""
 echo "🌐 Access your application at:"
-echo "   http://localhost:8501"
+echo "   http://localhost:8502"
 echo ""
 echo "🔧 Useful commands:"
 echo "   View logs:           $COMPOSE_CMD logs -f"
@@ -98,28 +100,20 @@ echo ""
 
 # Wait for the application to be ready
 echo "⏳ Waiting for RAG application to be ready..."
-timeout=120
-counter=0
-while ! curl -f http://localhost:8501/_stcore/health &>/dev/null; do
-    if [ $counter -eq $timeout ]; then
-        echo "⚠️  Application may still be starting. Check logs if needed:"
-        echo "   $COMPOSE_CMD logs rag-app"
-        break
-    fi
-    if [ $((counter % 10)) -eq 0 ]; then
-        echo "   Waiting... ($counter/$timeout seconds)"
-    fi
-    sleep 2
-    counter=$((counter + 2))
-done
+if timeout 30 bash -c 'while ! curl -f http://localhost:8502/_stcore/health &>/dev/null; do sleep 2; done'; then
+    echo "✅ RAG Application is ready!"
+else
+    echo "⚠️  Application may still be starting. Check logs if needed:"
+    echo "   $COMPOSE_CMD logs rag-app"
+fi
 
-if curl -f http://localhost:8501/_stcore/health &>/dev/null; then
+if curl -f http://localhost:8502/_stcore/health &>/dev/null; then
     echo "✅ RAG Application is ready!"
     echo ""
-    echo "🎯 Open your browser to: http://localhost:8501"
+    echo "🎯 Open your browser to: http://localhost:8502"
     echo "💡 The app includes DeepSeek-R1 model for local inference"
 else
     echo "⚠️  Application might still be initializing..."
     echo "   Check the logs: $COMPOSE_CMD logs rag-app"
-    echo "   Or try accessing: http://localhost:8501"
+    echo "   Or try accessing: http://localhost:8502"
 fi

@@ -1,10 +1,9 @@
 services:
   ollama:
     image: ollama/ollama:latest
-    platform: linux/arm64
     container_name: rag-ollama
     ports:
-      - "11434:11434"
+      - "11435:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
@@ -17,6 +16,14 @@ services:
       timeout: 10s
       retries: 10
       start_period: 60s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
 
   ollama-setup:
     image: ollama/ollama:latest
@@ -27,6 +34,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     environment:
+    # base ollama port 11434
       - OLLAMA_HOST=ollama:11434
     entrypoint: ["/bin/bash", "-c"]
     command: 
@@ -46,7 +54,7 @@ services:
       dockerfile: Dockerfile
     container_name: rag-streamlit-app
     ports:
-      - "8501:8501"
+      - "8502:8501"
     depends_on:
       ollama:
         condition: service_healthy
