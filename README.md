@@ -1,170 +1,277 @@
-# 🧠 Système RAG pour Documents Scientifiques (XML-TEI)
+# Système RAG pour Documents Scientifiques (XML-TEI)
 
-Un système **Retrieval Augmented Generation (RAG)** conçu pour interroger des documents scientifiques historiques en **français**, au format **XML-TEI**, et générer des réponses **sourcées** à l’aide de modèles de langage avancés.
+Un système **Retrieval Augmented Generation (RAG)** conçu pour interroger des documents scientifiques historiques en **français**, au format **XML-TEI**, et générer des réponses **sourcées** à l'aide de modèles de langage.
 
----
-
-## 🚀 Fonctionnalités Clés
-
-- 📂 Prise en charge des fichiers **XML-TEI**
-- 🔍 Recherche vectorielle avec **FAISS** et **MMR**
-- 🧠 Génération de texte avec des modèles **LLM** sélectionnables
-- 🧾 Réponses **sourcées** avec citations automatiques
-- 🌍 Support **multilingue**, optimisé pour le français
-- 🖼️ Interface **Streamlit** simple et interactive
+✨ **Nouveauté** : Support complet des modèles **Ollama** locaux, incluant **DeepSeek-R1** !
 
 ---
 
-## ⚙️ Installation (Pas à pas)
+## Fonctionnalités clés
 
-> **Prérequis** : Python 3.12.10
+- Prise en charge des fichiers **XML-TEI**
+- Recherche vectorielle avec **FAISS** (similarité cosinus ou **MMR** – Maximal Marginal Relevance)
+- **Modèles multiples** : cloud (HuggingFace, OpenRouter) + **local (Ollama)**
+- **Support Ollama** : DeepSeek-R1, Llama, Mistral, et autres
+- Génération de réponses **sourcées** avec citations automatiques
+- Support **multilingue**, optimisé pour le français
+- Chargement rapide grâce aux **embeddings pré-calculés**
+- Interface utilisateur **Streamlit** moderne et intuitive
 
-### 1. Installer Python 3.12.10
+---
 
-#### Sous Linux/macOS :
+## Modes de déploiement
+
+### 1. Démo en ligne (API uniquement)
+
+Accès direct sans installation : [**Démo Streamlit Cloud**](https://langchainragdemo-clqunhvtdazahepkgvopen.streamlit.app/)
+
+### 2. Exécution locale avec Docker + Ollama
+
+Support complet des modèles locaux et cloud.
+
+---
+
+## Installation
+
+### Option 1 : Déploiement rapide avec Docker + Ollama
+
+#### Prérequis
+
+- Docker et Docker Compose
+- 8 GB de RAM minimum pour DeepSeek-R1
+
+#### Étapes
 
 ```bash
-# Utiliser pyenv (recommandé)
+git clone https://github.com/votre-repo/langchain_rag_demo.git
+cd langchain_rag_demo
+
+# Configuration Streamlit
+mkdir -p .streamlit
+echo "[server]
+enableStaticServing = true" > .streamlit/config.toml
+
+# Clés API
+echo "[hf_api_key = \"YOUR_HF_API_KEY\" 
+openrouter_api_key = \"YOUR_OPENROUTER_API_KEY\"]" > .streamlit/secrets.toml
+
+# Lancer le script
+chmod +x start-rag.sh
+./start-rag.sh
+```
+
+Le script configure automatiquement :
+
+- Le service Ollama avec DeepSeek-R1
+- L'application Streamlit
+- Le réseau Docker pour la communication entre services
+
+**Accès local** : http://localhost:8502
+
+---
+
+### Option 2 : Installation manuelle
+
+#### 1. Installer Python 3.12
+
+```bash
+# Avec pyenv (recommandé)
 curl https://pyenv.run | bash
-
-# Ajouter pyenv à votre shell
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-
-# Installer Python
 pyenv install 3.12.10
 pyenv local 3.12.10
 ```
 
-#### Sous Windows :
-
-Téléchargez Python 3.12.10 depuis : https://www.python.org/downloads/release/python-31210/
-
----
-
-### 2. Créer un environnement virtuel
+#### 2. Environnement virtuel
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Sous Windows : .venv\Scripts\activate
+source .venv/bin/activate   # Windows : .venv\Scripts\activate
 ```
 
----
-
-### 3. Installer les dépendances
+#### 3. Dépendances
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
----
+#### 4. Clés API Streamlit
 
-### 4. Lancer l’application
+```bash
+mkdir -p .streamlit
+echo "[server]
+enableStaticServing = true" > .streamlit/config.toml
+
+echo "[hf_api_key = \"YOUR_HF_API_KEY\"
+openrouter_api_key = \"YOUR_OPENROUTER_API_KEY\"]" > .streamlit/secrets.toml
+```
+
+#### 5. Lancement de l'application
 
 ```bash
 streamlit run app.py
 ```
 
-L’interface s’ouvrira automatiquement dans votre navigateur.
+---
+
+## Architecture du pipeline
+
+### 1. Traitement des documents
+
+- **Sources** : `./data/`, fichiers uploadés ou corpus prédéfini
+- **Parsing XML-TEI** : extraction du titre, date, auteurs et contenu
+- **Fragmentation** : `RecursiveCharacterTextSplitter` (2500 caractères, chevauchement de 800)
+
+### 2. Génération des embeddings
+
+#### Mode rapide
+
+Utiliser le script `generate_embeddings_pre_computed.py` pour créer des embeddings avec [intfloat/multilingual-e5-large-instruct](https://huggingface.co/intfloat/multilingual-e5-large-instruct), stockés dans `/embeddings/`.
+
+1. Cocher **Utiliser les embeddings pré-calculés**
+2. Cliquer sur **Charger les embeddings pré-calculés**
+
+#### Mode personnalisé
+
+Utilise [sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2).
+
+**Deux modes :**
+
+1. **Traitement du corpus complet** dans `/data/`
+   - Cliquer sur **Traiter le corpus par défaut**
+
+2. **Traitement de fichiers uploadés uniquement**
+   - Cocher **Utiliser uniquement les fichiers téléchargés**
+   - Sélectionner les fichiers via **Browse files**
+   - Cliquer sur **Traiter les documents**
+
+### 3. Recherche vectorielle
+
+**Stratégies disponibles :**
+- **Cosine Similarity** : précision maximale
+- **MMR** : équilibre pertinence/diversité
+
+### 4. Modèles de langage
+
+#### Locaux (Ollama)
+
+| Modèle | Taille | Performance | Cas d'usage |
+|--------|--------|-------------|-------------|
+| **DeepSeek-R1** | 1.5B–7B | ⭐⭐⭐⭐⭐ | Raisonnement avancé, analyse fine |
+| Llama 3.2 | 3B–70B | ⭐⭐⭐⭐ | Usage général, conversations |
+| Mistral | 7B | ⭐⭐⭐ | Rapide, efficace |
+
+#### Cloud (API HuggingFace / OpenRouter)
+
+| Service | Modèle | Avantages |
+|---------|--------|-----------|
+| **OpenRouter** | Llama 4 Maverick | Dernière génération, gratuit |
+| | Gemma-3n-e4b | Contexte étendu (32K), multilingue |
+| | Qwen3-32B | Logique avancée, 131K tokens |
+| **HuggingFace** | Zephyr-7B | Bonne précision factuelle |
+| | Mistral-7B | Spécialisé science et extraction d'infos |
 
 ---
 
-## 🧬 Vue d'ensemble du Pipeline
+## Structure du projet
 
-### 1. Traitement des Documents
-
-- Chargement des fichiers `.xml` depuis `./`, `data/`, ou `data/uploaded/`
-- Parsing XML-TEI : extraction du **titre**, **date**, **année**, **noms propres**, **contenu**
-- Fragmentation : `RecursiveCharacterTextSplitter` (2500 caractères, chevauchement 800)
-
-### 2. Embeddings
-
-- **En temps réel** : via `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`
-- **Ou pré-calculés** : chargés depuis `embeddings/` avec `document_metadata.pkl`
-
-### 3. Recherche Vectorielle
-
-- Index FAISS local
-- Retrieve-and-Rerank avec **MMR** :
-```python
-retriever = vectordb.as_retriever(
-    search_type="mmr",
-    search_kwargs={'k': 3, 'fetch_k': 20}
-)
+```
+langchain_rag_demo/
+├── .streamlit/
+│   ├── config.toml              # Config serveur Streamlit
+│   └── secrets.toml             # Clés API
+├── data/                         # Documents XML-TEI
+├── embeddings/                   # Index FAISS + métadonnées
+├── static/                       # Fichiers statiques (logo, etc.)
+├── tmp/                          # Fichiers temporaires
+├── vector_store/                 # Stockage alternatif FAISS
+├── app.py                        # Application principale
+├── ollama_utils.py               # Utilitaires Ollama
+├── generate_embeddings_pre_computed.py
+├── requirements.txt              # Dépendances Python
+├── Dockerfile
+├── docker-compose.yml
+├── start-rag.sh                  # Script de démarrage
+└── README.md
 ```
 
-### 4. Génération de Réponse
+---
 
-- Modèles disponibles :
+## Configuration XML-TEI
 
-| Source        | Modèle                                      | Option |
-|---------------|---------------------------------------------|--------|
-| HuggingFace   | `HuggingFaceH4/zephyr-7b-beta`              | Zephyr |
-|               | `mistralai/Mistral-7B-Instruct-v0.3`        | Mistral|
-| OpenRouter    | `meta-llama/llama-4-maverick:free`          | Llama  |
-|               | `google/gemma-3n-e4b-it:free`               | Gemma |
-|               | `qwen/qwen3-32b:free`                        | Qwen |
+### Balises requises
 
-
-- **Prompt système** intégré (non modifiable) :
-```text
-Tu es un agent RAG chargé de générer des réponses en t'appuyant exclusivement sur les informations fournies dans les documents de référence.
-IMPORTANT: Pour chaque information ou affirmation dans ta réponse, tu DOIS indiquer explicitement le numéro de la source (Source 1, Source 2, etc.).
+```xml
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <titleStmt>
+      <title>Titre du document</title>
+    </titleStmt>
+    <sourceDesc>
+      <p><date when="1995">1995</date></p>
+    </sourceDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <p>Contenu principal…</p>
+    </body>
+  </text>
+</TEI>
 ```
 
----
+### Métadonnées extraites
 
-## 🖥️ Interface Utilisateur
-
-1. Ajouter vos **clés API** dans la barre latérale
-2. Sélectionner un **modèle de LLM**
-3. Télécharger des documents XML-TEI (ou utiliser le corpus par défaut)
-4. Choisir entre :
-   - Génération d’embeddings en temps réel
-   - Utilisation d’embeddings pré-calculés
-5. Poser une question dans le champ de requête
-6. Visualiser les sources utilisées dans la réponse
+- **Titre** : `<tei:title>`
+- **Date** : `<tei:date>` (année extraite automatiquement)
+- **Contenu** : `<tei:p>`
 
 ---
 
-## 🗂️ Structure du Projet
+## Prompt Engineering
 
-Fonctions principales :
+### Framework COSTAR intégré
 
-- `parse_xmltei_document()` → parsing des fichiers XML
-- `load_documents()` → chargement local ou upload
-- `split_documents()` → découpage en fragments
-- `embeddings_on_local_vectordb()` → embeddings + index FAISS
-- `load_precomputed_embeddings()` → chargement `embeddings/`
-- `query_llm()` → envoi à un LLM + gestion des modèles
-- `process_documents()` → traitement complet
-- `input_fields()` → configuration Streamlit
-- `boot()` → fonction principale Streamlit
+Optimisation structurée des requêtes et des réponses :
 
----
-
-## 📄 Format TEI supporté
-
-Les balises suivantes sont nécessaires :
-
-- `<tei:titleStmt>/<tei:title>` → Titre
-- `<tei:sourceDesc>/<tei:p>/<tei:date>` → Date
-- `<tei:p>` → Contenu principal
-- `<tei:persName>` → Noms propres
-- `extract_year()` → Extrait l’année (format AAAA)
+- **C**ontexte : Documents scientifiques XML-TEI
+- **O**bjectif : Réponses factuelles basées sur les sources
+- **S**tyle : Markdown structuré avec citations
+- **T**on : Académique, formel et précis
+- **A**udience : Chercheurs, historien·nes
+- **R**éponse : Citations obligatoires, niveau de confiance
 
 ---
 
-## 📜 Licence
+## Contribution
 
-Ce projet est distribué sous licence MIT.
+1. Fork du projet
+2. Création d'une branche :
+   ```bash
+   git checkout -b feature/nouvelle-fonctionnalite
+   ```
+3. Commit :
+   ```bash
+   git commit -m 'Ajout nouvelle fonctionnalité'
+   ```
+4. Push :
+   ```bash
+   git push origin feature/nouvelle-fonctionnalite
+   ```
+5. Ouvrir une Pull Request
 
 ---
 
-## 🤝 Auteur
+## Licence
 
-Développé par [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/), ingénieur TAL, équipe ObTIC, Sorbonne Université.
+Distribué sous licence **MIT**.
 
-➡️ Plus d'infos : https://obtic.sorbonne-universite.fr/
+---
+
+## Auteur & Équipe
+
+**Développé par** [Mikhail Biriuchinskii](https://www.linkedin.com/in/mikhail-biriuchinskii/)  
+Ingénieur TAL • Équipe **ObTIC**, Sorbonne Université
+
+🔗 https://obtic.sorbonne-universite.fr/
+
+⭐ **Si ce projet vous est utile, pensez à lui attribuer une étoile !**

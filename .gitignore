@@ -25,3 +25,4 @@ DS_Store
 .streamlit/secrets.toml
 data/uploaded/
 vector_store/
+__pycache__/

@@ -1,26 +1,48 @@
+############################
+# Import necessary libraries
+############################
+
 import os
 import re
-import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 import pickle
 
 import streamlit as st
-from langchain.chains import RetrievalQA
+
+st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
+
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.llms import HuggingFaceHub
-from langchain_community.document_loaders import DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
 from langchain_core.documents import Document
-from langchain_openai import ChatOpenAI
+
+# Import NLTK for query cleaning
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from typing import List
+
+from ollama_utils import display_deepseek_response
+
+# Download required NLTK data if not present
+def ensure_nltk_data():
+    """Ensure NLTK data is downloaded."""
+    try:
+        nltk.data.find('tokenizers/punkt')
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        with st.spinner("Téléchargement des données NLTK..."):
+            nltk.download('punkt', quiet=True)
+            nltk.download('stopwords', quiet=True)
+
+# Call this at startup
+ensure_nltk_data()
 
 # Defining paths 
 os.environ["TRANSFORMERS_OFFLINE"] = "0"
 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('vector_store')
@@ -34,11 +56,235 @@ NAMESPACES = {
     'tei': 'http://www.tei-c.org/ns/1.0'
 }
 
-st.set_page_config(page_title="RAG Démonstration", page_icon="🤖", layout="wide")
 st.title("Retrieval Augmented Generation")
 if os.path.exists("static/sfp_logo.png"):
     st.image("static/sfp_logo.png", width=100)
 st.markdown("#### Projet préparé par l'équipe ObTIC.")
+
+############################
+# Query Cleaning Class
+############################
+
+class QueryCleaner:
+    """Enhanced query cleaning for better document retrieval."""
+    
+    def __init__(self):
+        try:
+            self.french_stopwords = set(stopwords.words('french'))
+        except LookupError:
+            ensure_nltk_data()
+            self.french_stopwords = set(stopwords.words('french'))
+        
+        # Add common French question words and filler words
+        self.french_stopwords.update({
+            'qui', 'que', 'quoi', 'quand', 'où', 'comment', 'pourquoi', 
+            'combien', 'quel', 'quelle', 'quels', 'quelles',
+            'est', 'c\'est', 'ce', 'cest', 'cela', 'ça', 'ca',
+            'donc', 'alors', 'ainsi', 'aussi', 'encore',
+            'très', 'tout', 'tous', 'toute', 'toutes',
+            'peut', 'peuvent', 'pouvez', 'pouvoir',
+            'faire', 'fait', 'font', 'faites',
+            'être', 'suis', 'es', 'est', 'sommes', 'êtes', 'sont',
+            'avoir', 'ai', 'as', 'a', 'avons', 'avez', 'ont',
+            'dire', 'dis', 'dit', 'disons', 'dites', 'disent'
+        })
+
+        self.preserve_terms = set()
+
+        # Common scientific/technical terms to preserve
+        self.preserve_terms.update({
+            # Biologie cellulaire et moléculaire
+            'cellule', 'ADN', 'ARN', 'protéine', 'enzyme', 'gène', 'chromosome',
+            'mitose', 'méiose', 'mutation', 'expression génique',
+            'transcription', 'traduction', 'polymorphisme',
+            
+            # Parasitologie
+            'parasite', 'hôte', 'cycle de vie', 'vecteur',
+            'protozoaire', 'helminthes', 'nématode', 'cestode', 'trematode',
+            'larve', 'œuf', 'kyste', 'sporocyste', 'métacercaire',
+            'infection', 'pathogène', 'immunité', 'anticorps',
+            'diagnostic', 'épidémiologie', 'zoonose',
+            
+            # Ecologie et environnement
+            'population', 'biodiversité', 'écosystème', 'biotope',
+            'relation symbiotique', 'commensalisme', 'parasitisme',
+            'mutualisme', 'réservoir', 'contamination',
+            
+            # Microbiologie et pathologie
+            'bactérie', 'virus', 'champignon', 'pathogène',
+            'résistance', 'antibiotique', 'antiparasitaire',
+            'culture cellulaire', 'microscopie', 'immunohistochimie',
+            
+            # Statistiques et analyses biologiques
+            'échantillon', 'population', 'variance', 'moyenne',
+            'distribution', 'corrélation', 'régression',
+            'test statistique', 'significatif', 'p-value',
+            'intervalle de confiance', 'hypothèse nulle', 'modèle statistique',
+            
+            # Termes généraux techniques
+            'méthodologie', 'protocole', 'analyse', 'résultat',
+            'données', 'rapport', 'publication', 'référence',
+            'bibliographie', 'peer-review'
+        })
+
+    
+    def clean_query(self, query: str, debug: bool = False) -> str:
+        original_query = query.lower().strip()
+        
+        # Simple tokenization
+        tokens = original_query.split()
+        
+        # Remove punctuation and filter
+        clean_tokens = []
+        for token in tokens:
+            # Remove punctuation
+            token = re.sub(r'[^\w\s]', '', token)
+            
+            # Keep meaningful terms
+            if (len(token) > 2 and 
+                token not in self.french_stopwords and
+                token.isalpha()):
+                clean_tokens.append(token)
+        
+        cleaned = ' '.join(clean_tokens)
+
+        # If cleaning removed everything important, use original
+        if not cleaned.strip() or len(cleaned.split()) < 1:
+            cleaned_query = original_query
+        else:
+            cleaned_query = cleaned
+        
+        if debug:
+            st.write(f"**Requête originale:** {original_query}")
+            st.write(f"**Requête nettoyée:** {cleaned_query}")
+            st.write(f"**Termes extraits:** {clean_tokens}")
+
+        return cleaned_query
+    
+def format_query_for_e5_instruct(query: str) -> str:
+    """Format query for E5-large-instruct model."""
+    task = "Given scientific documents about parasitology in French, retrieve relevant passages that answer the query"
+    return f"Instruct: {task}\nQuery: {query}"
+
+
+class EnhancedRetriever:
+    def __init__(self, vectorstore):
+        """Initialize the enhanced retriever with a vectorstore."""
+        self.vectorstore = vectorstore
+        self.query_cleaner = QueryCleaner()
+    
+    def retrieve_documents(self, query: str, debug: bool = False, search_type: str = "similarity") -> List[Document]:
+        if debug:
+            st.write("### 🔍 Debug Retrieval Process")
+            st.write(f"**1. Original query:** {query}")
+            st.write(f"**Search type:** {search_type}")
+        
+        # Skip cleaning - use original query directly for E5-instruct
+        formatted_query = format_query_for_e5_instruct(query)
+        
+        if debug:
+            st.write(f"**2. E5-Instruct formatted query:**")
+            st.code(formatted_query)
+        
+        # Configure retriever based on search type
+        if search_type == "mmr":
+            retriever = self.vectorstore.as_retriever(
+                search_type="mmr",
+                search_kwargs={
+                    'k': 4,
+                    'fetch_k': 50,
+                    'lambda_mult': 0.7  # Balance relevance vs diversity
+                }
+            )
+            strategy_note = "MMR: Balancing relevance and diversity"
+        else:  # similarity
+            retriever = self.vectorstore.as_retriever(
+                search_type="similarity",
+                search_kwargs={
+                    'k': 4  # Direct top-k most similar
+                }
+            )
+            strategy_note = "Cosine similarity: Most relevant chunks"
+        
+        if debug:
+            st.write("**3. Retrieval parameters:**")
+            if search_type == "mmr":
+                st.json({
+                    "search_type": "mmr",
+                    "k": 4,
+                    "fetch_k": 50,
+                    "lambda_mult": 0.7,
+                    "note": strategy_note
+                })
+            else:
+                st.json({
+                    "search_type": "similarity",
+                    "k": 4,
+                    "note": strategy_note
+                })
+        
+        try:
+            relevant_docs = retriever.invoke(formatted_query)
+            
+            if debug:
+                st.write(f"**4. Retrieval results:**")
+                st.success(f"✅ {len(relevant_docs)} documents retrieved using {search_type}")
+                
+                if relevant_docs:
+                    for i, doc in enumerate(relevant_docs):
+                        title = doc.metadata.get('title', 'Sans titre')
+                        date = doc.metadata.get('date', 'Date inconnue')
+                        
+                        with st.expander(f"📄 **Doc {i+1}:** {title}", expanded=False):
+                            st.write(f"**Date:** {date}")                     
+
+            return relevant_docs
+            
+        except Exception as e:
+            if debug:
+                st.error(f"**Error:** {str(e)}")
+            return []
+
+    def compare_retrieval_methods(self, query: str, debug: bool = True) -> dict:
+        """Compare MMR vs Similarity retrieval for the same query."""
+        if debug:
+            st.write("### 🔬 Comparing Retrieval Methods")
+        
+        results = {}
+        
+        # Test both methods
+        for method in ["similarity", "mmr"]:
+            if debug:
+                st.write(f"#### {method.upper()} Results:")
+            
+            docs = self.retrieve_documents(query, debug=False, search_type=method)
+            results[method] = docs
+            
+            if debug:
+                st.write(f"**{len(docs)} documents found:**")
+                for i, doc in enumerate(docs):
+                    title = doc.metadata.get('title', 'Sans titre')[:50] + "..."
+                    st.write(f"- {title}")
+                st.write("---")
+        
+        return results
+
+
+
+############################
+# Ollama part 
+############################
+
+from ollama_utils import (
+    check_ollama_availability, 
+    get_ollama_models, 
+    query_ollama, 
+    get_model_info
+)
+
+############################
+# System prompt and default prompt
+############################
 
 # Fixed system prompt - not modifiable by users
 SYSTEM_PROMPT = """
@@ -207,7 +453,11 @@ def load_documents(use_uploaded_only=False):
     return documents, document_dates
 
 def split_documents(documents):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2500, chunk_overlap=800)
+    text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=2500,
+    chunk_overlap=800,  
+    separators=["\n\n", "\n", ". ", ".", " "]
+)
     texts = text_splitter.split_documents(documents)
     return texts
 
@@ -252,6 +502,8 @@ def load_precomputed_embeddings():
             model_name=embedding_model,
             model_kwargs={"device": "cpu"}
         )
+        st.success(f"Query embeddings will use: {embeddings.model_name}")
+
         
         try:
             st.info(f"Loading FAISS index with model: {embedding_model}")
@@ -260,14 +512,13 @@ def load_precomputed_embeddings():
                 embeddings,
                 allow_dangerous_deserialization=True
             )
+
             
-            retriever = vectordb.as_retriever(
-                search_type="mmr", 
-                search_kwargs={'k': 3, 'fetch_k': 20}
-            )
-            
-            st.success("FAISS index loaded successfully!")
-            return retriever
+            # Return EnhancedRetriever instead of basic retriever
+            enhanced_retriever = EnhancedRetriever(vectordb)
+
+            st.success("FAISS index loaded successfully with enhanced retrieval!")
+            return enhanced_retriever
             
         except Exception as e:
             st.error(f"Error loading FAISS index: {str(e)}")
@@ -303,12 +554,10 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
                 "chunk_count": len(texts)
             }, f)
         
-        retriever = vectordb.as_retriever(
-            search_type="mmr", 
-            search_kwargs={'k': 3, 'fetch_k': 20}
-        )
+        # Return EnhancedRetriever instead of basic retriever
+        enhanced_retriever = EnhancedRetriever(vectordb)
         
-        return retriever
+        return enhanced_retriever
         
     except Exception as e:
         st.error(f"Error creating embeddings: {str(e)}")
@@ -333,12 +582,10 @@ def embeddings_on_local_vectordb(texts, hf_api_key):
                     "chunk_count": len(texts)
                 }, f)
             
-            retriever = vectordb.as_retriever(
-                search_type="mmr", 
-                search_kwargs={'k': 3, 'fetch_k': 20}
-            )
+            # Return EnhancedRetriever instead of basic retriever
+            enhanced_retriever = EnhancedRetriever(vectordb)
             
-            return retriever
+            return enhanced_retriever
             
         except Exception as batch_e:
             st.error(f"Error with batch processing: {str(batch_e)}")
@@ -355,8 +602,16 @@ def query_llm(retriever, query, hf_api_key, openai_api_key=None, openrouter_api_
     progress_bar = st.progress(0)
 
     try:
-        # Use invoke instead of get_relevant_documents
-        relevant_docs = retriever.invoke(query)
+        # Check if we have debug mode enabled
+        debug_mode = st.session_state.get('debug_retrieval', False)
+        
+        # Use enhanced retrieval
+        if hasattr(retriever, 'retrieve_documents'):
+            # Enhanced retriever
+            relevant_docs = retriever.retrieve_documents(query, debug=debug_mode)
+        else:
+            # Fallback to standard retrieval
+            relevant_docs = retriever.invoke(query)
 
         # --- DEBUG START ---
         print(f"\n--- DEBUG: Retrieved {len(relevant_docs)} relevant documents ---")
@@ -429,7 +684,31 @@ CONTEXTE DOCUMENTAIRE:
         answer = None
         
         try:
-            if model_choice == "openrouter" or model_choice == "llama":
+            if model_choice == "ollama":
+                # Check if Ollama is available
+                if not check_ollama_availability():
+                    st.error("Ollama n'est pas disponible. Veuillez vérifier qu'Ollama est démarré.")
+                    return None, None
+                
+                # Get selected Ollama model
+                ollama_model = st.session_state.get('ollama_model')
+                if not ollama_model:
+                    st.error("Aucun modèle Ollama sélectionné.")
+                    return None, None
+                
+                progress_container.info(f"Utilisation d'Ollama avec {ollama_model}...")
+                
+                # Combine system and user message for Ollama (it doesn't support system messages)
+                complete_prompt = f"{system_prompt}\n\n{user_message}"
+                
+                # Query Ollama
+                answer = query_ollama(ollama_model, complete_prompt, temperature=0.7)
+                
+                if answer is None:
+                    st.error("Erreur lors de la communication avec Ollama")
+                    return None, None
+                
+            elif model_choice == "openrouter" or model_choice == "llama":
                 if not openrouter_api_key:
                     st.error("OpenRouter API key is required to use OpenRouter models")
                     return None, None
@@ -716,6 +995,10 @@ def input_fields():
         """, unsafe_allow_html=True)
         
         st.title("Configuration")
+
+        # Check Ollama availability
+        ollama_available = check_ollama_availability()
+        ollama_models = get_ollama_models() if ollama_available else []
         
         # Hugging Face API Key
         if "hf_api_key" in st.secrets:
@@ -729,17 +1012,40 @@ def input_fields():
         else:
             st.session_state.openrouter_api_key = st.text_input("OpenRouter API Key (Llama 4)", type="password", key="openrouter_key")
             
-        # Add option to use pre-computed embeddings
+        # Initialize uploaded_files in session state if not present
+        if "uploaded_files" not in st.session_state:
+            st.session_state.uploaded_files = []
+
+        # Vérifier si on a des fichiers uploadés
+        has_uploaded_files = bool(st.session_state.uploaded_files)
+
+        # Checkbox pour utiliser uniquement les fichiers téléchargés
+        st.session_state.use_uploaded_only = st.checkbox(
+            "Utiliser uniquement fichiers téléchargés",
+            value=False,  # Toujours False par défaut
+            disabled=not has_uploaded_files,
+            help="Traite seulement vos fichiers XML téléchargés" if has_uploaded_files else "Téléchargez d'abord des fichiers XML",
+            key="use_uploaded_only_cb"
+        )
+
+        # Checkbox pour les embeddings pré-calculés - désactivé si on utilise seulement les fichiers uploadés
         embeddings_path = EMBEDDINGS_DIR / "faiss_index"
         embeddings_available = embeddings_path.exists()
-        
+
+        # Logique conditionnelle : si on utilise seulement les fichiers uploadés, on ne peut pas utiliser les embeddings pré-calculés
+        can_use_precomputed = embeddings_available and not st.session_state.use_uploaded_only
+
         st.session_state.use_precomputed = st.checkbox(
             "Utiliser embeddings pré-calculés",
-            value=embeddings_available,
-            disabled=not embeddings_available,
+            value=can_use_precomputed,
+            disabled=not can_use_precomputed,
+            help="Charge rapidement le corpus par défaut" if can_use_precomputed else 
+                 "Non disponible car vous utilisez uniquement vos fichiers" if st.session_state.use_uploaded_only else
+                 "Embeddings pré-calculés non trouvés",
             key="use_precomputed_cb"
         )
-        
+
+        # Afficher les métadonnées si embeddings pré-calculés disponibles
         if embeddings_available and st.session_state.use_precomputed:
             metadata_path = EMBEDDINGS_DIR / "document_metadata.pkl"
             if metadata_path.exists():
@@ -749,27 +1055,134 @@ def input_fields():
                         st.info(f"Modèle: {metadata.get('model_name', 'Unknown')}")
                 except:
                     pass
-            
-            st.markdown("---")
-            
+
+        # Message d'information pour clarifier la logique
+        if st.session_state.use_uploaded_only:
+            st.info("🔄 Mode fichiers uploadés : Les documents seront retraités (plus lent)")
+        elif st.session_state.use_precomputed:
+            st.info("⚡ Mode embeddings pré-calculés : Chargement rapide du corpus par défaut")
+        else:
+            st.info("🔄 Mode retraitement : Le corpus par défaut sera retraité (plus lent)")
+
+        # Afficher un warning si pas de fichiers uploadés mais option cochée
+        if st.session_state.use_uploaded_only and not has_uploaded_files:
+            st.warning("⚠️ Aucun fichier téléchargé trouvé")
+
+        st.markdown("---")
+
+        # Model selection with Ollama integration
+        model_options = ["llama", "zephyr", "mistral", "gemma", "qwen"]
+        
+        if ollama_available and ollama_models:
+            # Add Ollama options
+            model_options.append("ollama")
+
         # Model selection
         st.session_state.model_choice = st.radio(
             "Modèle LLM",
-            ["llama", "zephyr", "mistral", "gemma","qwen"], 
+            model_options,
             format_func=lambda x: {
-                "llama": "Llama",
-                "zephyr": "Zephyr",
-                "mistral": "Mistral",
-                "gemma": "Gemma",
-                "qwen":" Qwen"
+                "llama": "Llama (OpenRouter)",
+                "zephyr": "Zephyr (HuggingFace)",
+                "mistral": "Mistral (HuggingFace)",
+                "gemma": "Gemma (OpenRouter)",
+                "qwen": "Qwen (OpenRouter)",
+                "ollama": f"🏠 Local (Ollama)" + (f" - {len(ollama_models)} models" if ollama_models else "")
             }[x],
             horizontal=False,
             key="model_choice_radio"
         )
 
+       # Ollama model selection
+        if st.session_state.model_choice == "ollama" and ollama_available:
+            if ollama_models:
+                # Find DeepSeek models and prioritize them
+                deepseek_models = [m for m in ollama_models if 'deepseek' in m.lower()]
+                other_models = [m for m in ollama_models if 'deepseek' not in m.lower()]
+                sorted_models = deepseek_models + other_models
+                
+                default_index = 0
+                if 'deepseek-r1' in sorted_models:
+                    default_index = sorted_models.index('deepseek-r1')
+                
+                st.session_state.ollama_model = st.selectbox(
+                    "Modèle Ollama",
+                    sorted_models,
+                    index=default_index,
+                    key="ollama_model_select",
+                    help="Modèles DeepSeek recommandés pour de meilleures performances"
+                )
+                
+                # Show model info
+                if st.session_state.ollama_model:
+                    model_info = get_model_info(st.session_state.ollama_model)
+                    if model_info:
+                        size = model_info.get('details', {}).get('parameter_size', 'Unknown')
+                        st.caption(f"📊 Taille: {size}")
+            else:
+                st.warning("Aucun modèle Ollama trouvé. Téléchargez un modèle d'abord.")
+
+        # Add status indicator for loaded embeddings
+        if st.session_state.get('embeddings_loaded', False):
+            st.success("✅ Embeddings chargés")
+            st.caption("Vous pouvez changer de modèle sans recharger")
+
+        # Status indicators
+        if ollama_available and ollama_models:
+            st.success(f"🏠 Ollama: {len(ollama_models)} modèles disponibles")
+        elif not ollama_available:
+            st.info("💡 Ollama non disponible - utilisez les modèles cloud")
+
+        # Retrieval method
+        st.session_state.search_type = st.radio(
+            "Méthode de recherche",
+            ["similarity", "mmr"],
+            format_func=lambda x: {
+                "similarity": "🎯 Cosine (précision)",
+                "mmr": "🔄 MMR (diversité)"
+            }[x],
+            key="search_type_radio"
+        )
+
+        # Debug mode toggle
+        st.session_state.debug_retrieval = st.checkbox(
+            "🔍 Mode debug récupération",
+            value=False,
+            help="Affiche les détails du processus de nettoyage des requêtes et de récupération des documents",
+            key="debug_retrieval_cb"
+        )
+
         # Model information
         with st.expander("Infos modèle", expanded=False):
-            if st.session_state.model_choice == "zephyr":
+            if st.session_state.model_choice == "ollama" and ollama_available:
+                selected_model = st.session_state.get('ollama_model')
+                if selected_model:
+                    if 'deepseek-r1' in selected_model.lower():
+                        st.markdown("""
+                        **DeepSeek-R1**
+                        
+                        * Modèle de raisonnement avancé
+                        * Performance comparable à O3 et Gemini 2.5 Pro
+                        * Excellent pour l'analyse de documents
+                        * Contexte: 128K tokens
+                        """)
+                    elif 'deepseek' in selected_model.lower():
+                        st.markdown("""
+                        **DeepSeek Model**
+                        
+                        * Modèle open-source performant
+                        * Bon pour le raisonnement et l'analyse
+                        * Optimisé pour les tâches complexes
+                        """)
+                    else:
+                        st.markdown(f"""
+                        **{selected_model}**
+                        
+                        * Modèle local via Ollama
+                        * Aucune clé API requise
+                        * Traitement privé et sécurisé
+                        """)
+            elif st.session_state.model_choice == "zephyr":
                 st.markdown("""
                 **Zephyr-7b-beta**
                 
@@ -804,9 +1217,10 @@ def input_fields():
                 **Qwen3-32B**
                 
                 * Excellente logique et raisonnement  
-                * Contexte étendu jusqu’à 131K tokens  
+                * Contexte étendu jusqu'à 131K tokens  
                 * Très bon en RAG multilingue
                 """)
+
         
         # Prompt configuration
         with st.expander("Configuration du prompt (COSTAR)", expanded=False):
@@ -837,10 +1251,6 @@ def input_fields():
             if st.button("Réinitialiser le prompt", key="reset_prompt_btn"):
                 st.session_state.query_prompt = DEFAULT_QUERY_PROMPT
                 st.rerun()
-            
-        # Initialize uploaded_files in session state if not present
-        if "uploaded_files" not in st.session_state:
-            st.session_state.uploaded_files = []
 
         st.markdown("### Fichiers XML")
         
@@ -853,13 +1263,15 @@ def input_fields():
         # Process uploaded files and store them in session state
         if uploaded_files:
             new_files = []
-            os.makedirs("data/uploaded", exist_ok=True)
+            # Utiliser le dossier TMP_DIR au lieu de data/uploaded
+            upload_dir = TMP_DIR / "uploaded"
+            upload_dir.mkdir(parents=True, exist_ok=True)
             
             for uploaded_file in uploaded_files:
-                file_path = os.path.join("data/uploaded", uploaded_file.name)
+                file_path = upload_dir / uploaded_file.name
                 with open(file_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
-                new_files.append(file_path)
+                new_files.append(str(file_path))
             
             for file_path in new_files:
                 if file_path not in st.session_state.uploaded_files:
@@ -867,16 +1279,6 @@ def input_fields():
             
             if len(new_files) > 0:
                 st.success(f"{len(new_files)} fichier(s) sauvegardé(s)")
-        
-        # Display checkbox for using only uploaded files
-        st.session_state.use_uploaded_only = st.checkbox(
-            "Utiliser uniquement fichiers téléchargés",
-            value=bool(st.session_state.uploaded_files),
-            key="use_uploaded_only_cb"
-        )
-        
-        if st.session_state.use_uploaded_only and not st.session_state.uploaded_files:
-            st.warning("Aucun fichier téléchargé")
         
         # Display the list of uploaded files
         if st.session_state.uploaded_files:
@@ -909,25 +1311,55 @@ def boot():
     if "retriever" not in st.session_state:
         st.session_state.retriever = None
     
+    # Initialize embeddings loading state
+    if "embeddings_loaded" not in st.session_state:
+        st.session_state.embeddings_loaded = False
+    
     # Add buttons for different processing methods
     col1, col2 = st.columns(2)
 
-    # Button for pre-computed embeddings
-    if st.session_state.use_precomputed:
+    # Déterminer quel bouton afficher selon la configuration
+    if st.session_state.use_precomputed and not st.session_state.use_uploaded_only:
+        # Mode embeddings pré-calculés
         with col1:
-            if st.button("Charger embeddings pré-calculés", use_container_width=True):
+            if st.button("⚡ Charger embeddings pré-calculés", use_container_width=True):
                 with st.spinner("Chargement des embeddings pré-calculés..."):
                     st.session_state.retriever = load_precomputed_embeddings()
+                    if st.session_state.retriever:
+                        st.session_state.embeddings_loaded = True
+                        st.success("✅ Corpus pré-calculé chargé! Changez de modèle librement.")
     
-    # Button for processing documents - Always show when there are uploaded files
-    if not st.session_state.use_precomputed or st.session_state.uploaded_files:
-        with col1:  # Keep it in the left column
-            if st.button("Traiter les documents", use_container_width=True):
+    elif st.session_state.use_uploaded_only:
+        # Mode fichiers uploadés uniquement
+        if st.session_state.uploaded_files:
+            with col1:
+                if st.button("🔄 Traiter fichiers téléchargés", use_container_width=True):
+                    st.session_state.retriever = process_documents(
+                        st.session_state.hf_api_key,  
+                        st.session_state.use_uploaded_only
+                    )
+                    if st.session_state.retriever:
+                        st.session_state.embeddings_loaded = True
+                        st.success("✅ Vos fichiers traités! Changez de modèle librement.")
+        else:
+            with col1:
+                st.warning("Téléchargez d'abord des fichiers XML")
+    
+    else:
+        # Mode retraitement du corpus par défaut
+        with col1:
+            if st.button("🔄 Traiter corpus par défaut", use_container_width=True):
                 st.session_state.retriever = process_documents(
                     st.session_state.hf_api_key,  
                     st.session_state.use_uploaded_only
                 )
+                if st.session_state.retriever:
+                    st.session_state.embeddings_loaded = True
+                    st.success("✅ Corpus retraité! Changez de modèle librement.")
 
+    # Show current status
+    if st.session_state.embeddings_loaded and st.session_state.retriever:
+        st.info(f"🔄 Embeddings chargés - Modèle actuel: {st.session_state.model_choice}")
     
     # Display chat history
     for message in st.session_state.messages:
@@ -944,12 +1376,6 @@ def boot():
         
         with st.spinner("Génération de la réponse..."):
             try:
-                # Check model requirements - GPT check commented out
-                # if st.session_state.model_choice == "gpt" and not st.session_state.openai_api_key:
-                #     st.error("La clé API OpenAI est requise pour utiliser le modèle GPT-3.5.")
-                #     return
-                
-                # For backward compatibility, still pass openai_api_key even though it's not used
                 answer, source_docs = query_llm(
                     st.session_state.retriever,  
                     query,  
@@ -959,9 +1385,15 @@ def boot():
                     st.session_state.model_choice
                 )
                 
-                # Display the answer with markdown support
+                # Display the answer with DeepSeek reasoning handling
                 response_container = st.chat_message("ai")
-                response_container.markdown(answer)
+                
+                # Check if it's a DeepSeek model and handle reasoning
+                selected_model = st.session_state.get('ollama_model', '')
+                if st.session_state.model_choice == "ollama" and 'deepseek-r1' in selected_model.lower():
+                    display_deepseek_response(answer, selected_model, response_container)
+                else:
+                    response_container.markdown(answer)
                 
                 if source_docs:
                     response_container.markdown("---")
