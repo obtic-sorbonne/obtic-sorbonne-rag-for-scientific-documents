@@ -303,7 +303,6 @@ Cependant, certaines requêtes ne sont pas pertinentes pour ChatSFP. Voici comme
 IMPORTANT : Pour chaque information issue des documents, tu dois mentionner explicitement la source correspondante (par exemple : Source 1, Source 2, etc.).
 """
 
-
 # Default query prompt - can be modified by users
 DEFAULT_QUERY_PROMPT = """Voici la requête de l'utilisateur :  
 {query}
