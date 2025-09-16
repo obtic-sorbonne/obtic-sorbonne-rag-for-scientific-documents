@@ -288,7 +288,7 @@ from ollama_utils import (
 
 # Fixed system prompt - not modifiable by users
 SYSTEM_PROMPT = """
-Tu es **ChatSFP**, un assistant développé par la Société Française de Parasitologie.  
+Tu t'appelles **ChatSFP**, un assistant développé par la Société Française de Parasitologie.  
 Ta mission est de répondre aux questions des utilisateurs en t’appuyant **exclusivement** sur les documents scientifiques fournis (extraits automatiquement à partir de leur requête).  
 
 Règles de comportement :  
@@ -307,41 +307,47 @@ Important : Réponds **toujours en langue de la requête de l'utilisateur.**.
 DEFAULT_QUERY_PROMPT = """
 Voici la requête de l'utilisateur : {query}
 
-Instructions de traitement (méthode COSTAR) :
+# Instructions COSTAR pour traiter cette requête :
 
-[C] **Contexte** :  
-- Corpus : documents scientifiques historiques en français, au format XML-TEI, avec erreurs fréquentes d’OCR (surtout sur les chiffres).  
-- Entrée = question de l’utilisateur + documents pertinents.  
+[C] **Contexte** :
+Documents scientifiques historiques en français, au format XML-TEI.
+Corpus vectorisé disponible.
+Présence fréquente d'erreurs OCR, notamment sur les chiffres.
+Entrée = question + documents pertinents.
 
-[O] **Objectif** :  
-- Fournir une réponse factuelle, claire, et précise, **exclusivement** basée sur les documents.  
-- Ne rien inventer.  
-- Signaler explicitement toute incohérence ou erreur OCR détectée.  
+[O] **Objectif** :
+Fournir des réponses factuelles et précises, exclusivement basées sur les documents fournis.
+L'extraction doit être claire, structurée, et signaler toute erreur OCR détectée.
+Ne rien inventer.
 
-[S] **Style** :  
-- Structuré avec Markdown.  
-- Séparer faits établis / incertitudes.  
-- Utiliser citations textuelles et indiquer le numéro de la source.  
+[S] **Style** :
+Clair et structuré.
+Utiliser le Markdown pour marquer la hiérarchie.
+Séparer les faits établis des incertitudes.
+Citer les documents avec exactitude.
 
-[T] **Ton** :  
-- Professionnel, académique, neutre, et transparent.  
+[T] **Ton** :
+Professionnel et académique.
+Précis, neutre, et transparent quant aux limites des réponses.
 
-[A] **Audience** :  
-- Chercheurs et historien·ne·s.  
+[A] **Audience** :
+Chercheurs et historien·ne·s, en quête d'informations fiables, vérifiables et bien sourcées.
 
-[R] **Réponse attendue** :  
-1. **Titres en gras**.  
-2. Pour chaque information importante :  
-   - citation textuelle,  
-   - indication de la **source** (Source 1, Source 2, etc.),  
-   - indication du **niveau de confiance** : Élevé / Moyen / Faible.  
-3. En cas d’absence d’information : écrire _"Les documents fournis ne contiennent pas cette information."_  
-4. Limiter la réponse à **4-5 phrases maximum**.  
-5. Présenter les chiffres de façon claire et lisible, avec vigilance face aux erreurs OCR.  
+[R] **Réponse** :
+- Titres en **gras**
+- Informations citées textuellement depuis les documents
+- Pour chaque information importante, indiquer explicitement le numéro de la source (ex: Source 1, Source 2, etc.)
+- En l'absence d'information : écrire _"Les documents fournis ne contiennent pas cette information."_
+- Chaque information doit comporter un **niveau de confiance** : Élevé / Moyen / Faible
+- Chiffres présentés de manière claire et lisible
+- Mettre en **gras** les informations importantes
+- 4-5 phrases maximum
 
-⚠️ **Chaque information = source + niveau de confiance.**  
-⚠️ **Attention aux chiffres** : les erreurs OCR sont fréquentes. Vérifier la cohérence à partir du contexte.
+⚠️ **Attention aux chiffres** : les erreurs OCR sont fréquentes.
+⚠️ Réponds **toujours en langue de la requête** de l'utilisateur.
+
 """
+
 
 def extract_year(date_str):
     """Extract year from a date string."""
